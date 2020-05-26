@@ -1,26 +1,13 @@
 /*
-「乐心健康」修改运动步数
-By: iepngs
-*/
 
-/**
-{
-"timestamp": "1590202486957",
-"list": [{
-"id": "1234ac1f5b67890edca164bea36c9e9db3",
-"calories": "43.7125",
-"deviceId": "M_12CE3FCEFBCCC45C6C78909DFA8E7F6543B21EC0",
-"type": "0",
-"dataSource": "3",
-"userId": "43211234",
-"priority": "0",
-"step": "1345",
-"created": "2020-05-23 10:54:46",
-"distance": "1007",
-"measurementTime": "2020-05-23 10:00:00"
-}]
-}
-**/
+Surge
+http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 debug=1,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LexinHelth/lexin.js
+
+QX
+^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-response-body iepngs/Script/LexinHelth/lexin.js
+MitM = dayone.me
+
+*/
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
@@ -82,42 +69,30 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-let body = $request.body;
-let steps = 18007;
+let body    = $request.body,
+    steps   = 18007;
 
-$hammer.log("乐心健康上传数据("+ typeof(body) + "):", body);
-
-function resetUploadSteps(data) {
-    if (typeof data != "string") {
-        return data;
-    }
-
+function hackingRequestBody(data) {
     try {
         data = JSON.parse(data);
     } catch (e) {
         return data;
     }
 
-    let lastOneIndex = data.list.length - 1;
-    if (lastOneIndex < 0) {
-        $hammer.log("LexinHelth upload data error:", data);
-        return JSON.stringify(data);
-    }
+    const lastOneIndex = data.list.length - 1;
 
-    if (data.list[lastOneIndex].step >= steps) {
-        return JSON.stringify(data);
+    if (~~data.list[lastOneIndex].step < steps) {
+        steps += Math.ceil(Math.random() * 4000);
+        data.list[lastOneIndex].step        = steps.toString();
+        data.list[lastOneIndex].calories    = (steps * 0.0325).toString();
+        data.list[lastOneIndex].distance    = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
     }
-
-    steps += Math.ceil(Math.random() * 4000);
-    data.list[lastOneIndex].step        = steps;
-    data.list[lastOneIndex].calories    = steps * 0.0325;
-    data.list[lastOneIndex].distance    = Math.ceil((steps * 0.7484).toFixed(1));
 
     return JSON.stringify(data);
 }
 
-// body = resetUploadSteps(body);
+$hammer.log("健康上传数据("+ typeof(body) + "):", body);
 
+body = hackingRequestBody(body);
 $hammer.alert(`🐢 当前上传步数: ${steps}`);
-
 $hammer.done({ body });
