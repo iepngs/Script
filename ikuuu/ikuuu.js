@@ -57,7 +57,7 @@ const $hammer = (() => {
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
-        log("title:" + title + "\nsubtitle:" + subtitle + "\nbody:" + body);
+        log("\ntitle:" + title + "\nsubtitle:" + subtitle + "\nbody:" + body);
     };
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
