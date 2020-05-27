@@ -1,6 +1,6 @@
 /*
 
-//desc: 健康步数上传
+//desc: 步数上传
 //author: iepngs
 
 [Script]
@@ -98,4 +98,4 @@ $hammer.log("健康上传数据("+ typeof(body) + "):", body);
 
 body = hackingRequestBody(body);
 $hammer.alert(`🐢 当前上传步数: ${steps}`);
-$hammer.done({ body });
+$hammer.done({ body: body });
