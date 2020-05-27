@@ -69,6 +69,7 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
+        log(isRequest, isSurge, isQuanX)
         if (isQuanX) isRequest ? $done(value) : null;
         if (isSurge) isRequest ? $done(value) : $done();
     };
@@ -94,5 +95,6 @@ function hackingRequestBody(data) {
     $hammer.alert(`🐢 健康上传步数：${steps}`, notifyContents);
     return JSON.stringify(data);
 }
-
-$hammer.done({ body: hackingRequestBody($request.body) });
+const body = hackingRequestBody($request.body);
+$hammer.log(body);
+$hammer.done({ body: body});
