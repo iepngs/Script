@@ -20,7 +20,7 @@ const $hammer = (() => {
         isSurge = "undefined" != typeof $httpClient,
         isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => { try { console.log(...n) } catch (t) { } };
+    const log = (...n) => { try { console.log(...n) } catch (t) {console.error(t)} };
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
