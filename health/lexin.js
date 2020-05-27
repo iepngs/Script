@@ -20,7 +20,7 @@ const $hammer = (() => {
         isSurge = "undefined" != typeof $httpClient,
         isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => { try { console.log(...n) } catch (t) {console.error(t)} };
+    const log = (...n) => { try { console.log(...n) } catch (t) {console.log(t)} };
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
@@ -96,6 +96,6 @@ function hackingRequestBody(data) {
     return JSON.stringify(data);
 }
 
-let ll = { body: hackingRequestBody($request.body)};
-$hammer.log("ll:", ll);
-const ret = $hammer.done(ll);
+let lrr = { body: hackingRequestBody($request.body)};
+$hammer.log(["lrr:", lrr]);
+const ret = $hammer.done(lrr);
