@@ -1,10 +1,12 @@
 /*
 
-//lx健康
-Loon
+//desc: lx健康
+//author: iepngs
+
+//Loon
 http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LXHealth/lexin.js,tag=lx健康
 
-QX
+//QX
 ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/LXHealth/lexin.js
 MitM = dayone.me
 
