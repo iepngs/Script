@@ -75,27 +75,24 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-let body    = $request.body,
-    steps   = 18007;
-
 function hackingRequestBody(data) {
     try {
         data = JSON.parse(data);
     } catch (e) {
         return data;
     }
-    const lastOneIndex = data.list.length - 1;
-    if (~~data.list[lastOneIndex].step < steps) {
-        steps += Math.ceil(Math.random() * 4000);
+    const lastOneIndex  = data.list.length - 1;
+    let steps           = data.list[lastOneIndex].step;
+    const initSteps     = 18007,
+        notifyContents  = `原始数据为：${steps}`;
+    if (~~steps < initSteps) {
+        steps   = initSteps + Math.ceil(Math.random() * 4000);
         data.list[lastOneIndex].step        = steps.toString();
         data.list[lastOneIndex].calories    = (steps * 0.0325).toString();
         data.list[lastOneIndex].distance    = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
     }
+    $hammer.alert(`🐢 健康上传步数：${steps}`, notifyContents);
     return JSON.stringify(data);
 }
 
-$hammer.log("健康上传数据("+ typeof(body) + "):", body);
-
-body = hackingRequestBody(body);
-$hammer.alert(`🐢 当前上传步数: ${steps}`);
-$hammer.done({ body: body });
+$hammer.done({ body: hackingRequestBody($request.body) });
