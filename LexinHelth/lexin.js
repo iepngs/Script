@@ -1,10 +1,11 @@
 /*
 
-Surge
-http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 debug=1,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LexinHelth/lexin.js
+//lx健康
+Loon
+http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LXHealth/lexin.js,tag=lx健康
 
 QX
-^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-response-body iepngs/Script/LexinHelth/lexin.js
+^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/LXHealth/lexin.js
 MitM = dayone.me
 
 */
@@ -78,16 +79,13 @@ function hackingRequestBody(data) {
     } catch (e) {
         return data;
     }
-
     const lastOneIndex = data.list.length - 1;
-
     if (~~data.list[lastOneIndex].step < steps) {
         steps += Math.ceil(Math.random() * 4000);
         data.list[lastOneIndex].step        = steps.toString();
         data.list[lastOneIndex].calories    = (steps * 0.0325).toString();
         data.list[lastOneIndex].distance    = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
     }
-
     return JSON.stringify(data);
 }
 
