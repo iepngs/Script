@@ -69,7 +69,7 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        log(["value:", typeof value, value,  $done(value)]);
+        log(["value:", typeof $done, $done ]);
         log("arg1", "arg2");
         // if (isQuanX) isRequest ? $done(value) : null;
         // if (isSurge) isRequest ? $done(value) : $done();
