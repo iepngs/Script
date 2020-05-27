@@ -1,14 +1,17 @@
 /*
 
-//desc: lx健康
+//desc: 健康步数上传
 //author: iepngs
 
-//Loon
+[Script]
+// *Loon
 http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LXHealth/lexin.js,tag=lx健康
 
-//QX
-^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/LXHealth/lexin.js
-MitM = dayone.me
+// *QX
+^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/health/lexin.js,tag=lx健康
+
+[MitM] 
+hostname = sports.lifesense.com
 
 */
 
