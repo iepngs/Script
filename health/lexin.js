@@ -69,7 +69,7 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        log(isRequest, isSurge, isQuanX)
+        log(["isRequest:",isRequest, "isSurge:",isSurge, "isQuanX:", isQuanX]);
         if (isQuanX) isRequest ? $done(value) : null;
         if (isSurge) isRequest ? $done(value) : $done();
     };
@@ -97,4 +97,5 @@ function hackingRequestBody(data) {
 }
 const body = hackingRequestBody($request.body);
 $hammer.log(body);
-$hammer.done({ body: body});
+const ret = $hammer.done({ body: body});
+$hammer.log(["ret:", ret]);
