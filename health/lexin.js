@@ -69,9 +69,9 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        log("value:", typeof value);
-        if (isQuanX) isRequest ? $done(value) : null;
-        if (isSurge) isRequest ? $done(value) : $done();
+        log(["value:", typeof value, value,  $done(value)]);
+        // if (isQuanX) isRequest ? $done(value) : null;
+        // if (isSurge) isRequest ? $done(value) : $done();
     };
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
@@ -96,6 +96,4 @@ function hackingRequestBody(data) {
     return JSON.stringify(data);
 }
 
-let lrr = { body: hackingRequestBody($request.body)};
-$hammer.log(["lrr:", lrr]);
-const ret = $hammer.done(lrr);
+$hammer.done({ body: hackingRequestBody($request.body)});
