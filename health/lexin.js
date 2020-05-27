@@ -69,7 +69,7 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        log(["isRequest:",isRequest, "isSurge:",isSurge, "isQuanX:", isQuanX]);
+        log("value:", value);
         if (isQuanX) isRequest ? $done(value) : null;
         if (isSurge) isRequest ? $done(value) : $done();
     };
@@ -95,7 +95,5 @@ function hackingRequestBody(data) {
     $hammer.alert(`🐢 健康上传步数：${steps}`, notifyContents);
     return JSON.stringify(data);
 }
-const body = hackingRequestBody($request.body);
-$hammer.log(body);
-const ret = $hammer.done({ body: body});
-$hammer.log(["ret:", ret]);
+
+const ret = $hammer.done({ body: hackingRequestBody($request.body)});
