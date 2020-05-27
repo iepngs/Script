@@ -20,11 +20,11 @@ const $hammer = (() => {
         isSurge = "undefined" != typeof $httpClient,
         isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => { for(let i in n) console.log(n[i])};
+    const log = (...n) => { for (let i in n) console.log(n[i]) };
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
-        log("\ntitle:" + title + "\nsubtitle:" + subtitle + "\nbody:" + body);
+        log("title:", title, "subtitle:", subtitle, "body:", body);
     };
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
@@ -69,10 +69,8 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        log(["value:", typeof $done, $done ]);
-        log("arg1", "arg2");
-        // if (isQuanX) isRequest ? $done(value) : null;
-        // if (isSurge) isRequest ? $done(value) : $done();
+        if (isQuanX) return isRequest ? $done(value) : null;
+        if (isSurge) return isRequest ? $done(value) : $done();
     };
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
@@ -83,18 +81,18 @@ function hackingRequestBody(data) {
     } catch (e) {
         return data;
     }
-    const lastOneIndex  = data.list.length - 1;
-    let steps           = data.list[lastOneIndex].step;
-    const initSteps     = 18007,
-        notifyContents  = `原始数据为：${steps}`;
+    const lastOneIndex = data.list.length - 1;
+    let steps = data.list[lastOneIndex].step;
+    const initSteps = 18007,
+        notifyContents = `原始数据为：${steps}`;
     if (~~steps < initSteps) {
-        steps   = initSteps + Math.ceil(Math.random() * 4000);
-        data.list[lastOneIndex].step        = steps.toString();
-        data.list[lastOneIndex].calories    = (steps * 0.0325).toString();
-        data.list[lastOneIndex].distance    = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
+        steps = initSteps + Math.ceil(Math.random() * 4000);
+        data.list[lastOneIndex].step = steps.toString();
+        data.list[lastOneIndex].calories = (steps * 0.0325).toString();
+        data.list[lastOneIndex].distance = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
     }
     $hammer.alert(`🐢 健康上传步数：${steps}`, notifyContents);
     return JSON.stringify(data);
 }
 
-$hammer.done({ body: hackingRequestBody($request.body)});
+$hammer.done({ body: hackingRequestBody($request.body) });
