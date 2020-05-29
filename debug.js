@@ -11,38 +11,33 @@ function init(){
     console.log("================")
     console.log(headers)
     if(/.*101$/.test($request.url)){
-        // 只改body
+        // 单独重置body
         body = "101";
-        return $done({request: {body: body}});
+        return $done({body});
     }
     if(/.*102$/.test($request.url)){
-        // 只改header
-        headers['custom'] = 'custom'
-        return $done({request: {header: headers}});
+        // 单独重置header
+        headers['Custom'] = 'custom'
+        return $done({headers});
     }
     if(/.*103$/.test($request.url)){
-        // 同时改body和header
-        headers['custom'] = 'custom'
+        // 同时重置header和body
+        headers['Custom'] = 'custom'
         body = "103";
-        return $done({request: {headers: headers, body: body}});
+        return $done({headers, body});
     }
     if(/.*104$/.test($request.url)){
-        // 同时改body和headers
-        headers['custom'] = 'custom'
+        // 同时重置header和body
+        headers['Custom'] = 'custom'
         body = "104";
-        return $done({request: {header:headers, body:body}});
+        return $done({headers:headers, body:body});
     }
     if(/.*105$/.test($request.url)){
-        headers['custom'] = 'custom'
-        body = "105";
-        return $done({response: {header:headers, body:body}});
+        // 传空对象
+        return $done({});
     }
-    if(/.*106$/.test($request.url)){
-        headers['custom'] = 'custom'
-        body = "106";
-        return $done({response: {headers:headers, body:body}});
-    }
-    return $done({});
+    // 不传值
+    return $done();
 }
 
 init();
