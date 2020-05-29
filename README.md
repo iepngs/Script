@@ -13,7 +13,7 @@
 
 > 打开以下链接，点击获取捷径，自动跳转到捷径app中，然后打开后滚动到页面最底部，点击添加不受信任的快捷指令：
 
-> [https://www.icloud.com/shortcuts/2044641aad9a49b1aed7f0f550480343](https://www.icloud.com/shortcuts/2044641aad9a49b1aed7f0f550480343)
+> [https://www.icloud.com/shortcuts/d7b7462beb4641caa4f581ce52b55531](https://www.icloud.com/shortcuts/d7b7462beb4641caa4f581ce52b55531)
 
 > 在快捷指令列表上点击"模拟请求"右上角的三个点，进入详情页面上点右下角三角形运行可以看到结果，运行部分参考GIF
 
