@@ -2,7 +2,7 @@
 
 1. `index.php`: 服务端测试脚本
 
-2. `Script.conf`: 远程订阅配置文件
+2. [Script.conf](https://raw.githubusercontent.com/iepngs/Script/debug/Script.conf): 远程订阅配置文件
 
 3. `debug.js`: 测试脚本
 
@@ -11,7 +11,7 @@
 
 > 可以用ios的捷径指令发起网络请求做调试（设置 > 快捷指令 > 勾选允许不受信任的快捷指令）
 
-> 打开以下链接，点击获取捷径，自动跳转到捷径app中，然后打开后滚动到页面最底部，点击添加不受信任的快捷指令：
+> 手机打开以下链接，点击获取捷径，自动跳转到捷径app中，然后打开后滚动到页面最底部，点击添加不受信任的快捷指令：
 
 > [https://www.icloud.com/shortcuts/d7b7462beb4641caa4f581ce52b55531](https://www.icloud.com/shortcuts/d7b7462beb4641caa4f581ce52b55531)
 
