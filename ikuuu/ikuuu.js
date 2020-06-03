@@ -53,11 +53,12 @@ const $hammer = (() => {
         isSurge = "undefined" != typeof $httpClient,
         isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => {try{console.log(...n)}catch(t){}};
+    const log = (...n) => { for (let i in n) console.log(n[i]) };
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
-        log("\ntitle:" + title + "\nsubtitle:" + subtitle + "\nbody:" + body);
+        log('==============📣系统通知📣==============');
+        log("title:", title, "subtitle:", subtitle, "body:", body);
     };
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
@@ -68,8 +69,8 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
-        if(typeof params == "string"){
-            params = {url: params};
+        if (typeof params == "string") {
+            params = { url: params };
         }
         const options = {
             url: params.url,
@@ -77,16 +78,15 @@ const $hammer = (() => {
         };
         method = method.toUpperCase();
         if (isSurge) {
-            if(params.header){
+            if (params.header) {
                 options.header = params.header;
             }
-            return method == "GET"
-                ? $httpClient.get(options, response => {callback(response, null)})
-                : $httpClient.post(options, response => {callback(response, null)});
+            const _runer = method == "GET" ? $httpClient.get : $httpClient.post;
+            return _runer(options, response => { callback(response, null) });
         }
         if (isQuanX) {
             options.method = method;
-            if(params.header){
+            if (params.header) {
                 options.headers = params.header;
             }
             if (options.method == "GET" && typeof options == "string") {
@@ -102,8 +102,8 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        if (isQuanX) isRequest ? $done(value) : null;
-        if (isSurge) isRequest ? $done(value) : $done();
+        if (isQuanX) return isRequest ? $done(value) : null;
+        if (isSurge) return isRequest ? $done(value) : $done();
     };
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();

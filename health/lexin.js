@@ -24,6 +24,7 @@ const $hammer = (() => {
     const alert = (title, body = "", subtitle = "") => {
         if (isSurge) return $notification.post(title, subtitle, body);
         if (isQuanX) return $notify(title, subtitle, body);
+        log('==============📣系统通知📣==============');
         log("title:", title, "subtitle:", subtitle, "body:", body);
     };
     const read = key => {
@@ -47,9 +48,8 @@ const $hammer = (() => {
             if (params.header) {
                 options.header = params.header;
             }
-            return method == "GET"
-                ? $httpClient.get(options, response => { callback(response, null) })
-                : $httpClient.post(options, response => { callback(response, null) });
+            const _runer = method == "GET" ? $httpClient.get : $httpClient.post;
+            return _runer(options, response => { callback(response, null) });
         }
         if (isQuanX) {
             options.method = method;
