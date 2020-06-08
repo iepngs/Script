@@ -1,5 +1,6 @@
 /*
 2020 jd618购机活动
+浏览器打开并登录：https://rdcseason.m.jd.com/#/index
 
 Surge4：
 http-response ^https:\/\/rdcseason\.m\.jd\.com\/#\/index requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd618buyphone/index.js
