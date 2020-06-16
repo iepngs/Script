@@ -1,20 +1,3 @@
-/*
-
-//desc: 步数上传
-//author: iepngs
-
-[Script]
-// *Loon
-http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth
-
-// *QX
-^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/lxhealth/index.js,tag=lxhealth
-
-[MitM] 
-hostname = sports.lifesense.com
-
-*/
-
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
@@ -75,24 +58,15 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-function hackingRequestBody(data) {
-    try {
-        data = JSON.parse(data);
-    } catch (e) {
-        return data;
-    }
-    const lastOneIndex = data.list.length - 1;
-    let steps = data.list[lastOneIndex].step;
-    const initSteps = 18007,
-        notifyContents = `原始数据为：${steps}`;
-    if (~~steps < initSteps) {
-        steps = initSteps + Math.ceil(Math.random() * 4000);
-        data.list[lastOneIndex].step = steps.toString();
-        data.list[lastOneIndex].calories = (steps * 0.0325).toString();
-        data.list[lastOneIndex].distance = (Math.ceil((steps * 0.7484).toFixed(1))).toString();
-    }
-    $hammer.alert(`🐢 健康上传步数：${steps}`, notifyContents);
-    return JSON.stringify(data);
-}
 
-$hammer.done({ body: hackingRequestBody($request.body) });
+const url = "http://holiday.zhusaidong.cn/api.php?date=";
+$hammer.request("get", {url:url}, (resp) => {
+    const resp = JSON.parse(resp);
+    if(resp.code == 1) {
+        return false;
+    }
+    const corpId = "ding307c0c3ff8b707a435c2f4657eb6378f",
+    link = "dingtalk://dingtalkclient/page/link?url=https%3A%2F%2Fattend.dingtalk.com%2Fattend%2Findex.html%3FcorpId%3D",
+    node = (new Date()).getHours() > 15 ? "下班" : "上班";
+    $hammer.alert("钉钉", node + "打卡了么？", "", link + corpId);
+});

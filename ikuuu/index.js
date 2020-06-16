@@ -56,9 +56,9 @@ const $hammer = (() => {
     const log = (...n) => { for (let i in n) console.log(n[i]) };
     const alert = (title, body = "", subtitle = "", link = "") => {
         if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, body);
+        if (isQuanX) return $notify(title, subtitle, (link&&!body ? link : body));
         log('==============📣系统通知📣==============');
-        log("title:", title, "subtitle:", subtitle, "body:", body);
+        log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
         if (isSurge) return $persistentStore.read(key);

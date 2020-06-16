@@ -1,16 +1,16 @@
-!(()=>{
-    const randomNumber = (start, end, fixed=0) => {
+!(() => {
+    const randomNumber = (start, end, fixed = 0) => {
         const differ = end - start;
         const random = Math.random();
         return (start + differ * random).toFixed(fixed);
     };
     const waitSecond = randomNumber(0, 30);
-    setTimeout(()=>{
+    setTimeout(() => {
         try {
-            $notification.post("lxhealth", "", "", "lswearable://");
+            $notification.post("lxhealth", "", "点击启动", "lswearable://");
         } catch (error) {
             console.log("lxhealth.alert.js - error:");
             console.log(error);
         }
-    }, waitSecond*1000);
+    }, waitSecond * 1000);
 })();
