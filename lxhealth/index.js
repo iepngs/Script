@@ -5,10 +5,10 @@
 
 [Script]
 // *Loon
-http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/LXHealth/lexin.js,tag=lx健康
+http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth
 
 // *QX
-^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/health/lexin.js,tag=lx健康
+^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/lxhealth/index.js,tag=lxhealth
 
 [MitM] 
 hostname = sports.lifesense.com
@@ -21,8 +21,8 @@ const $hammer = (() => {
         isQuanX = "undefined" != typeof $task;
 
     const log = (...n) => { for (let i in n) console.log(n[i]) };
-    const alert = (title, body = "", subtitle = "") => {
-        if (isSurge) return $notification.post(title, subtitle, body);
+    const alert = (title, body = "", subtitle = "", link = "") => {
+        if (isSurge) return $notification.post(title, subtitle, body, link);
         if (isQuanX) return $notify(title, subtitle, body);
         log('==============📣系统通知📣==============');
         log("title:", title, "subtitle:", subtitle, "body:", body);
@@ -48,8 +48,8 @@ const $hammer = (() => {
             if (params.header) {
                 options.header = params.header;
             }
-            const _runer = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runer(options, response => { callback(response, null) });
+            const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
+            return _runner(options, response => { callback(response, null) });
         }
         if (isQuanX) {
             options.method = method;
