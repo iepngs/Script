@@ -70,7 +70,7 @@ const $hammer = (() => {
         method = method.toUpperCase();
         if (isSurge) {
             if (params.header) {
-                options.headers = params.header;
+                options.header = params.header;
             }
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
             return _runner(options, response => { callback(response, null) });
