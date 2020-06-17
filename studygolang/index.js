@@ -70,7 +70,7 @@ const $hammer = (() => {
         method = method.toUpperCase();
         if (isSurge) {
             if (params.header) {
-                options.header = params.header;
+                options.headers = params.header;
             }
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
             return _runner(options, response => { callback(response, null) });
@@ -144,7 +144,6 @@ function checkin() {
         },
         data: ""
     };
-    console.log(options);
     $hammer.request("get", options, (response, error) => {
         if (error) {
             $hammer.alert(CookieKey, error, "签到请求失败");
