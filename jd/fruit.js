@@ -29,6 +29,12 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
+        /**
+         * callback(
+         *      error, 
+         *      {status: <int>, headers: <object>, body: <string>} | ""
+         * )
+         */
         if (typeof params == "string") {
             params = { url: params };
         }
@@ -37,12 +43,27 @@ const $hammer = (() => {
             body: params.data
         };
         method = method.toUpperCase();
+        
+        const errlog = err => {
+            log("-s- Catch the request error -s-");
+            log(method + " " + options.url, err);
+            log("-e- Catch the request error -e-");
+        };
+
         if (isSurge) {
             if (params.header) {
                 options.header = params.header;
             }
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, response => { callback(response, null) });
+            return _runner(options, (error, response, body) => {
+                if(error == null || error == ""){
+                    response.body = body;
+                    callback("", response);
+                }else{
+                    errlog(error);
+                    callback(error, "");
+                }
+            });
         }
         if (isQuanX) {
             options.method = method;
@@ -54,11 +75,17 @@ const $hammer = (() => {
                     url: options
                 };
             }
-            $task.fetch(options).then(response => {
-                callback(response, null)
-            }, reason => {
-                callback(null, reason.error)
-            });
+            $task.fetch(options).then(
+                response => {
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback("", response);
+                }, 
+                reason => {
+                    errlog(reason.error);
+                    callback(reason.error, "");
+                }
+            );
         }
     };
     const done = (value = {}) => {
@@ -67,6 +94,7 @@ const $hammer = (() => {
     };
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
+
 
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
