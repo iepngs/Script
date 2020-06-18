@@ -51,7 +51,7 @@ const $hammer = (() => {
                     callback("", response);
                 }else{
                     errlog(error);
-                    callback(error, response);
+                    callback(error, "");
                 }
             });
         }
@@ -68,11 +68,14 @@ const $hammer = (() => {
             $task.fetch(options).then(
                 response => {
                     log("run in then.response");// drop
+                    response.code = response.statusCode;
+                    delete response.statusCode;
                     callback("", response);
                 }, 
                 reason => {
                     log("run in then.reason");// drop
-                    errlog(reason);
+                    errlog(reason.error);
+                    callback(reason.error, "");
                 }
             );
         }
