@@ -42,7 +42,7 @@ const $hammer = (() => {
 
         if (isSurge) {
             if (params.header) {
-                options.header = params.header;
+                options.headers = params.header;
             }
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
             return _runner(options, (error, response, body) => {
@@ -67,13 +67,11 @@ const $hammer = (() => {
             }
             $task.fetch(options).then(
                 response => {
-                    log("run in then.response");// drop
-                    response.code = response.statusCode;
+                    response.status = response.statusCode;
                     delete response.statusCode;
                     callback("", response);
                 }, 
                 reason => {
-                    log("run in then.reason");// drop
                     errlog(reason.error);
                     callback(reason.error, "");
                 }
