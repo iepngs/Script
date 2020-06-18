@@ -91,7 +91,7 @@ function* step() {
     let message = '';
     let subTitle = '';
 
-    if (cookie) {
+    if (!cookie) {
         return $hammer.alert(name, '请先获取cookie\n直接使用NobyDa的京东签到获取');
     }
     
