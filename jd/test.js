@@ -1,3 +1,4 @@
+
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
