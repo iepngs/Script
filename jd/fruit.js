@@ -464,8 +464,6 @@ function initForFarm() {
 
 
 function request(function_id, body = {}) {
-    // console.log(function_id);
-
     const options = {
         url: `${JD_API_HOST}?functionId=${function_id}&appid=wh5&body=${escape(JSON.stringify(body))}`,
         header: {
@@ -475,16 +473,12 @@ function request(function_id, body = {}) {
         data: ""
     };
 
-    $hammer.request('GET', options, (response, error) => {
+    $hammer.request('GET', options, (error, response) => {
         $hammer.log("functionid:", function_id, "resp:", response, "err:", error)
-        if(error){
-            $hammer.log("Error:", error)
-        }else{
-            sleep(response.body);
-        }
+        error ? $hammer.log("Error:", error) : sleep(JSON.parse(response.body));
     })
-
 }
+
 function sleep(response) {
     console.log('休息一下');
     setTimeout(() => {
