@@ -27,17 +27,13 @@ const $hammer = (() => {
             body: params.data
         };
         method = method.toUpperCase();
-        console.log("isSurge:", [isSurge, isQuanX])
         if (isSurge) {
             if (params.header) {
                 options.header = params.header;
             }
             console.log(method == "GET")
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, (response, aaa="") => { 
-                console.log("callbackarg:", [response, aaa])
-                callback(response, null) 
-            });
+            return _runner(options, callback);
         }
         if (isQuanX) {
             options.method = method;
@@ -49,11 +45,10 @@ const $hammer = (() => {
                     url: options
                 };
             }
-            $task.fetch(options).then(response => {
-                callback(response, null)
-            }, reason => {
-                callback(null, reason.error)
-            });
+            $task.fetch(options).then(
+                response => callback("", response), 
+                reason => callback(reason.error, reason)
+            );
         }
     };
     const done = (value = {}) => {
@@ -67,7 +62,7 @@ const $hammer = (() => {
 
 
 const options = {
-    url: `https://i.orzzhibo.com/live/livelist`,
+    url: `https://www.baidu.com/s?wd=loon`,
     header: {
         Cookie: "cookie",
         UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
@@ -75,8 +70,8 @@ const options = {
     data: ""
 };
 
-$hammer.request('GET', options, (response, error) => {
-    $hammer.log("resp:", response, "err:", error)
+$hammer.request('GET', options, (error, response, data) => {
+    $hammer.log("resp:", response, "err:", error, "data:", data)
 })
 
 $hammer.done();
