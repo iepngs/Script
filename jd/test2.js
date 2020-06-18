@@ -72,7 +72,7 @@ const $hammer = (() => {
                 }, 
                 reason => {
                     log("run in then.reason");// drop
-                    errlog(error);
+                    errlog(reason);
                 }
             );
         }
