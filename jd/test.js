@@ -1,4 +1,3 @@
-
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
@@ -68,7 +67,7 @@ const $hammer = (() => {
 
 
 const options = {
-    url: `http://i.orzzhibo.com/live/livelist`,
+    url: `https://i.orzzhibo.com/live/livelist`,
     header: {
         Cookie: "cookie",
         UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
