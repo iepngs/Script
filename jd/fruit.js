@@ -6,7 +6,7 @@
 // [task_local]
 
 // #jd免费水果
-// cron "1 7,12,18 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd/fruit.js,tag=jd免费水果
+// cron "1 0 7,12,18 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd/fruit.js,tag=jd免费水果
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
@@ -448,10 +448,11 @@ function request(function_id, body = {}) {
     };
 
     $hammer.request('GET', options, (response, error) => {
+        $hammer.log("functionid:", function_id, "resp:", response, "err:", error)
         if(error){
-            console.log("Error:", error)
+            $hammer.log("Error:", error)
         }else{
-            sleep(response);
+            sleep(response.body);
         }
     })
 
@@ -459,7 +460,8 @@ function request(function_id, body = {}) {
 function sleep(response) {
     console.log('休息一下');
     setTimeout(() => {
-        console.log('休息结束');
+        $hammer.log('休息结束');
+        $hammer.log(response)
         Task.next(response)
     }, 2000);
 }
