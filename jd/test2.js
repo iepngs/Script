@@ -19,6 +19,12 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
+        /**
+         * callback(
+         *      error, 
+         *      {status: <int>, headers: <object>, body: <string>} | ""
+         * )
+         */
         if (typeof params == "string") {
             params = { url: params };
         }
@@ -27,13 +33,27 @@ const $hammer = (() => {
             body: params.data
         };
         method = method.toUpperCase();
+        
+        const errlog = err => {
+            log("-s- Catch the request error -s-");
+            log(method + " " + options.url, err);
+            log("-e- Catch the request error -e-");
+        };
+
         if (isSurge) {
             if (params.header) {
                 options.header = params.header;
             }
-            console.log(method == "GET")
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, callback);
+            return _runner(options, (error, response, body) => {
+                if(error == null || error == ""){
+                    response.body = body;
+                    callback("", response);
+                }else{
+                    errlog(error);
+                    callback(error, response);
+                }
+            });
         }
         if (isQuanX) {
             options.method = method;
@@ -46,8 +66,14 @@ const $hammer = (() => {
                 };
             }
             $task.fetch(options).then(
-                response => callback("", response), 
-                reason => callback(reason.error, reason)
+                response => {
+                    log("run in then.response");// drop
+                    callback("", response);
+                }, 
+                reason => {
+                    log("run in then.reason");// drop
+                    errlog(error);
+                }
             );
         }
     };
@@ -70,8 +96,9 @@ const options = {
     data: ""
 };
 
-$hammer.request('GET', options, (error, response, data) => {
-    $hammer.log("resp:", response, "err:", error, "data:", data)
+$hammer.request('GET', options, (error, response) => {
+    console.log("env:" + ($hammer.isQuanX ? "Quanx" : "Loon"))
+    $hammer.log("resp:", response, "err:", error)
 })
 
 $hammer.done();
