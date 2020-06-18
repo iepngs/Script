@@ -147,11 +147,10 @@ function checkin() {
     $hammer.request("get", options, (response, error) => {
         if (error) {
             $hammer.alert(CookieKey, error, "签到请求失败");
-            $hammer.done();
+            return $hammer.done();
         }
         $hammer.log(CookieKey+"签到结果：", response);
-        data = JSON.parse(response.body);
-        $hammer.msg(CookieKey, data.msg);
+        $hammer.alert(CookieKey, "签到完成");
         $hammer.done();
     })
 }

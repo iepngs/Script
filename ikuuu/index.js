@@ -149,11 +149,11 @@ function checkin() {
     $hammer.request("post", options, (response, error) => {
         if (error) {
             $hammer.alert("IKUUU签到", error, "签到请求失败");
-            $hammer.done();
+            return $hammer.done();
         }
         $hammer.log("IKUUU签到结果：", response);
         data = JSON.parse(response.body);
-        $hammer.msg("IKUUU签到", data.msg);
+        $hammer.alert("IKUUU签到", data.msg);
         $hammer.done();
     })
 }
