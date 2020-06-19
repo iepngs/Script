@@ -1,5 +1,4 @@
 //京东萌宠助手 搬得https://github.com/liuxiaoyucc/jd-helper/blob/master/pet/pet.js
-//只能quanx用
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
@@ -91,7 +90,8 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 //直接用NobyDa的js cookie
 const cookie = $hammer.read('CookieJD');
 if (!cookie) {
-    return $hammer.alert("京东萌宠", '请先获取cookie\n直接使用NobyDa的京东签到获取');
+    $hammer.alert("京东萌宠", '请先获取cookie\n直接使用NobyDa的京东签到获取');
+    $hammer.done();
 }
 
 var shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个? 没有验证过
@@ -212,7 +212,7 @@ function sleep(s) {
 async function petSport() {
     console.log('开始遛弯');
 
-    var times = 0;
+    var times = 1;
     var code = 0;
     var resultCode = 0;
 
