@@ -7,7 +7,7 @@ const $hammer = (() => {
     const alert = (title, body = "", subtitle = "", link = "") => {
         if (isSurge) return $notification.post(title, subtitle, body, link);
         if (isQuanX) return $notify(title, subtitle, (link && !body ? link : body));
-        log('==============📣系统通知📣==============');
+        log("==============📣系统通知📣==============");
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
@@ -19,36 +19,61 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
+        /**
+         * 
+         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
+         * 
+         * callback(
+         *      error, 
+         *      {status: <int>, headers: <object>, body: <string>} | ""
+         * )
+         * 
+         */
+        let options = {};
         if (typeof params == "string") {
-            params = { url: params };
-        }
-        const options = {
-            url: params.url,
-            body: params.data
-        };
-        method = method.toUpperCase();
-        if (isSurge) {
-            if (params.header) {
-                options.header = params.header;
+            options.url = params;
+        } else {
+            options.url = params.url;
+            if (typeof params == "object") {
+                params.headers && (options.headers = params.headers);
+                params.body && (options.body = params.body);
             }
+        }
+        method = method.toUpperCase();
+
+        const writeRequestErrorLog = function (m, u) {
+            return err => {
+                log("=== request error -s--");
+                log(`${m} ${u}`, err);
+                log("=== request error -e--");
+            };
+        }(method, options.url);
+
+        if (isSurge) {
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, response => { callback(response, null) });
+            return _runner(options, (error, response, body) => {
+                if (error == null || error == "") {
+                    response.body = body;
+                    callback("", response);
+                } else {
+                    writeRequestErrorLog(error);
+                    callback(error, "");
+                }
+            });
         }
         if (isQuanX) {
             options.method = method;
-            if (params.header) {
-                options.headers = params.header;
-            }
-            if (options.method == "GET" && typeof options == "string") {
-                options = {
-                    url: options
-                };
-            }
-            $task.fetch(options).then(response => {
-                callback(response, null)
-            }, reason => {
-                callback(null, reason.error)
-            });
+            $task.fetch(options).then(
+                response => {
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback("", response);
+                },
+                reason => {
+                    writeRequestErrorLog(reason.error);
+                    callback(reason.error, "");
+                }
+            );
         }
     };
     const done = (value = {}) => {
@@ -96,7 +121,7 @@ function showRemind() {
     const corpId = "ding307c0c3ff8b707a435c2f4657eb6378f",
         link = "dingtalk://dingtalkclient/page/link?url=https%3A%2F%2Fattend.dingtalk.com%2Fattend%2Findex.html%3FcorpId%3D",
         node = (new Date()).getHours() > 12 ? "下班" : "上班";
-    $hammer.alert("钉钉", node + "打卡了么？", "", link + corpId);
+    $hammer.alert("钉钉",  `${node}打卡了么？`, "", `${link}${corpId}`);
 }
 
 $hammer.log("===work checkin remind===")

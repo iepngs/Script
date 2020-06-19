@@ -56,8 +56,8 @@ const $hammer = (() => {
     const log = (...n) => { for (let i in n) console.log(n[i]) };
     const alert = (title, body = "", subtitle = "", link = "") => {
         if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, (link&&!body ? link : body));
-        log('==============📣系统通知📣==============');
+        if (isQuanX) return $notify(title, subtitle, (link && !body ? link : body));
+        log("==============📣系统通知📣==============");
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
@@ -69,36 +69,61 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
+        /**
+         * 
+         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
+         * 
+         * callback(
+         *      error, 
+         *      {status: <int>, headers: <object>, body: <string>} | ""
+         * )
+         * 
+         */
+        let options = {};
         if (typeof params == "string") {
-            params = { url: params };
-        }
-        const options = {
-            url: params.url,
-            body: params.data
-        };
-        method = method.toUpperCase();
-        if (isSurge) {
-            if (params.header) {
-                options.header = params.header;
+            options.url = params;
+        } else {
+            options.url = params.url;
+            if (typeof params == "object") {
+                params.headers && (options.headers = params.headers);
+                params.body && (options.body = params.body);
             }
+        }
+        method = method.toUpperCase();
+
+        const writeRequestErrorLog = function (m, u) {
+            return err => {
+                log("=== request error -s--");
+                log(`${m} ${u}`, err);
+                log("=== request error -e--");
+            };
+        }(method, options.url);
+
+        if (isSurge) {
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, response => { callback(response, null) });
+            return _runner(options, (error, response, body) => {
+                if (error == null || error == "") {
+                    response.body = body;
+                    callback("", response);
+                } else {
+                    writeRequestErrorLog(error);
+                    callback(error, "");
+                }
+            });
         }
         if (isQuanX) {
             options.method = method;
-            if (params.header) {
-                options.headers = params.header;
-            }
-            if (options.method == "GET" && typeof options == "string") {
-                options = {
-                    url: options
-                };
-            }
-            $task.fetch(options).then(response => {
-                callback(response, null)
-            }, reason => {
-                callback(null, reason.error)
-            });
+            $task.fetch(options).then(
+                response => {
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback("", response);
+                },
+                reason => {
+                    writeRequestErrorLog(reason.error);
+                    callback(reason.error, "");
+                }
+            );
         }
     };
     const done = (value = {}) => {
@@ -128,7 +153,7 @@ function GetCookie() {
             $hammer.alert(CookieName, "请检查匹配URL或配置内脚本类型", "写入失败");
         }
     } catch (error) {
-        $hammer.alert(CookieName, "未知错误", "写入失败")
+        $hammer.alert(CookieName, "写入失败: 未知错误")
         $hammer.log(error)
     }
     $hammer.done();
@@ -137,16 +162,16 @@ function GetCookie() {
 function checkin() {
     let options = {
         url: "https://ikuuu.co/user/checkin",
-        header: {
+        headers: {
             "accept": "application/json, text/javascript, */*; q=0.01",
             "origin": "https://ikuuu.co",
             "referer": "https://ikuuu.co/user",
             "cookie": $hammer.read(CookieKey),
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1",
         },
-        data: ""
+        body: ""
     }
-    $hammer.request("post", options, (response, error) => {
+    $hammer.request("post", options, (error, response) => {
         if (error) {
             $hammer.alert("IKUUU签到", error, "签到请求失败");
             return $hammer.done();

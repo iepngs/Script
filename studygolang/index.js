@@ -47,8 +47,8 @@ const $hammer = (() => {
     const log = (...n) => { for (let i in n) console.log(n[i]) };
     const alert = (title, body = "", subtitle = "", link = "") => {
         if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, (link&&!body ? link : body));
-        log('==============📣系统通知📣==============');
+        if (isQuanX) return $notify(title, subtitle, (link && !body ? link : body));
+        log("==============📣系统通知📣==============");
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
@@ -60,36 +60,61 @@ const $hammer = (() => {
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
+        /**
+         * 
+         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
+         * 
+         * callback(
+         *      error, 
+         *      {status: <int>, headers: <object>, body: <string>} | ""
+         * )
+         * 
+         */
+        let options = {};
         if (typeof params == "string") {
-            params = { url: params };
-        }
-        const options = {
-            url: params.url,
-            body: params.data
-        };
-        method = method.toUpperCase();
-        if (isSurge) {
-            if (params.header) {
-                options.header = params.header;
+            options.url = params;
+        } else {
+            options.url = params.url;
+            if (typeof params == "object") {
+                params.headers && (options.headers = params.headers);
+                params.body && (options.body = params.body);
             }
+        }
+        method = method.toUpperCase();
+
+        const writeRequestErrorLog = function (m, u) {
+            return err => {
+                log("=== request error -s--");
+                log(`${m} ${u}`, err);
+                log("=== request error -e--");
+            };
+        }(method, options.url);
+
+        if (isSurge) {
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, response => { callback(response, null) });
+            return _runner(options, (error, response, body) => {
+                if (error == null || error == "") {
+                    response.body = body;
+                    callback("", response);
+                } else {
+                    writeRequestErrorLog(error);
+                    callback(error, "");
+                }
+            });
         }
         if (isQuanX) {
             options.method = method;
-            if (params.header) {
-                options.headers = params.header;
-            }
-            if (options.method == "GET" && typeof options == "string") {
-                options = {
-                    url: options
-                };
-            }
-            $task.fetch(options).then(response => {
-                callback(response, null)
-            }, reason => {
-                callback(null, reason.error)
-            });
+            $task.fetch(options).then(
+                response => {
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback("", response);
+                },
+                reason => {
+                    writeRequestErrorLog(reason.error);
+                    callback(reason.error, "");
+                }
+            );
         }
     };
     const done = (value = {}) => {
@@ -128,7 +153,7 @@ function GetCookie() {
 function checkin() {
     let options = {
         url: "https://studygolang.com/mission/daily/redeem",
-        header: {
+        headers: {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -141,15 +166,14 @@ function checkin() {
             "Sec-Fetch-User": "?1",
             "Upgrade-Insecure-Requests": "1",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36",
-        },
-        data: ""
+        }
     };
-    $hammer.request("get", options, (response, error) => {
+    $hammer.request("get", options, (error, response) => {
         if (error) {
             $hammer.alert(CookieKey, error, "签到请求失败");
             return $hammer.done();
         }
-        $hammer.log(CookieKey+"签到结果：", response);
+        $hammer.log(`${CookieKey}签到结果：`, response.body);
         $hammer.alert(CookieKey, "签到完成");
         $hammer.done();
     })
