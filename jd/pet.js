@@ -89,10 +89,6 @@ const $hammer = (() => {
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 //直接用NobyDa的js cookie
 const cookie = $hammer.read('CookieJD');
-if (!cookie) {
-    $hammer.alert("京东萌宠", '请先获取cookie\n直接使用NobyDa的京东签到获取');
-    $hammer.done();
-}
 
 var shareCodes = [ // 这个列表填入你要助力的好友的shareCode, 最多可能是5个? 没有验证过
     'MTAxODcxOTI2NTAwMDAwMDAwMDc4MDExNw==',
@@ -118,6 +114,9 @@ var function_map = {
  * 入口函数
  */
 function* entrance() {
+    if (!cookie) {
+        return $hammer.alert("京东萌宠", '请先获取cookie\n直接使用NobyDa的京东签到获取');
+    }
     console.log('任务开始');
     yield initPetTown(); //初始化萌宠
     yield taskInit(); // 初始化任务
