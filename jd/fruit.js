@@ -462,16 +462,7 @@ function initForFarm() {
 
 
 function request(function_id, body = {}) {
-    const options = {
-        url: `${JD_API_HOST}?functionId=${function_id}&appid=wh5&body=${escape(JSON.stringify(body))}`,
-        headers: {
-            Cookie: cookie,
-            UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
-        },
-        body: ""
-    };
-
-    $hammer.request('GET', options, (error, response) => {
+    $hammer.request('GET', taskurl(function_id, body), (error, response) => {
         error ? $hammer.log("Error:", error) : sleep(JSON.parse(response.body));
     })
 }
@@ -491,8 +482,7 @@ function taskurl(function_id, body = {}) {
         headers: {
             Cookie: cookie,
             UserAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`,
-        },
-        method: "GET",
+        }
     }
 }
 
