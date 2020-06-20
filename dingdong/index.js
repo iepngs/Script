@@ -14,6 +14,7 @@ const $hammer = (() => {
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
+        log(`isSurge:`, isSurge,`isQuanX:`, isQuanX, $persistentStore.read(key), $prefs.valueForKey(key));
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
     },
@@ -102,17 +103,13 @@ $hammer.log("dingdong station_id:?", station_id);
 function GetCookie() {
     try {
         CookieValueStationId = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
-        $hammer.log(`CookieValueStationId: ${CookieValueStationId}`);
         if ($request.headers && CookieValueStationId) {
             const CookieValue = $request.headers['Cookie'];
             const cachedCookie = $hammer.read(CookieKey);
-            $hammer.log('cachedCookie:', cachedCookie);
-            $hammer.log('CookieValue:', CookieValue);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
                 $hammer.write(CookieKeyStationId, CookieValueStationId);
                 const result = $hammer.write(CookieKey, CookieValue);
-                $hammer.log('result:', result);
                 $hammer.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $hammer.read(CookieKey));
                 $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
             }
