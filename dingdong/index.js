@@ -282,7 +282,7 @@ function propsFeed(i){
             resolve(viewMyTask())
         })
     })();
-    $hamme.log(`【${cookieName}】任务部分结束。`)
+    $hammer.log(`【${cookieName}】任务部分结束。`)
     await fishpond();
     let index = 1;
     while(await propsFeed(index)){
