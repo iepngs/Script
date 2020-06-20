@@ -192,13 +192,14 @@ function viewMyTask(){
             const taskStatus = {
                 "TO_ACHIEVE": "未完成", 
                 "TO_REWARD": "已完成，未领取奖励", 
+                "WAITING_REWARD": "等待完成",
                 "WAITING_WINDOW": "未到领取时间",
                 "FINISHED": "完成，已领取奖励",
             };
             for (const task of taskList) {
                 const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
-                $hammer.log(`\n===========\n${task.taskName}${desc}}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n`);
+                $hammer.log(`\n===========\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
                         taskAchieve(task.taskCode);
@@ -310,7 +311,12 @@ function propsFeed(i){
             }
             response = JSON.parse(response);
             if(response.code){
-                $hammer.log(options, response);
+                let nn = {
+                    url: `${DD_API_HOST}/api/props/feed`,
+                    headers: initRequestHeaders(),
+                    body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
+                };
+                $hammer.log("nn:", nn, "response:", response);
                 $hammer.alert(Protagonist, response.msg, "props/feed");
                 resolve(false);
             }
