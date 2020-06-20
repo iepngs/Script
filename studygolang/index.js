@@ -149,7 +149,6 @@ function GetCookie() {
 
 function checkin() {
     const cookie = $hammer.read(CookieKey);
-    $hammer.log("cookie:", cookie);
     if (!cookie) {
         $hammer.alert(CookieKey, "cookie没有，先去获取吧！");
         return $hammer.done();
@@ -171,6 +170,7 @@ function checkin() {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36",
         }
     };
+    $hammer.log("options:", options);
     $hammer.request("get", options, (error, response) => {
         if (error) {
             $hammer.alert(CookieKey, error, "签到请求失败");
