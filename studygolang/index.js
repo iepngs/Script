@@ -93,6 +93,7 @@ const $hammer = (() => {
         if (isSurge) {
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
             return _runner(options, (error, response, body) => {
+                $hammer.log("options:", options, "error:", error, "response:", response, "body:", body);
                 if (error == null || error == "") {
                     response.body = body;
                     callback("", body, response);
@@ -153,7 +154,7 @@ function checkin() {
         $hammer.alert(CookieKey, "cookie没有，先去获取吧！");
         return $hammer.done();
     }
-    let options = {
+    const options = {
         url: "https://studygolang.com/mission/daily/redeem",
         headers: {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -170,7 +171,6 @@ function checkin() {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36",
         }
     };
-    $hammer.log("options:", options);
     $hammer.request("get", options, (error, response) => {
         if (error) {
             $hammer.alert(CookieKey, error, "签到请求失败");
