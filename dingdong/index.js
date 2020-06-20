@@ -311,29 +311,16 @@ function propsFeed(i){
                 $hammer.log(error);
                 return resolve(false);
             }
-
-            $hammer.log("response:befor:", response, typeof response);
-
             response = JSON.parse(response);
-
-            $hammer.log("response:after:", response);
-
             if(response.code){
                 $hammer.log(response);
                 $hammer.alert(Protagonist, response.msg, "props/feed");
                 return resolve(false);
             }
             const data = response.data;
-
-            $hammer.log("data:", data)
-
-            $hammer.log(data.seeds[0].msg);
-
-            const remain = data.props[0].amount;
-            const process = data.seeds[0].expPercent;
-            
-            $hammer.log(`剩余饲料: ${remain}g, 进度: ${process}`);
-
+            $hammer.log(data.msg);
+            const remain = data.props.amount;
+            $hammer.log(`剩余饲料: ${remain}g, 进度: ${data.seed.expPercent}`);
             if(remain < 10){
                 $hammer.alert(Protagonist, "饲料不够了", "props/feed");
                 return resolve(false);
