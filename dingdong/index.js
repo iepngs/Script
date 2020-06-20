@@ -85,8 +85,10 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-const cookieName = '叮咚买菜'
-const cookie = $hammer.read(cookieName);//"DDXQSESSID=a360dbae1dd64231884a44e733b2e575";
+const cookieName = '叮咚买菜';
+const cookies = $hammer.read(cookieName);
+$hammer.log("dingdong cookie:?", cookies);
+const cookie = "DDXQSESSID=a360dbae1dd64231884a44e733b2e575";
 const station_id = "5de89c8d26c3d12d538b456a";
 const propsId = "", seedId = "";
 const DD_API_HOST = 'https://farm.api.ddxq.mobi';
