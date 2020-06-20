@@ -207,6 +207,9 @@ function viewMyTask(){
                     case "TO_REWARD":
                         task.userTaskLogId && taskReward(task.userTaskLogId);
                         break;
+                    case "INVITATION":
+                    case "ANY_ORDER":
+                        continue;
                 }
             }
             resolve();
@@ -231,6 +234,7 @@ function taskAchieve(taskCode){
             console.log(error)
             return
         }
+        
         response = JSON.parse(response);
         if(response.code){
             $hammer.log(response);
@@ -304,16 +308,17 @@ function propsFeed(i){
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
         };
         $hammer.log(`第${i}次喂鱼`);
-        $hammer.request("post", options, (error, response) =>{
+        $hammer.request("post", options, (error, response) => {
+            $hammer.log("error:", error, "response:", response);
             if(error){
                 $hammer.log(error);
-                resolve(false);
+                return resolve(false);
             }
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
                 $hammer.alert(Protagonist, response.msg, "props/feed");
-                resolve(false);
+                return resolve(false);
             }
             const data = response.data;
 
@@ -326,7 +331,7 @@ function propsFeed(i){
 
             if(remain < 10){
                 $hammer.alert(Protagonist, "饲料不够了", "props/feed");
-                resolve(false);
+                return resolve(false);
             }
             resolve(true);
         })
