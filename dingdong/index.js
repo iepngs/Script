@@ -1,6 +1,4 @@
-
-
-// cron "1 8,12,17 * * *" script-path="",tag="叮咚养鱼"
+// cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
