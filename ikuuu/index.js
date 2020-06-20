@@ -65,7 +65,7 @@ const $hammer = (() => {
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(key, val);
+            if (isSurge) return $persistentStore.write(val, key);
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {

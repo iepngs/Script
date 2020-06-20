@@ -14,12 +14,11 @@ const $hammer = (() => {
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
     const read = key => {
-        log(`isSurge:`, isSurge,`isQuanX:`, isQuanX, $persistentStore.read(key), $prefs.valueForKey(key));
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(key, val);
+            if (isSurge) return $persistentStore.write(val, key);
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
