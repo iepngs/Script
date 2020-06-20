@@ -86,36 +86,36 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-const CookieName = '叮咚农场',
+const Protagonist = '叮咚农场',
     CookieKey = "CookieDDXQfarm",
-    CookieForStationId = "CookieDDXQfarmStationId",
+    CookieKeyStationId = "CookieDDXQfarmStationId",
     DD_API_HOST = 'https://farm.api.ddxq.mobi';
 
 let propsId = "", seedId = "";
 
-const cookie = $hammer.read(CookieName);
-const station_id = $hammer.read(CookieForStationId);
+const cookie = $hammer.read(CookieKey);
+const station_id = $hammer.read(CookieKeyStationId);
 
 $hammer.log("dingdong cookie:?", cookie);
 $hammer.log("dingdong station_id:?", station_id);
 
 function GetCookie() {
     try {
-        stationIdValue = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
-        if ($request.headers && stationIdValue) {
+        CookieValueStationId = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
+        if ($request.headers && CookieValueStationId) {
             const CookieValue = $request.headers['Cookie'];
             const cachedCookie = $hammer.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
-                $hammer.write(CookieForStationId, stationIdValue);
+                $hammer.write(CookieKeyStationId, CookieValueStationId);
                 const result = $hammer.write(CookieKey, CookieValue);
-                $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
+                $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
             }
         } else {
-            $hammer.alert(CookieName, "请检查匹配URL或配置内脚本类型", "写入失败");
+            $hammer.alert(Protagonist, "请检查匹配URL或配置内脚本类型", "写入失败");
         }
     } catch (error) {
-        $hammer.alert(CookieName, "写入失败: 未知错误");
+        $hammer.alert(Protagonist, "写入失败: 未知错误");
         $hammer.log(error);
     }
     $hammer.done();
@@ -251,11 +251,11 @@ function fishpond() {
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
-                return $hammer.alert(CookieName, response.msg, "userguide/detail");
+                return $hammer.alert(Protagonist, response.msg, "userguide/detail");
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                return $hammer.alert(CookieName, "鱼已经养活了");
+                return $hammer.alert(Protagonist, "鱼已经养活了");
             }
             propsId = data.props[0].propsId;
             seedId = data.seeds[0].seedId;
@@ -304,11 +304,11 @@ function propsFeed(i){
 
 $hammer.isRequest ? GetCookie() : (async function(){
     if(!cookie){
-        return $hammer.alert(CookieName, "cookie不存在，先去获取吧");
+        return $hammer.alert(Protagonist, "cookie不存在，先去获取吧");
     }
 
     await viewMyTask();
-    $hammer.log(`【${CookieName}】任务部分结束。`);
+    $hammer.log(`【${Protagonist}】任务部分结束。`);
 
     await fishpond();
     let index = 1;
@@ -316,4 +316,4 @@ $hammer.isRequest ? GetCookie() : (async function(){
         index++;
     }
     $hammer.done();
-})().catch(err => $hammer.log(`【🙅 ${CookieName}】运行异常: ${err}`), $hammer.done());
+})().catch(err => $hammer.log(`【🙅 ${Protagonist}】运行异常: ${err}`), $hammer.done());
