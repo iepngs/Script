@@ -196,9 +196,11 @@ function viewMyTask(){
                 "FINISHED": "完成，已领取奖励",
             };
             for (const task of taskList) {
-                $hammer.log(`\n===========\n${task.taskName}:${task.descriptions?.[0]}\n- 持续天数:${task.continuousDays}\n- 任务状态:${taskStatus[task.buttonStatus]}\n`);
+                const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
+                const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
+                $hammer.log(`\n===========\n${task.taskName}${desc}}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n`);
                 switch (task.buttonStatus) {
-                    case "TO_ACHIEVE":                    
+                    case "TO_ACHIEVE":
                         taskAchieve(task.taskCode);
                         break;
                     case "TO_REWARD":
@@ -287,7 +289,7 @@ function fishpond() {
             }
             propsId = data.props[0].propsId;
             seedId = data.seeds[0].seedId;
-            $hammer.log('要准备开始喂鱼啦');
+            $hammer.log("准备开始喂鱼啦");
             resolve();
         })
     })
@@ -308,8 +310,8 @@ function propsFeed(i){
             }
             response = JSON.parse(response);
             if(response.code){
-                $hammer.log(response);
-                $hammer.alert("DDXQ", response.msg, "props/feed");
+                $hammer.log(options, response);
+                $hammer.alert(Protagonist, response.msg, "props/feed");
                 resolve(false);
             }
             const data = response.data;
@@ -322,7 +324,7 @@ function propsFeed(i){
             $hammer.log(`剩余饲料: ${remain}g, 进度: ${process}`);
 
             if(remain < 10){
-                $hammer.alert("DDXQ", "饲料不够了", "props/feed");
+                $hammer.alert(Protagonist, "饲料不够了", "props/feed");
                 resolve(false);
             }
             resolve(true);
