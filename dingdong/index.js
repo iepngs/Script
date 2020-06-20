@@ -304,8 +304,14 @@ function propsFeed(i){
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
         };
         $hammer.log(`第${i}次喂鱼`);
-        $hammer.request("post", options, (error, response) =>{
+        $hammer.request("post", options, (error, response, ff) =>{
             if(error){
+                let dd = {
+                    url: `${DD_API_HOST}/api/props/feed`,
+                    headers: initRequestHeaders(),
+                    body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
+                };
+                $hammer.log("dd:", dd, "response:", response, ff.status);
                 $hammer.log(error);
                 resolve(false);
             }
