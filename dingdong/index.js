@@ -185,7 +185,7 @@ function viewMyTask(){
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
-                $hammer.alert("DDXQ", response.msg, "task/list");
+                $hammer.alert(Protagonist, response.msg, "task/list");
                 return
             }
             const taskList = response.data.userTasks;
@@ -199,7 +199,7 @@ function viewMyTask(){
             for (const task of taskList) {
                 const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
-                $hammer.log(`\n===========\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n`);
+                $hammer.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n===========`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
                         taskAchieve(task.taskCode);
@@ -234,7 +234,7 @@ function taskAchieve(taskCode){
         response = JSON.parse(response);
         if(response.code){
             $hammer.log(response);
-            $hammer.alert("DDXQ", response.msg, "task/achieve");
+            $hammer.alert("DDXQ", response.msg, `task/achieve?${taskCode}`);
             return
         }
         if (response.data.taskStatus == "ACHIEVED") {
@@ -259,7 +259,7 @@ function taskReward(userTaskLogId){
         response = JSON.parse(response);
         if(response.code){
             $hammer.log(response);
-            $hammer.alert("DDXQ", response.msg, "task/reward");
+            $hammer.alert(Protagonist, response.msg, "task/reward");
             return
         }
         $hammer.log(response);
@@ -286,7 +286,7 @@ function fishpond() {
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                return $hammer.alert(Protagonist, "鱼已经养活了");
+                return $hammer.alert(Protagonist, "鱼已经养活了", "userguide/detail");
             }
             propsId = data.props[0].propsId;
             seedId = data.seeds[0].seedId;
@@ -304,25 +304,14 @@ function propsFeed(i){
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
         };
         $hammer.log(`第${i}次喂鱼`);
-        $hammer.request("post", options, (error, response, ff) =>{
+        $hammer.request("post", options, (error, response) =>{
             if(error){
-                let dd = {
-                    url: `${DD_API_HOST}/api/props/feed`,
-                    headers: initRequestHeaders(),
-                    body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
-                };
-                $hammer.log("dd:", dd, "response:", response, ff.status);
                 $hammer.log(error);
                 resolve(false);
             }
             response = JSON.parse(response);
             if(response.code){
-                let nn = {
-                    url: `${DD_API_HOST}/api/props/feed`,
-                    headers: initRequestHeaders(),
-                    body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
-                };
-                $hammer.log("nn:", nn, "response:", response);
+                $hammer.log(response);
                 $hammer.alert(Protagonist, response.msg, "props/feed");
                 resolve(false);
             }
