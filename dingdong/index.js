@@ -202,14 +202,12 @@ function viewMyTask(){
                 $hammer.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n===========`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
-                        taskAchieve(task.taskCode);
+                        if(["INVITATION", "ANY_ORDER"].indexOf(task.taskCode) == -1)
+                            taskAchieve(task.taskCode);
                         break;
                     case "TO_REWARD":
                         task.userTaskLogId && taskReward(task.userTaskLogId);
                         break;
-                    case "INVITATION":
-                    case "ANY_ORDER":
-                        continue;
                 }
             }
             resolve();
@@ -309,18 +307,25 @@ function propsFeed(i){
         };
         $hammer.log(`第${i}次喂鱼`);
         $hammer.request("post", options, (error, response) => {
-            $hammer.log("error:", error, "response:", response);
             if(error){
                 $hammer.log(error);
                 return resolve(false);
             }
+
+            $hammer.log("response:befor:", response, typeof response);
+
             response = JSON.parse(response);
+
+            $hammer.log("response:after:", response);
+
             if(response.code){
                 $hammer.log(response);
                 $hammer.alert(Protagonist, response.msg, "props/feed");
                 return resolve(false);
             }
             const data = response.data;
+
+            $hammer.log("data:", data)
 
             $hammer.log(data.seeds[0].msg);
 
