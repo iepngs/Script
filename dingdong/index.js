@@ -87,8 +87,8 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-
-const cookie = "DDXQSESSID=a360dbae1dd64231884a44e733b2e575";
+const cookieName = '叮咚买菜'
+const cookie = $hammer.read(cookieName);//"DDXQSESSID=a360dbae1dd64231884a44e733b2e575";
 const station_id = "5de89c8d26c3d12d538b456a";
 const propsId = "", seedId = "";
 const DD_API_HOST = 'https://farm.api.ddxq.mobi';
@@ -110,7 +110,7 @@ const initRequestHeaders = function() {
 
 function viewMyTask(){
     const options = {
-        url: "https://farm.api.ddxq.mobi/api/task/list",
+        url: `${DD_API_HOST}/api/task/list`,
         headers: initRequestHeaders(),
         body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
     }
@@ -127,16 +127,14 @@ function viewMyTask(){
             return
         }
         const taskList = response.data.userTasks;
+        const taskStatus = {
+            "TO_ACHIEVE": "未完成", 
+            "TO_REWARD": "已完成，未领取奖励", 
+            "WAITING_WINDOW": "未到领取时间",
+            "FINISHED": "完成，已领取奖励",
+        };
         for (const task of taskList) {
-            const taskStatus = {
-                "TO_ACHIEVE": "未完成", 
-                "TO_REWARD": "已完成，未领取奖励", 
-                "WAITING_WINDOW": "未到领取时间",
-                "FINISHED": "完成，已领取奖励",
-            };
-
             $hammer.log(`${task.taskName}:${task.descriptions?.[0]} - 持续天数：${task.continuousDays} - 任务状态:${taskStatus[task.buttonStatus]}`);
-
             switch (task.buttonStatus) {
                 case "TO_ACHIEVE":                    
                     taskAchieve(task.taskCode);
@@ -147,11 +145,7 @@ function viewMyTask(){
                 default:
                     break;
             }
-
         }
-
-        $hammer.log("任务部分结束，开始喂鱼");
-        userguideDetail();
     })
 }
 
@@ -163,7 +157,7 @@ function viewMyTask(){
 //      DAILY_SIGN: 每日签到
 function taskAchieve(taskCode){
     const options = {
-        url: "https://farm.api.ddxq.mobi/api/task/achieve",
+        url: `${DD_API_HOST}/api/task/achieve`,
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&taskCode=${taskCode}`
     }
@@ -191,7 +185,7 @@ function taskAchieve(taskCode){
 // 有任务编号的领取奖励
 function taskReward(userTaskLogId){
     const options = {
-        url: "https://farm.api.ddxq.mobi/api/task/reward",
+        url: `${DD_API_HOST}/api/task/reward`,
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`
     }
@@ -214,7 +208,7 @@ function taskReward(userTaskLogId){
 
 
 function fishpond() {
-    $hammer.log('先获取鱼池信息');
+    $hammer.log('正在获取鱼池信息…');
     return new Promise(resolve => {
         const options = {
             url: `${DD_API_HOST}/api/userguide/detail`,
@@ -236,27 +230,30 @@ function fishpond() {
             }
             propsId = data.props[0].propsId;
             seedId = data.seeds[0].seedId;
+            $hammer.log('要准备开始喂鱼啦');
             resolve();
         })
     })
 }
 
-function propsFeed(){
-    $hammer.log('开始喂鱼啦');
+function propsFeed(i){
     return new Promise(resolve => {
         const options = {
             url: `${DD_API_HOST}/api/props/feed`,
             headers: initRequestHeaders(),
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
         };
+        $hammer.log(`第${i}次喂鱼`);
         $hammer.request("post", options, (error, response) =>{
             if(error){
-                return $hammer.log(error)
+                $hammer.log(error);
+                resolve(false);
             }
             response = JSON.parse(response);
             if(!response.code){
                 $hammer.log(response);
-                return $hammer.alert("DDXQ", response.msg, "task/list");
+                $hammer.alert("DDXQ", response.msg, "props/feed");
+                resolve(false);
             }
             const data = response.data;
 
@@ -265,23 +262,31 @@ function propsFeed(){
             const remain = data.props[0].amount;
             const process = data.seeds[0].expPercent;
             
-            $hammer.log(`remain: ${remain}, process: ${process}`);
+            $hammer.log(`剩余饲料: ${remain}g, 进度: ${process}`);
 
             if(remain < 10){
-                return $hammer.alert("DDXQ", "私聊不够了", "props/feed");
+                $hammer.alert("DDXQ", "饲料不够了", "props/feed");
+                resolve(false);
             }
+            resolve(true);
         })
     })
 }
 
 (async function(){
+    if(!cookie){
+        return $hammer.alert(cookieName, "cookie不存在，先去获取吧");
+    }
     await (()=>{
         return new Promise(resolve =>{
             resolve(viewMyTask())
         })
-    })()
-    
-
+    })();
+    $hamme.log(`【${cookieName}】任务部分结束。`)
     await fishpond();
-    await propsFeed();
-})()
+    let index = 1;
+    while(await propsFeed(index)){
+        index++;
+    }
+    $hammer.done();
+})().catch(err => $hammer.log(`【🙅 ${cookieName}】运行异常: ${err}`), $hammer.done());
