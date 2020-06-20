@@ -96,9 +96,6 @@ let propsId = "", seedId = "";
 const cookie = $hammer.read(CookieKey);
 const station_id = $hammer.read(CookieKeyStationId);
 
-$hammer.log("dingdong cookie:?", cookie);
-$hammer.log("dingdong station_id:?", station_id);
-
 function GetCookie() {
     try {
         CookieValueStationId = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
@@ -144,14 +141,14 @@ function viewMyTask(){
             headers: initRequestHeaders(),
             body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
         }
-        
         $hammer.request("post", options, (error, response) =>{
             if(error){
                 $hammer.log(error)
                 return
             }
+            $hammer.log("response:", response)
             response = JSON.parse(response);
-            if(!response.code){
+            if(response.code){
                 $hammer.log(response);
                 $hammer.alert("DDXQ", response.msg, "task/list");
                 return
