@@ -93,7 +93,6 @@ const $hammer = (() => {
         if (isSurge) {
             const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
             return _runner(options, (error, response, body) => {
-                $hammer.log("options:", options, "error:", error, "response:", response, "body:", body);
                 if (error == null || error == "") {
                     response.body = body;
                     callback("", body, response);
@@ -171,8 +170,12 @@ function checkin() {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36",
         }
     };
-    $hammer.request("get", options, (error, response) => {
+    $hammer.request("get", options, (error, response, ret) => {
         if (error) {
+            if(ret.status == 302 && ret.headers?.Location == "/mission/daily?fr=redeem"){
+                $hammer.alert(CookieKey, "签到完成");
+                return $hammer.done();
+            }
             $hammer.alert(CookieKey, error, "签到请求失败");
             return $hammer.done();
         }
