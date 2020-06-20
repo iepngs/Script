@@ -1,3 +1,4 @@
+
 // cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
 
 const $hammer = (() => {
@@ -85,13 +86,40 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-const cookieName = '叮咚买菜';
-const cookies = $hammer.read(cookieName);
-$hammer.log("dingdong cookie:?", cookies);
-const cookie = "DDXQSESSID=a360dbae1dd64231884a44e733b2e575";
-const station_id = "5de89c8d26c3d12d538b456a";
-const propsId = "", seedId = "";
-const DD_API_HOST = 'https://farm.api.ddxq.mobi';
+const CookieName = '叮咚农场',
+    CookieKey = "CookieDDXQfarm",
+    CookieForStationId = "CookieDDXQfarmStationId",
+    DD_API_HOST = 'https://farm.api.ddxq.mobi';
+
+let propsId = "", seedId = "";
+
+const cookie = $hammer.read(CookieName);
+const station_id = $hammer.read(CookieForStationId);
+
+$hammer.log("dingdong cookie:?", cookie);
+$hammer.log("dingdong station_id:?", station_id);
+
+function GetCookie() {
+    try {
+        stationIdValue = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
+        if ($request.headers && stationIdValue) {
+            const CookieValue = $request.headers['Cookie'];
+            const cachedCookie = $hammer.read(CookieKey);
+            const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
+            if(dynamic){
+                $hammer.write(CookieForStationId, stationIdValue);
+                const result = $hammer.write(CookieKey, CookieValue);
+                $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
+            }
+        } else {
+            $hammer.alert(CookieName, "请检查匹配URL或配置内脚本类型", "写入失败");
+        }
+    } catch (error) {
+        $hammer.alert(CookieName, "写入失败: 未知错误");
+        $hammer.log(error);
+    }
+    $hammer.done();
+}
 
 const initRequestHeaders = function() {
     return {
@@ -109,44 +137,45 @@ const initRequestHeaders = function() {
 };
 
 function viewMyTask(){
-    const options = {
-        url: `${DD_API_HOST}/api/task/list`,
-        headers: initRequestHeaders(),
-        body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
-    }
-    
-    $hammer.request("post", options, (error, response) =>{
-        if(error){
-            console.log(error)
-            return
+    return new Promise(resolve =>{
+        const options = {
+            url: `${DD_API_HOST}/api/task/list`,
+            headers: initRequestHeaders(),
+            body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
         }
-        response = JSON.parse(response);
-        if(!response.code){
-            $hammer.log(response);
-            $hammer.alert("DDXQ", response.msg, "task/list");
-            return
-        }
-        const taskList = response.data.userTasks;
-        const taskStatus = {
-            "TO_ACHIEVE": "未完成", 
-            "TO_REWARD": "已完成，未领取奖励", 
-            "WAITING_WINDOW": "未到领取时间",
-            "FINISHED": "完成，已领取奖励",
-        };
-        for (const task of taskList) {
-            $hammer.log(`${task.taskName}:${task.descriptions?.[0]} - 持续天数：${task.continuousDays} - 任务状态:${taskStatus[task.buttonStatus]}`);
-            switch (task.buttonStatus) {
-                case "TO_ACHIEVE":                    
-                    taskAchieve(task.taskCode);
-                    break;
-                case "TO_REWARD":
-                    task.userTaskLogId && taskReward(task.userTaskLogId);
-                    break;
-                default:
-                    break;
+        
+        $hammer.request("post", options, (error, response) =>{
+            if(error){
+                $hammer.log(error)
+                return
             }
-        }
-    })
+            response = JSON.parse(response);
+            if(!response.code){
+                $hammer.log(response);
+                $hammer.alert("DDXQ", response.msg, "task/list");
+                return
+            }
+            const taskList = response.data.userTasks;
+            const taskStatus = {
+                "TO_ACHIEVE": "未完成", 
+                "TO_REWARD": "已完成，未领取奖励", 
+                "WAITING_WINDOW": "未到领取时间",
+                "FINISHED": "完成，已领取奖励",
+            };
+            for (const task of taskList) {
+                $hammer.log(`${task.taskName}:${task.descriptions?.[0]} - 持续天数：${task.continuousDays} - 任务状态:${taskStatus[task.buttonStatus]}`);
+                switch (task.buttonStatus) {
+                    case "TO_ACHIEVE":                    
+                        taskAchieve(task.taskCode);
+                        break;
+                    case "TO_REWARD":
+                        task.userTaskLogId && taskReward(task.userTaskLogId);
+                        break;
+                }
+            }
+            resolve();
+        })
+    });
 }
 
 
@@ -222,11 +251,11 @@ function fishpond() {
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
-                return $hammer.alert("DDXQ", response.msg, "userguide/detail");
+                return $hammer.alert(CookieName, response.msg, "userguide/detail");
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                return $hammer.alert("DDXQ", "鱼已经养活了");
+                return $hammer.alert(CookieName, "鱼已经养活了");
             }
             propsId = data.props[0].propsId;
             seedId = data.seeds[0].seedId;
@@ -273,20 +302,18 @@ function propsFeed(i){
     })
 }
 
-(async function(){
+$hammer.isRequest ? GetCookie() : (async function(){
     if(!cookie){
-        return $hammer.alert(cookieName, "cookie不存在，先去获取吧");
+        return $hammer.alert(CookieName, "cookie不存在，先去获取吧");
     }
-    await (()=>{
-        return new Promise(resolve =>{
-            resolve(viewMyTask())
-        })
-    })();
-    $hammer.log(`【${cookieName}】任务部分结束。`)
+
+    await viewMyTask();
+    $hammer.log(`【${CookieName}】任务部分结束。`);
+
     await fishpond();
     let index = 1;
     while(await propsFeed(index)){
         index++;
     }
     $hammer.done();
-})().catch(err => $hammer.log(`【🙅 ${cookieName}】运行异常: ${err}`), $hammer.done());
+})().catch(err => $hammer.log(`【🙅 ${CookieName}】运行异常: ${err}`), $hammer.done());

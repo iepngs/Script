@@ -129,16 +129,13 @@ const CookieKey = "StudyGolang";
 function GetCookie() {
     const CookieName = CookieKey + "的Cookie";
     try {
-        if ($request.headers && $request.url.match(/studygolang\.com\/account\/edit/)) {
+        if ($request.headers) {
             const CookieValue = $request.headers['Cookie'];
-            if ($hammer.read(CookieKey)) {
-                if ($hammer.read(CookieKey) != CookieValue) {
-                    const cookie = $hammer.write(CookieValue, CookieKey);
-                    $hammer.alert(CookieName, "更新" + (cookie ? "成功🎉" : "失败"));
-                }
-            } else {
-                const cookie = $hammer.write(CookieValue, CookieKey);
-                $hammer.alert(CookieName, "写入" + (cookie ? "成功🎉" : "失败"));
+            const cachedCookie = $hammer.read(CookieKey);
+            const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
+            if(dynamic){
+                const result = $hammer.write(CookieKey, CookieValue);
+                $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
             }
         } else {
             $hammer.alert(CookieName, "请检查匹配URL或配置内脚本类型", "写入失败");
