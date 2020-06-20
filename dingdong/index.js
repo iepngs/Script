@@ -146,6 +146,7 @@ function viewMyTask(){
                 $hammer.log(error)
                 return
             }
+            response = response.body;
             $hammer.log("response:", response)
             response = JSON.parse(response);
             if(response.code){
