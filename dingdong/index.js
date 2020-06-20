@@ -1,6 +1,41 @@
-// http-request ^https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚农场
-// cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
-// maicai.api.ddxq.mobi
+/**
+叮咚农场
+
+说明：
+从 我的 点击 “叮咚农场” 进入即可获取cookie。
+获取Cookie后, 请将Cookie脚本禁用并移除主机名，以免产生不必要的MITM。
+
+************************
+[Mitm]
+************************
+hostname = maicai.api.ddxq.mobi
+
+
+************************
+QuantumultX 本地脚本配置:
+************************
+
+[task_local]
+# go语言中文网签到
+1 8,12,17 * * * iepngs/Script/master/dingdong/index.js
+
+[rewrite_local]
+# 获取Cookie
+https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin url script-request-header iepngs/Script/master/dingdong/index.js
+
+
+************************
+Loon 2.1.0+ 脚本配置:
+************************
+
+[Script]
+# go语言中文网签到
+cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
+
+# 获取Cookie
+http-request ^https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚农场
+
+**/
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
@@ -18,7 +53,7 @@ const $hammer = (() => {
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);
+            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
@@ -28,7 +63,8 @@ const $hammer = (() => {
          * 
          * callback(
          *      error, 
-         *      {status: <int>, headers: <object>, body: <string>} | ""
+         *      <response-body string>?,
+         *      {status: <int>, headers: <object>, body: <string>}?
          * )
          * 
          */
@@ -57,10 +93,10 @@ const $hammer = (() => {
             return _runner(options, (error, response, body) => {
                 if (error == null || error == "") {
                     response.body = body;
-                    callback("", response);
+                    callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error, "");
+                    callback(error);
                 }
             });
         }
@@ -70,11 +106,11 @@ const $hammer = (() => {
                 response => {
                     response.status = response.statusCode;
                     delete response.statusCode;
-                    callback("", response);
+                    callback("", response.body, response);
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error, "");
+                    callback(reason.error);
                 }
             );
         }
@@ -146,8 +182,6 @@ function viewMyTask(){
                 $hammer.log(error)
                 return
             }
-            response = response.body;
-            $hammer.log("response:", response)
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
@@ -162,7 +196,7 @@ function viewMyTask(){
                 "FINISHED": "完成，已领取奖励",
             };
             for (const task of taskList) {
-                $hammer.log(`${task.taskName}:${task.descriptions?.[0]} - 持续天数：${task.continuousDays} - 任务状态:${taskStatus[task.buttonStatus]}`);
+                $hammer.log(`\n===========\n${task.taskName}:${task.descriptions?.[0]}\n- 持续天数:${task.continuousDays}\n- 任务状态:${taskStatus[task.buttonStatus]}\n`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":                    
                         taskAchieve(task.taskCode);
@@ -189,23 +223,20 @@ function taskAchieve(taskCode){
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&taskCode=${taskCode}`
     }
-    
     $hammer.request("post", options, (error, response) =>{
         if(error){
             console.log(error)
             return
         }
         response = JSON.parse(response);
-        if(!response.code){
+        if(response.code){
             $hammer.log(response);
-            $hammer.alert("DDXQ", response.msg, "task/list");
+            $hammer.alert("DDXQ", response.msg, "task/achieve");
             return
         }
         if (response.data.taskStatus == "ACHIEVED") {
             const adRewardId = response.data?.userTaskLogId;
-            if (adRewardId) {
-                taskReward(userTaskLogId);
-            }
+            adRewardId && taskReward(userTaskLogId);
         }
     })
 }
@@ -217,19 +248,17 @@ function taskReward(userTaskLogId){
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`
     }
-    
     $hammer.request("post", options, (error, response) =>{
         if(error){
             console.log(error)
             return
         }
         response = JSON.parse(response);
-        if(!response.code){
+        if(response.code){
             $hammer.log(response);
             $hammer.alert("DDXQ", response.msg, "task/reward");
             return
         }
-
         $hammer.log(response);
     })
 }
@@ -278,7 +307,7 @@ function propsFeed(i){
                 resolve(false);
             }
             response = JSON.parse(response);
-            if(!response.code){
+            if(response.code){
                 $hammer.log(response);
                 $hammer.alert("DDXQ", response.msg, "props/feed");
                 resolve(false);

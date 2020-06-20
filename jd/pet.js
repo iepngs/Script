@@ -17,7 +17,7 @@ const $hammer = (() => {
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);
+            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
@@ -27,7 +27,8 @@ const $hammer = (() => {
          * 
          * callback(
          *      error, 
-         *      {status: <int>, headers: <object>, body: <string>} | ""
+         *      <response-body string>?,
+         *      {status: <int>, headers: <object>, body: <string>}?
          * )
          * 
          */
@@ -56,10 +57,10 @@ const $hammer = (() => {
             return _runner(options, (error, response, body) => {
                 if (error == null || error == "") {
                     response.body = body;
-                    callback("", response);
+                    callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error, "");
+                    callback(error);
                 }
             });
         }
@@ -69,11 +70,11 @@ const $hammer = (() => {
                 response => {
                     response.status = response.statusCode;
                     delete response.statusCode;
-                    callback("", response);
+                    callback("", response.body, response);
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error, "");
+                    callback(reason.error);
                 }
             );
         }
@@ -369,7 +370,7 @@ async function request(function_id, body = {}) {
             if(error){
                 $hammer.log("Error:", error);
             }else{
-                resolve(JSON.parse(response.body));
+                resolve(JSON.parse(response));
             }
         })
     })

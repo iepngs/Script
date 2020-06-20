@@ -36,7 +36,6 @@ cron "0 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/mas
 # 获取Cookie 网站登录后点击自己头像右边用户名下面的“个人资料设置”页面
 http-request https:\/\/studygolang\.com\/account\/edit script-path=https://raw.githubusercontent.com/iepngs/Script/master/studygolang/index.js
 
-
 **/
 
 const $hammer = (() => {
@@ -56,7 +55,7 @@ const $hammer = (() => {
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);
+            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
@@ -66,7 +65,8 @@ const $hammer = (() => {
          * 
          * callback(
          *      error, 
-         *      {status: <int>, headers: <object>, body: <string>} | ""
+         *      <response-body string>?,
+         *      {status: <int>, headers: <object>, body: <string>}?
          * )
          * 
          */
@@ -95,10 +95,10 @@ const $hammer = (() => {
             return _runner(options, (error, response, body) => {
                 if (error == null || error == "") {
                     response.body = body;
-                    callback("", response);
+                    callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error, "");
+                    callback(error);
                 }
             });
         }
@@ -108,11 +108,11 @@ const $hammer = (() => {
                 response => {
                     response.status = response.statusCode;
                     delete response.statusCode;
-                    callback("", response);
+                    callback("", response.body, response);
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error, "");
+                    callback(reason.error);
                 }
             );
         }
@@ -170,7 +170,7 @@ function checkin() {
             $hammer.alert(CookieKey, error, "签到请求失败");
             return $hammer.done();
         }
-        $hammer.log(`${CookieKey}签到结果：`, response.body);
+        $hammer.log(`${CookieKey}签到结果：`, response);
         $hammer.alert(CookieKey, "签到完成");
         $hammer.done();
     })

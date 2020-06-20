@@ -65,7 +65,7 @@ const $hammer = (() => {
         if (isQuanX) return $prefs.valueForKey(key);
     },
         write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);
+            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
             if (isQuanX) return $prefs.setValueForKey(key, val);
         };
     const request = (method, params, callback) => {
@@ -75,7 +75,8 @@ const $hammer = (() => {
          * 
          * callback(
          *      error, 
-         *      {status: <int>, headers: <object>, body: <string>} | ""
+         *      <response-body string>?,
+         *      {status: <int>, headers: <object>, body: <string>}?
          * )
          * 
          */
@@ -104,10 +105,10 @@ const $hammer = (() => {
             return _runner(options, (error, response, body) => {
                 if (error == null || error == "") {
                     response.body = body;
-                    callback("", response);
+                    callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error, "");
+                    callback(error);
                 }
             });
         }
@@ -117,11 +118,11 @@ const $hammer = (() => {
                 response => {
                     response.status = response.statusCode;
                     delete response.statusCode;
-                    callback("", response);
+                    callback("", response.body, response);
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error, "");
+                    callback(reason.error);
                 }
             );
         }
@@ -165,8 +166,7 @@ function checkin() {
             "referer": "https://ikuuu.co/user",
             "cookie": $hammer.read(CookieKey),
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1",
-        },
-        body: ""
+        }
     }
     $hammer.request("post", options, (error, response) => {
         if (error) {
@@ -174,7 +174,7 @@ function checkin() {
             return $hammer.done();
         }
         $hammer.log("IKUUU签到结果：", response);
-        data = JSON.parse(response.body);
+        data = JSON.parse(response);
         $hammer.alert("IKUUU签到", data.msg);
         $hammer.done();
     })
