@@ -148,6 +148,11 @@ function GetCookie() {
 }
 
 function checkin() {
+    const cookie = $hammer.read(CookieKey);
+    if (!cookie) {
+        $hammer.alert(CookieKey, "cookie没有，先去获取吧！");
+        return $hammer.done();
+    }
     let options = {
         url: "https://studygolang.com/mission/daily/redeem",
         headers: {
@@ -155,7 +160,7 @@ function checkin() {
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
             "Connection": "keep-alive",
-            "Cookie": $hammer.read(CookieKey),
+            "Cookie": cookie,
             "Host": "studygolang.com",
             "Referer": "https://studygolang.com/mission/daily",
             "Sec-Fetch-Mode": "navigate",
