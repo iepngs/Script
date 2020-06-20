@@ -149,6 +149,7 @@ function GetCookie() {
 
 function checkin() {
     const cookie = $hammer.read(CookieKey);
+    $hammer.log("cookie:", cookie);
     if (!cookie) {
         $hammer.alert(CookieKey, "cookie没有，先去获取吧！");
         return $hammer.done();
