@@ -119,7 +119,7 @@ Task.next();
 
 function* step() {
     if (!cookie) {
-        $hammer.alert(name, `请先获取cookie\n直接使用NobyDa的京东签到获取`);
+        return $hammer.alert(name, `请先获取cookie\n直接使用NobyDa的京东签到获取`);
     }
     let message = '';
     console.log(`获取任务及基本信息`)
