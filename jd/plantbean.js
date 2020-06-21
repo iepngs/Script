@@ -1,3 +1,13 @@
+/**
+ * 京东种豆得豆
+ * 不知道哪里的来源，在电报群里别人转分享出来的
+ * 
+
+# 京东种豆得豆
+0 8 * * * iepngs/Script/master/dingdong/index.js
+cron "0 8 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd/plantbean.js,tag=京东种豆得豆
+
+ */
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
@@ -100,14 +110,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 var plantUuids = [ // 这个列表填入你要助力的好友的plantUuid
     'mlrdw3aw26j3witdhw4vt2kptfwlhpwkiadkaqy',
-    '5azfqt6w2x5lztg2pjkatit22a3h7wlwy7o5jii',
-    'olmijoxgmjutyrsovl2xalt2tbtfmg6sqldcb3q',
-    'mlrdw3aw26j3wnp5w664mla2a4gxr27jhtmtsfq',
-    '4npkonnsy7xi2eq2k25itzaab2hf7kpv2djqdma',
-    '66j4yt3ebl5ierjljoszp7e4izzbzaqhi5k2unz2afwlyqsgnasq',
-    'jezqczgr4tsechfwoeoyp4regm',
-    'e7jscpzp7kr6v6m7akoq7psmli5ac3f4ijdgqji',
-    'e7lhibzb3zek2dz26dqpqexdy4u5hxraa2ps75y',
+    'zanmzshzq4ykx5xirwj7y7lmki',
 ];
 
 
@@ -117,7 +120,7 @@ Task.next();
 function* step() {
     //
     if (cookie) {
-        $hammer.alert(name, '请先获取cookie\n直接使用NobyDa的京东签到获取');
+        $hammer.alert(name, `请先获取cookie\n直接使用NobyDa的京东签到获取`);
     }
     let message = '';
     console.log(`获取任务及基本信息`)
