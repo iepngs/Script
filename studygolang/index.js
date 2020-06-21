@@ -53,11 +53,11 @@ const $hammer = (() => {
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
-    },
-        write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
-            if (isQuanX) return $prefs.setValueForKey(key, val);
-        };
+    };
+    const write = (val, key) => {
+        if (isSurge) return $persistentStore.write(val, key);
+        if (isQuanX) return $prefs.setValueForKey(val, key);
+    };
     const request = (method, params, callback) => {
         /**
          * 
@@ -134,7 +134,7 @@ function GetCookie() {
             const cachedCookie = $hammer.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
-                const result = $hammer.write(CookieKey, CookieValue);
+                const result = $hammer.write(CookieValue, CookieKey);
                 $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
             }
         } else {

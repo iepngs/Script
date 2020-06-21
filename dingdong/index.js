@@ -51,11 +51,11 @@ const $hammer = (() => {
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
-    },
-        write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
-            if (isQuanX) return $prefs.setValueForKey(key, val);
-        };
+    };
+    const write = (val, key) => {
+        if (isSurge) return $persistentStore.write(val, key);
+        if (isQuanX) return $prefs.setValueForKey(val, key);
+    };
     const request = (method, params, callback) => {
         /**
          * 
@@ -124,24 +124,24 @@ const $hammer = (() => {
 
 const Protagonist = '叮咚农场',
     CookieKey = "CookieDDXQfarm",
-    CookieKeyStationId = "CookieDDXQfarmStationId",
+    StationIdCookieKey = "CookieDDXQfarmStationId",
     DD_API_HOST = 'https://farm.api.ddxq.mobi';
 
 let propsId = "", seedId = "";
 
 const cookie = $hammer.read(CookieKey);
-const station_id = $hammer.read(CookieKeyStationId);
+const station_id = $hammer.read(StationIdCookieKey);
 
 function GetCookie() {
     try {
-        CookieValueStationId = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
-        if ($request.headers && CookieValueStationId) {
+        const StationIdCookieValue = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
+        if ($request.headers && StationIdCookieValue) {
             const CookieValue = $request.headers['Cookie'];
             const cachedCookie = $hammer.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
-                $hammer.write(CookieKeyStationId, CookieValueStationId);
-                const result = $hammer.write(CookieKey, CookieValue);
+                $hammer.write(StationIdCookieValue, StationIdCookieKey);
+                const result = $hammer.write(CookieValue, CookieKey);
                 $hammer.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $hammer.read(CookieKey));
                 $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
             }
@@ -170,7 +170,7 @@ const initRequestHeaders = function() {
     };
 };
 
-function viewMyTask(){
+function fetchMyTask(){
     return new Promise(resolve =>{
         const options = {
             url: `${DD_API_HOST}/api/task/list`,
@@ -217,10 +217,6 @@ function viewMyTask(){
 
 
 // 做任务
-// taskCode:
-//      BROWSE_GOODS: 领取30s广告奖励
-//      CONTINUOUS_SIGN: 领取签到奖励
-//      DAILY_SIGN: 每日签到
 function taskAchieve(taskCode){
     const options = {
         url: `${DD_API_HOST}/api/task/achieve`,
@@ -240,8 +236,8 @@ function taskAchieve(taskCode){
             return
         }
         if (response.data.taskStatus == "ACHIEVED") {
-            const adRewardId = response.data?.userTaskLogId;
-            adRewardId && taskReward(userTaskLogId);
+            const userTaskLogId = response.data?.userTaskLogId;
+            userTaskLogId && taskReward(userTaskLogId);
         }
     })
 }
@@ -325,7 +321,9 @@ function propsFeed(i){
                 $hammer.alert(Protagonist, "饲料不够了", "props/feed");
                 return resolve(false);
             }
-            resolve(true);
+            setTimeout(()=>{
+                resolve(true);
+            }, Math.floor(Math.random()*1500));
         })
     })
 }
@@ -335,7 +333,7 @@ $hammer.isRequest ? GetCookie() : (async function(){
         return $hammer.alert(Protagonist, "cookie不存在，先去获取吧");
     }
 
-    await viewMyTask();
+    await fetchMyTask();
     $hammer.log(`【${Protagonist}】任务部分结束。`);
 
     await fishpond();

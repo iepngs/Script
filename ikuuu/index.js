@@ -63,11 +63,11 @@ const $hammer = (() => {
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
-    },
-        write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
-            if (isQuanX) return $prefs.setValueForKey(key, val);
-        };
+    };
+    const write = (val, key) => {
+        if (isSurge) return $persistentStore.write(val, key);
+        if (isQuanX) return $prefs.setValueForKey(val, key);
+    };
     const request = (method, params, callback) => {
         /**
          * 
@@ -135,6 +135,7 @@ const $hammer = (() => {
 })();
 
 const CookieKey = "CookieIKUUU";
+const Protagonist = "iKuuu";
 
 function GetCookie() {
     const CookieName = "IKUUU的Cookie";
@@ -144,7 +145,7 @@ function GetCookie() {
             const cachedCookie = $hammer.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
-                const result = $hammer.write(CookieKey, CookieValue);
+                const result = $hammer.write(CookieValue, CookieKey);
                 $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
             }
         } else {
@@ -158,24 +159,34 @@ function GetCookie() {
 }
 
 function checkin() {
+    const cookie = $hammer.read(CookieKey);
+    if (!cookie) {
+        $hammer.alert(Protagonist, "cookie没有，先去获取吧!");
+        return $hammer.done();
+    }
     let options = {
         url: "https://ikuuu.co/user/checkin",
         headers: {
             "accept": "application/json, text/javascript, */*; q=0.01",
             "origin": "https://ikuuu.co",
             "referer": "https://ikuuu.co/user",
-            "cookie": $hammer.read(CookieKey),
+            "cookie": cookie,
             "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1",
         }
     }
-    $hammer.request("post", options, (error, response) => {
+    $hammer.request("post", options, (error, response, result) => {
         if (error) {
-            $hammer.alert("IKUUU签到", error, "签到请求失败");
+            $hammer.alert(Protagonist, error, "签到请求失败");
             return $hammer.done();
         }
-        $hammer.log("IKUUU签到结果：", response);
-        data = JSON.parse(response);
-        $hammer.alert("IKUUU签到", data.msg);
+        try {
+            response = JSON.parse(response);
+        } catch (error) {
+            $hammer.log(`${Protagonist}签到结果：`, result);
+            $hammer.alert(Protagonist, "签到结果解析异常，看一下日志");
+            return $hammer.done();
+        }
+        $hammer.alert(Protagonist, response.msg);
         $hammer.done();
     })
 }

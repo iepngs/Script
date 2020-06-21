@@ -13,11 +13,11 @@ const $hammer = (() => {
     const read = key => {
         if (isSurge) return $persistentStore.read(key);
         if (isQuanX) return $prefs.valueForKey(key);
-    },
-        write = (key, val) => {
-            if (isSurge) return $persistentStore.write(val, key);//surge是反着顺序的
-            if (isQuanX) return $prefs.setValueForKey(key, val);
-        };
+    };
+    const write = (val, key) => {
+        if (isSurge) return $persistentStore.write(val, key);
+        if (isQuanX) return $prefs.setValueForKey(val, key);
+    };
     const request = (method, params, callback) => {
         /**
          * 
