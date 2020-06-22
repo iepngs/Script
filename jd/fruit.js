@@ -115,15 +115,6 @@ let farmTask = null;
 // let farmInfo = null;
 
 function* step() {
-            console.log('开始集卡活动')
-
-        //初始化集卡抽奖活动数据
-        let turntableFarm = yield initForTurntableFarm()
-        $hammer.log("turntableFarm:", JSON.stringify(turntableFarm), turntableFarm.code == 0, turntableFarm.code == "0");
-        $hammer.log("over");
-    $hammer.done();
-    return false;
-    //
     let message = '';
     let subTitle = '';
 
@@ -294,8 +285,6 @@ function* step() {
 
         //初始化集卡抽奖活动数据
         let turntableFarm = yield initForTurntableFarm()
-        $hammer.log("turntableFarm:", JSON.stringify(turntableFarm), turntableFarm.code == 0, turntableFarm.code == "0");
-        $hammer.log("over");
         if (turntableFarm.code == 0) {
             //浏览爆品任务
             if (!turntableFarm.turntableBrowserAdsStatus) {
@@ -359,7 +348,7 @@ function* step() {
 
         } else {
             console.log(`初始化集卡抽奖活动数据异常, 数据: ${JSON.stringify(farmInfo)}`);
-            message += '【集卡抽奖】初始化集卡抽奖数据异常'
+            message += '【集卡抽奖】活动好像结束了？'
         }
         console.log('集卡活动抽奖结束')
 
