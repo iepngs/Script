@@ -2,7 +2,7 @@
 叮咚农场
 
 说明：
-从 我的 点击 “叮咚农场” 进入即可获取cookie。
+叮咚买菜App - 右下角“我的”- 叮咚农场 进入即可获取cookie。
 获取Cookie后, 请将Cookie脚本禁用并移除主机名，以免产生不必要的MITM。
 
 ************************
@@ -16,7 +16,7 @@ QuantumultX 本地脚本配置:
 ************************
 
 [task_local]
-# go语言中文网签到
+# 叮咚农场
 1 8,12,17 * * * iepngs/Script/master/dingdong/index.js
 
 [rewrite_local]
@@ -29,7 +29,7 @@ Loon 2.1.0+ 脚本配置:
 ************************
 
 [Script]
-# go语言中文网签到
+# 叮咚农场
 cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
 
 # 获取Cookie
@@ -144,9 +144,9 @@ function GetCookie() {
                 const result = $hammer.write(CookieValue, CookieKey);
                 $hammer.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $hammer.read(CookieKey));
                 $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
+            }else{
+                $hammer.alert("有一样的cookie在了");
             }
-        } else {
-            $hammer.alert(Protagonist, "请检查匹配URL或配置内脚本类型", "写入失败");
         }
     } catch (error) {
         $hammer.alert(Protagonist, "写入失败: 未知错误");
@@ -225,19 +225,27 @@ function taskAchieve(taskCode){
     }
     $hammer.request("post", options, (error, response) =>{
         if(error){
-            console.log(error)
+            $hammer.log(error)
             return
         }
-        
         response = JSON.parse(response);
         if(response.code){
             $hammer.log(response);
-            $hammer.alert("DDXQ", response.msg, `task/achieve?${taskCode}`);
+            $hammer.alert(Protagonist, response.msg, `task/achieve?${taskCode}`);
             return
         }
         if (response.data.taskStatus == "ACHIEVED") {
             const userTaskLogId = response.data?.userTaskLogId;
-            userTaskLogId && taskReward(userTaskLogId);
+            if(userTaskLogId){
+                taskReward(userTaskLogId);
+            }else{
+                const amount = response.data.rewards.amount;
+                // if(taskCode == "LOTTERY"){
+                    // $hammer.alert(Protagonist, `本时段三餐开福袋已领取：${amount}g`);
+                // }else{
+                    $hammer.log(`任务完成，获得饲料：${amount}g`);
+                // }
+            }
         }
     })
 }
@@ -251,7 +259,7 @@ function taskReward(userTaskLogId){
     }
     $hammer.request("post", options, (error, response) =>{
         if(error){
-            console.log(error)
+            $hammer.log(error)
             return
         }
         response = JSON.parse(response);
@@ -260,6 +268,7 @@ function taskReward(userTaskLogId){
             $hammer.alert(Protagonist, response.msg, "task/reward");
             return
         }
+        $hammer.log(`任务完成，获得饲料：${response.data.rewards.amount}g`);
         $hammer.log(response);
     })
 }
@@ -284,9 +293,14 @@ function fishpond() {
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                return $hammer.alert(Protagonist, "鱼已经养活了", "userguide/detail");
+                return $hammer.alert(Protagonist, "去看看,鱼应该已经养活了", "userguide/detail");
             }
             propsId = data.props[0].propsId;
+            const amount = data.props[0].amount;
+            $hammer.log(`当前饲料剩余:${amount}g,${data.seeds[0].msg}`);
+            if(amount < 10){
+                return $hammer.log("饲料不够，明天再喂吧。");
+            }
             seedId = data.seeds[0].seedId;
             $hammer.log("准备开始喂鱼啦");
             resolve();
@@ -316,9 +330,10 @@ function propsFeed(i){
             const data = response.data;
             $hammer.log(data.msg);
             const remain = data.props.amount;
-            $hammer.log(`剩余饲料: ${remain}g, 进度: ${data.seed.expPercent}`);
+            const description = `剩余饲料: ${remain}g, 进度: ${data.seed.expPercent}`;
+            $hammer.log(description);
             if(remain < 10){
-                $hammer.alert(Protagonist, "饲料不够了", "props/feed");
+                $hammer.alert(Protagonist, description, `今天喂了${i}次，现在饲料不够了`);
                 return resolve(false);
             }
             setTimeout(()=>{

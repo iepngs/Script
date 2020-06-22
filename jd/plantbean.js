@@ -8,6 +8,14 @@
 cron "0 8 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd/plantbean.js,tag=京东种豆得豆
 
  */
+
+/*
+种豆得豆
+会自动关注任务中的店铺跟商品
+*/
+
+//直接用NobyDa的jd cookie
+
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
         isSurge = "undefined" != typeof $httpClient,
@@ -94,14 +102,6 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-/*
-种豆得豆
-quantumultx用
-会自动关注任务中的店铺跟商品
-*/
-
-
-//直接用NobyDa的jd cookie
 const cookie = $hammer.read('CookieJD');
 const name = '京东种豆得豆';
 
