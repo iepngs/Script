@@ -84,16 +84,16 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-const key = "SCU22065T1df01fa393cd204d6487ee0aa9a24a375c43ed3fe5034";
-const options = {
-    url: `https://sc.ftqq.com/${key}.send`, 
-    headers:{"content-type": "application/x-www-form-urlencoded"},
-    body: JSON.stringify({
-        text: 'Open app by click schema',
-        desp: '[点击打开](alipay://platformapi/startapp?appId=60000002)'
-    })
-};
+function initOptions(text, desp){
+    const key = "SCU22065T1df01fa393cd204d6487ee0aa9a24a375c43ed3fe5034";
+    return {
+        url: `https://sc.ftqq.com/${key}.send`, 
+        headers:{"content-type": "application/x-www-form-urlencoded"},
+        body: `text=${text}&desp=${desp}`
+    };
+}
 
+const options = initOptions('Open app by click schema', '[点击打开](alipay://platformapi/startapp?appId=60000002)');
 $hammer.request("post", options, (error, response) => {
     if(error){
         $hammer.log(error);
