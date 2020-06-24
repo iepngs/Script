@@ -44,9 +44,23 @@ const $hammer = (() => {
         isQuanX = "undefined" != typeof $task;
 
     const log = (...n) => { for (let i in n) console.log(n[i]) };
-    const alert = (title, body = "", subtitle = "", link = "") => {
+    const alert = (title, body = "", subtitle = "", options = {}) => {
+        // option(<object>|<string>): {open-url: <string>, media-url: <string>}
+        let link = null;
+        switch (typeof options) {
+            case "string":
+                link = isQuanX ? {"open-url": options} : options;
+                break;
+            case "object":
+                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
+                    link = isQuanX ? options : options["open-url"];
+                    break;
+                }
+            default:
+                link = isQuanX ? {} : "";
+        }
         if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, (link && !body ? link : body));
+        if (isQuanX) return $notify(title, subtitle, body, link);
         log("==============📣系统通知📣==============");
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
@@ -84,9 +98,9 @@ const $hammer = (() => {
 
         const writeRequestErrorLog = function (m, u) {
             return err => {
-                log("=== request error -s--");
+                log(`\n=== request error -s--\n`);
                 log(`${m} ${u}`, err);
-                log("=== request error -e--");
+                log(`\n=== request error -e--\n`);
             };
         }(method, options.url);
 
@@ -98,7 +112,7 @@ const $hammer = (() => {
                     callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error);
+                    callback(error, "", response);
                 }
             });
         }
@@ -112,7 +126,9 @@ const $hammer = (() => {
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error);
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback(reason.error, "", response);
                 }
             );
         }
@@ -172,15 +188,27 @@ function checkin() {
     };
     $hammer.request("get", options, (error, response, ret) => {
         if (error) {
-            if(ret.status == 302 && ret.headers?.Location == "/mission/daily?fr=redeem"){
-                $hammer.alert(CookieKey, "签到完成");
-                return $hammer.done();
+            let desc = "响应异常，去看一下日志";
+            if(ret.status == 303){
+                if(ret.headers?.Location == "/mission/daily?fr=redeem"){
+                    $hammer.alert(CookieKey, "签到完成");
+                    return $hammer.done();
+                }
+                if (response.indexOf("account/login") > 0) {
+                    desc = "cookie已过期，需要重新获取";
+                }
             }
-            $hammer.alert(CookieKey, error, "签到请求失败");
+            $hammer.log(`${CookieKey}签到结果(1)：`, ret);
+            $hammer.alert(CookieKey, desc, "签到请求失败");
             return $hammer.done();
         }
-        $hammer.log(`${CookieKey}签到结果：`, response);
-        $hammer.alert(CookieKey, "签到完成");
+        if(response.indexOf("已成功领取每日登录奖励")>0){
+            $hammer.alert(CookieKey, "签到完成");
+            return $hammer.done();
+        }
+        $hammer.log(`${CookieKey}签到结果(2)：`, ret);
+        const desc = response.indexOf("user_remember_me") > 0 ? "cookie已过期，请重新获取" : "响应异常，去看一下日志";
+        $hammer.alert(CookieKey, desc, "签到失败");
         $hammer.done();
     })
 }

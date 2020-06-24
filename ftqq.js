@@ -4,9 +4,23 @@ const $hammer = (() => {
         isQuanX = "undefined" != typeof $task;
 
     const log = (...n) => { for (let i in n) console.log(n[i]) };
-    const alert = (title, body = "", subtitle = "", link = "") => {
+    const alert = (title, body = "", subtitle = "", options = {}) => {
+        // option(<object>|<string>): {open-url: <string>, media-url: <string>}
+        let link = null;
+        switch (typeof options) {
+            case "string":
+                link = isQuanX ? {"open-url": options} : options;
+                break;
+            case "object":
+                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
+                    link = isQuanX ? options : options["open-url"];
+                    break;
+                }
+            default:
+                link = isQuanX ? {} : "";
+        }
         if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, (link && !body ? link : body));
+        if (isQuanX) return $notify(title, subtitle, body, link);
         log("==============📣系统通知📣==============");
         log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
     };
@@ -44,9 +58,9 @@ const $hammer = (() => {
 
         const writeRequestErrorLog = function (m, u) {
             return err => {
-                log("=== request error -s--");
+                log(`\n=== request error -s--\n`);
                 log(`${m} ${u}`, err);
-                log("=== request error -e--");
+                log(`\n=== request error -e--\n`);
             };
         }(method, options.url);
 
@@ -58,7 +72,7 @@ const $hammer = (() => {
                     callback("", body, response);
                 } else {
                     writeRequestErrorLog(error);
-                    callback(error);
+                    callback(error, "", response);
                 }
             });
         }
@@ -72,7 +86,9 @@ const $hammer = (() => {
                 },
                 reason => {
                     writeRequestErrorLog(reason.error);
-                    callback(reason.error);
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback(reason.error, "", response);
                 }
             );
         }
@@ -84,21 +100,24 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
-function initOptions(text, desp){
-    const key = "SCU22065T1df01fa393cd204d6487ee0aa9a24a375c43ed3fe5034";
-    return {
-        url: `https://sc.ftqq.com/${key}.send`, 
-        headers:{"content-type": "application/x-www-form-urlencoded"},
-        body: `text=${text}&desp=${desp}`
-    };
-}
-
-const options = initOptions('Open app by click schema', '[点击打开](alipay://platformapi/startapp?appId=60000002)');
-$hammer.request("post", options, (error, response) => {
-    if(error){
-        $hammer.log(error);
-        return $hammer.done();
+const secret = "SCU22065T1df01fa393cd204d6487ee0aa9a24a375c43ed3fe5034";
+const pushWechatMessage = (key => {
+    return (title, detail="") => {
+        const options =  {
+            url: `https://sc.ftqq.com/${key}.send`, 
+            headers: {"content-type": "application/x-www-form-urlencoded"},
+            body: `text=${title}&desp=${detail}`
+        };
+        $hammer.request("post", options, (error, response) => {
+            if(error){
+                $hammer.log(error);
+                return $hammer.done();
+            }
+            $hammer.log(response);
+            $hammer.done();
+        })
     }
-    $hammer.log(response);
-    $hammer.done();
-})
+})(secret);
+
+
+pushWechatMessage('Open app by click schema', '[点击打开(打不开的话在右上角菜单用自带浏览器打开)](alipay://platformapi/startapp?appId=60000002)');
