@@ -320,7 +320,7 @@ function* step() {
             if(farmTask.waterRainInit.lastTime){
                 // 两次间隔3小时
                 const canbeExecuteTs = farmTask.waterRainInit.lastTime + 3600*3*1000;
-                if(canbeExecuteTs < Date.now()){
+                if(canbeExecuteTs > Date.now()){
                     executeWaterRain = false;
                     const edt = new Date(canbeExecuteTs);
                     message += `【收集水滴】下次可执行时间${edt.getHours()}点${edt.getMinutes()}分\n`
