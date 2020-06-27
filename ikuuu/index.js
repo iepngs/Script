@@ -182,7 +182,6 @@ function checkin() {
         $hammer.alert(Protagonist, "cookie没有，先去获取吧!");
         return $hammer.done();
     }
-    $hammer.log(`cookie: ${cookie}`);
     let options = {
         url: "https://ikuuu.co/user/checkin",
         headers: {
