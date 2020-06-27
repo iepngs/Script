@@ -110,6 +110,22 @@ const $hammer = (() => {
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
 })();
 
+const waterRainCookieKey = 'JD_WaterRainCookie';
+
+function GetCookie() {
+    const Protagonist = "农场水滴Cookie";
+    try {
+        const CookieValue = $request.headers['Cookie'];
+        const result = $hammer.write(CookieValue, waterRainCookieKey);
+        $hammer.alert(Protagonist, `更新结果:${result}`);
+    } catch (error) {
+        $hammer.alert(Protagonist, "写入失败: 未知错误");
+        $hammer.log(error);
+    }
+    $hammer.done();
+}
+
+$hammer.isRequest ? GetCookie() : (()=>{
 
 //京东接口地址
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
@@ -512,7 +528,7 @@ function waterRainForFarm()
             "Host": "api.m.jd.com",
             "Content-Type": "application/x-www-form-urlencoded",
             "Origin": "https://h5.m.jd.com",
-            "Cookie": cookie,
+            "Cookie": waterRainCookieKey,
             "Accept": "application/json",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.13(0x17000d28) NetType/WIFI Language/zh_CN miniProgram"
         },
@@ -563,3 +579,5 @@ function taskposturl(function_id, body = {}) {
         method: "POST",
     }
 }
+
+})()
