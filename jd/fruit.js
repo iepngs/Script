@@ -131,8 +131,10 @@ $hammer.isRequest ? GetCookie() : (()=>{
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 //直接用NobyDa的jd cookie
-const cookie = $hammer.read('CookieJD')
-const name = '京东水果'
+// const cookie = $hammer.read('CookieJD');
+const cookie = $hammer.read(waterRainCookieKey);
+const name = '京东水果';
+const waterRainCookieValue = $hammer.read(waterRainCookieKey);
 
 var shareCodes = [ // 这个列表填入你要助力的好友的shareCode
     'a6f686a9f6aa4c80977370b03681c553',
@@ -323,19 +325,21 @@ function* step() {
                 if(canbeExecuteTs > Date.now()){
                     executeWaterRain = false;
                     const edt = new Date(canbeExecuteTs);
-                    message += `【收集水滴】下次可执行时间${edt.getHours()}点${edt.getMinutes()}分\n`
+                    message += `【收集水滴雨】下次可执行时间${edt.getHours()}点${edt.getMinutes()}分\n`
                 }
             }
-        }
-        if (executeWaterRain) {
-            const resp = yield waterRainForFarm();
-            $hammer.log(resp);
-            if(~~resp.code){
-                $hammer.log("【收集水滴】领取失败", resp.msg ? resp.msg : resp.message);
-            }else{
-                message += `【收集水滴】获得奖励${resp.addEnergy}g\n`
+            if(!waterRainCookieValue){
+                message += `【收集水滴雨】无Cookie\n`;
+            }else if(executeWaterRain){
+                const resp = yield waterRainForFarm();
+                $hammer.log(resp);
+                if(~~resp.code){
+                    $hammer.log("【收集水滴雨】领取失败", resp.msg ? resp.msg : resp.message);
+                }else{
+                    message += `【收集水滴雨】获得奖励${resp.addEnergy}g\n`;
+                }
+                $hammer.log(`本次水滴雨收集结束`);
             }
-            $hammer.log(`本次水滴雨收集结束`);
         }
 
         // //集卡抽奖活动
@@ -528,7 +532,7 @@ function waterRainForFarm()
             "Host": "api.m.jd.com",
             "Content-Type": "application/x-www-form-urlencoded",
             "Origin": "https://h5.m.jd.com",
-            "Cookie": waterRainCookieKey,
+            "Cookie": waterRainCookieValue,
             "Accept": "application/json",
             "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/7.0.13(0x17000d28) NetType/WIFI Language/zh_CN miniProgram"
         },
