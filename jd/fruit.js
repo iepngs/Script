@@ -131,9 +131,8 @@ $hammer.isRequest ? GetCookie() : (()=>{
 const JD_API_HOST = 'https://api.m.jd.com/client.action';
 
 //直接用NobyDa的jd cookie
-// const cookie = $hammer.read('CookieJD');
-const cookie = $hammer.read(waterRainCookieKey);
 const name = '京东水果';
+const cookie = $hammer.read('CookieJD');
 const waterRainCookieValue = $hammer.read(waterRainCookieKey);
 
 var shareCodes = [ // 这个列表填入你要助力的好友的shareCode
