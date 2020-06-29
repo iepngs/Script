@@ -59,10 +59,10 @@ const $hammer = (() => {
         let link = null;
         switch (typeof options) {
             case "string":
-                link = isQuanX ? {"open-url": options} : options;
+                link = isQuanX ? { "open-url": options } : options;
                 break;
             case "object":
-                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
+                if (["null", "{}"].indexOf(JSON.stringify(options)) == -1) {
                     link = isQuanX ? options : options["open-url"];
                     break;
                 }
@@ -160,10 +160,10 @@ function GetCookie() {
             const CookieValue = $request.headers['Cookie'];
             const cachedCookie = $hammer.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
-            if(dynamic){
+            if (dynamic) {
                 const result = $hammer.write(CookieValue, CookieKey);
                 $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
-            }else{
+            } else {
                 $hammer.alert(CookieName, 'cookie已存在');
             }
         } else {
@@ -201,7 +201,11 @@ function checkin() {
             response = JSON.parse(response);
         } catch (error) {
             $hammer.log(`${Protagonist}签到结果：`, result);
-            $hammer.alert(Protagonist, "签到结果解析异常，看一下日志");
+            if (result.body.indexOf("remember-me") > 0) {
+                $hammer.alert(Protagonist, "Cookie又过期了", "", "http://ikuuu.co/user/profile");
+            } else {
+                $hammer.alert(Protagonist, "签到结果解析异常，看一下日志");
+            }
             return $hammer.done();
         }
         $hammer.alert(Protagonist, response.msg);
