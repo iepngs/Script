@@ -1,6 +1,8 @@
 
 //来源：https://github.com/sazs34/TaskConfig
 
+// cookie 获取：
+// 网页打开tieba.baidu.com，登陆后从“我的”点击进入“账户安全”即可。
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
@@ -188,7 +190,7 @@ const main = () => {
                 return checkIsAllProcessed();
             }
             try {
-                const result = JSON.parse(response.body);
+                const result = JSON.parse(response);
                 if (result.no == 0) {
                     process.result.push({
                         bar: bar.forum_name,
@@ -238,7 +240,7 @@ const main = () => {
                 return signBars(bars, tbs, ++index);
             }
             try {
-                const result = JSON.parse(response.body);
+                const result = JSON.parse(response);
                 if (result.no == 0) {
                     process.result.push({
                         bar: bar.forum_name,
@@ -285,8 +287,8 @@ const main = () => {
             if(error){
                 return $hammer.alert(Protagonist, "签到失败", "未获取到签到列表");
             }
-            $hammer.log("贴吧列表:", response.body);
-            const body = JSON.parse(response.body);
+            $hammer.log("贴吧列表:", response);
+            const body = JSON.parse(response);
             const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
             if (!isSuccessResponse) {
                 return $hammer.alert(Protagonist, "签到失败", (body && body.error) ? body.error : "接口数据获取失败");
