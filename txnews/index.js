@@ -192,8 +192,7 @@ let signinfo = '',
     subTile = '',
     ID = signurlVal.match(/devid=[a-zA-Z0-9_-]+/g);
 
-async
-function main() {
+async function main() {
     await getsign();
     await toRead();
     await Tasklist();
@@ -205,7 +204,6 @@ function main() {
     await getTotal();
     await showmsg();
 }
-
 
 //签到
 function getsign() {
@@ -291,8 +289,14 @@ function lookVideo() {
     })
 }
 
-function runtask(options, delay) {
+function runtask(task, delay) {
     return new Promise(res => {
+        const options = {
+            url: `http://4ul.cn/${task}`,
+            headers: {
+                Cookie: cookieVal
+            },
+        };
         $hammer.request('post', options, (error, response, data) => {
             const taskresult = JSON.parse(response);
             if (taskresult.info == 'success') {
@@ -306,16 +310,10 @@ function runtask(options, delay) {
 }
 
 function tasks() {
-    return new Promise((resolve, reject) => {
-        const tasklist = ['9w6zkk', 'kl5p8h', 'erq8vx', 'aqyd3z', 'jslzr5', 'l7glnd', 'o96j0h', 'mide1n', 'u8z8vk']
+    return new Promise(async (resolve, reject) => {
+        const tasklist = ['9w6zkk', 'kl5p8h', 'erq8vx', 'aqyd3z', 'jslzr5', 'l7glnd', 'o96j0h', 'mide1n', 'u8z8vk'];
         for (i = 0; i < tasklist.length; i++) {
-            const options = {
-                url: `http://4ul.cn/${tasklist[i]}`,
-                headers: {
-                    Cookie: cookieVal
-                },
-            };
-            await runtask(options, (i + 1) * 500);
+            await runtask(tasklist[i], (i + 1) * 500);
         }
         resolve();
     })
