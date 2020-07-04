@@ -282,30 +282,36 @@ const main = () => {
         }
     };
 
-    const signTieBa = () => {
+    const startSignin = () => {
         $hammer.request('get', url_fetch_sign, (error, response, resp) => {
             if(error){
                 return $hammer.alert(Protagonist, "签到失败", "未获取到签到列表");
             }
-            $hammer.log("贴吧列表:", response);
             const body = JSON.parse(response);
             const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
             if (!isSuccessResponse) {
                 return $hammer.alert(Protagonist, "签到失败", (body && body.error) ? body.error : "接口数据获取失败");
             }
-            process.total = body.data.like_forum.length;
+            const forums = body.data.like_forum;
+            process.total = forums.length;
             if(~~process.total < 1){
                 return $hammer.alert(Protagonist, "签到失败", "请确认您有关注的贴吧");
             }
-            if (useParallel == 1 || (useParallel == 0 && body.data.like_forum.length >= 30)) {
-                return signBars(body.data.like_forum, body.data.tbs, 0);
+            let list = "";
+            for(let i in forums){
+                const item = forums['i'];
+                list += `吧名:${item.forum_name}, 等级:${item.user_level}\n`;
             }
-            for (const bar of body.data.like_forum) {
+            $hammer.log(`已关注贴吧列表:\n${list}`);
+            if (useParallel == 1 || (useParallel == 0 && process.total >= 30)) {
+                return signBars(forums, body.data.tbs, 0);
+            }
+            for (const bar of forums) {
                 signBar(bar, body.data.tbs);
             }
         });
     };
-    signTieBa();
+    startSignin();
 };
 
 
