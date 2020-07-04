@@ -225,8 +225,7 @@ function getsign() {
                 const tip = obj.data.share_tip;
                 Dictum = tip.replace(/[\<|\.|\>|br]/g, "") + "" + obj.data.author.replace(/[\<|\.|\>|br|图|腾讯网友]/g, "");
                 signinfo = '【签到信息】连续签到' + obj.data.signin_days + '天 明日+' + next + '金币 成功🎉\n';
-                $hammer.log(`singin result : \n${Dictum}\n${signinfo}`);
-                resolve();
+                return resolve();
             }
             $hammer.alert('签到失败，🉐登录腾讯新闻app获取cookie');
             $hammer.log('签到失败，🉐登录腾讯新闻app获取cookie:', data);
@@ -277,7 +276,7 @@ function lookVideo() {
             if (error) {
                 $hammer.alert(cookieName, '观看视频:' + error);
             } else {
-                $hammer.log(`${cookieName}观看视频 - data: ${data}`);
+                $hammer.log(`${cookieName}观看视频 - data: ${response}`);
                 tolookresult = JSON.parse(response)
                 if (tolookresult.info == 'success') {
                     //RedID = tolookresult.data.activity.id
@@ -298,6 +297,9 @@ function runtask(task, delay) {
             },
         };
         $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`tasks.runtask error(${data.status}):`,data);
+            }
             const taskresult = JSON.parse(response);
             if (taskresult.info == 'success') {
                 $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
@@ -333,8 +335,9 @@ function Tasklist() {
             tasklist = JSON.parse(response)
             if (tasklist.data.task_list !== null) {
                 for (t = 0; t < tasklist.data.task_list.length - 1; t++) {
-                    if (tasklist.data.task_list[t].task_quota != tasklist.data.task_list[t].task_rate);
-                    tasks();
+                    if (tasklist.data.task_list[t].task_quota != tasklist.data.task_list[t].task_rate){
+                        tasks();
+                    }
                 }
             }
         })
