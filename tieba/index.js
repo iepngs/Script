@@ -116,7 +116,7 @@ const flushCookie = () => {
         return $hammer.done();
     }
     let contents = historyCookie ? (historyCookie == headerCookie ? "" : "已更新" ) : "已写入";
-    if(status){
+    if(contents){
         $hammer.write(headerCookie, CookieKey);
     }else{
         contents = '已存在相同cookie';
