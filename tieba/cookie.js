@@ -1,32 +1,129 @@
 /*
-来源：https://github.com/sazs34/TaskConfig
-
 [rewrite_local]
-^https?:\/\/tieba.baidu\.com url script-response-body cookie_baidu_tieba.js
+http-request ^https?:\/\/tieba.baidu\.com script-path=index.js,tag=贴吧签到
 
 [mitm]
 hostname = tieba.baidu.com
 */
 
-var regex = /(^|)BDUSS=([^;]*)(;|$)/
-var cookieName = 'CookieTB';
-var historyCookie = $prefs.valueForKey(cookieName);
-var headerCookie = $request.headers["Cookie"].match(regex)[0];
-if (historyCookie != undefined) {
-    if (historyCookie != headerCookie) {
-        var cookie = $prefs.setValueForKey(headerCookie, cookieName);
-        if (!cookie) {
-            $notify("更新贴吧Cookie失败‼️‼️", "", "");
-        } else {
-            $notify("更新贴吧Cookie成功🎉", "", `无需禁用脚本，仅cookie改变时才会重新获取`);
+const $hammer = (() => {
+    const isRequest = "undefined" != typeof $request,
+        isSurge = "undefined" != typeof $httpClient,
+        isQuanX = "undefined" != typeof $task;
+
+    const log = (...n) => { for (let i in n) console.log(n[i]) };
+    const alert = (title, body = "", subtitle = "", options = {}) => {
+        // option(<object>|<string>): {open-url: <string>, media-url: <string>}
+        let link = null;
+        switch (typeof options) {
+            case "string":
+                link = isQuanX ? {"open-url": options} : options;
+                break;
+            case "object":
+                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
+                    link = isQuanX ? options : options["open-url"];
+                    break;
+                }
+            default:
+                link = isQuanX ? {} : "";
         }
+        if (isSurge) return $notification.post(title, subtitle, body, link);
+        if (isQuanX) return $notify(title, subtitle, body, link);
+        log("==============📣系统通知📣==============");
+        log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
+    };
+    const read = key => {
+        if (isSurge) return $persistentStore.read(key);
+        if (isQuanX) return $prefs.valueForKey(key);
+    };
+    const write = (val, key) => {
+        if (isSurge) return $persistentStore.write(val, key);
+        if (isQuanX) return $prefs.setValueForKey(val, key);
+    };
+    const request = (method, params, callback) => {
+        /**
+         * 
+         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
+         * 
+         * callback(
+         *      error, 
+         *      <response-body string>?,
+         *      {status: <int>, headers: <object>, body: <string>}?
+         * )
+         * 
+         */
+        let options = {};
+        if (typeof params == "string") {
+            options.url = params;
+        } else {
+            options.url = params.url;
+            if (typeof params == "object") {
+                params.headers && (options.headers = params.headers);
+                params.body && (options.body = params.body);
+            }
+        }
+        method = method.toUpperCase();
+
+        const writeRequestErrorLog = function (m, u) {
+            return err => {
+                log(`\n=== request error -s--\n`);
+                log(`${m} ${u}`, err);
+                log(`\n=== request error -e--\n`);
+            };
+        }(method, options.url);
+
+        if (isSurge) {
+            const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
+            return _runner(options, (error, response, body) => {
+                if (error == null || error == "") {
+                    response.body = body;
+                    callback("", body, response);
+                } else {
+                    writeRequestErrorLog(error);
+                    callback(error, "", response);
+                }
+            });
+        }
+        if (isQuanX) {
+            options.method = method;
+            $task.fetch(options).then(
+                response => {
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback("", response.body, response);
+                },
+                reason => {
+                    writeRequestErrorLog(reason.error);
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback(reason.error, "", response);
+                }
+            );
+        }
+    };
+    const done = (value = {}) => {
+        if (isQuanX) return isRequest ? $done(value) : null;
+        if (isSurge) return isRequest ? $done(value) : $done();
+    };
+    return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
+})();
+
+
+const flushCookie = () => {
+    const Protagonist = '贴吧签到';
+    const CookieKey = 'CookieTB';
+    const historyCookie = $hammer.read(CookieKey);
+    const regex = /(^|)BDUSS=([^;]*)(;|$)/;
+    const headerCookie = $request.headers["Cookie"].match(regex)[0];
+    if(!headerCookie){
+        return $hammer.done();
     }
-} else {
-    var cookie = $prefs.setValueForKey(headerCookie, cookieName);
-    if (!cookie) {
-        $notify("首次写入贴吧Cookie失败‼️‼️", "", "");
-    } else {
-        $notify("首次写入贴吧Cookie成功🎉", "", `无需禁用脚本，仅cookie改变时才会重新获取`);
+    let contents = historyCookie ? (historyCookie == headerCookie ? "" : "已更新" ) : "已写入";
+    if(status){
+        $hammer.write(headerCookie, CookieKey);
+    }else{
+        contents = '已存在相同cookie';
     }
-}
-$done({});
+    $hammer.alert(Protagonist, contents);
+    $hammer.done();
+};
