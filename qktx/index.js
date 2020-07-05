@@ -219,8 +219,8 @@ function qktx_searchTask(limit=20){
         console.log('QKTXSearchTaskCookie.timestamp:' + options.timestamp.toString());
         $iosrule.post(options, (error, result, response) => {
             limit--;
-            let result = `搜索任务重放第${inx}次结果：`;
-            console.log(`${result}, ${error ? error : response}`);
+            const r = `搜索任务重放第${inx}次结果：`;
+            console.log(`${r}, ${error ? error : response}`);
         });
     }, 32000, index++);
 }
