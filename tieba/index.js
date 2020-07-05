@@ -283,10 +283,12 @@ const main = () => {
     };
 
     const startSignin = () => {
+        $hammer.log(`${Protagonist} startSignin`);
         $hammer.request('get', url_fetch_sign, (error, response, resp) => {
             if(error){
                 return $hammer.alert(Protagonist, "签到失败", "未获取到签到列表");
             }
+            $hammer.log(`${Protagonist} response`, response);
             const body = JSON.parse(response);
             const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
             if (!isSuccessResponse) {
