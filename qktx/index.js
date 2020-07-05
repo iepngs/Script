@@ -2,21 +2,12 @@
 我的趣看天下邀请码:9656852
 公众号iosrule by红鲤鱼与绿鲤鱼与驴 2020.7.3
 
-#趣看天下签到定时执行任务loon定时格式参考
-#趣看天下task Loon的格式
-cron "0 21,31,50 0-22 * * ?" script-path=qktx_task.js, tag=趣看天下
-
-Qx的参考app例子,有不懂的加微信撸金币群。
-
-2020.7.4更新，重大bug更新2
+2020.7.5稳定更新，稳定功能
 提示:
-1.获取邀请好友界面开宝箱cookie
-2.每日任务界面的开宝箱cookie
-3.浏览一篇文章小圆圈加载完毕获取阅读cookie
-4.昵称ck
-5.一定运行间隔在1-2分钟以上.
+1.获取邀请好友界面获取用户昵称
+2.浏览一篇文章小圆圈加载完毕获取阅读cookie
+3.建议间隔在1分钟以上.
 
-个别获取ck不全只要在金币记录可以查到金币就好，不要在意界面。
 
 获取ck完毕可以禁止该js
 #趣看天下ck Qx
@@ -29,6 +20,11 @@ http-request https:\/\/(appv8\.qukantianxia\.com|appv7\.qukantx\.com) script-pat
 ====================================
 
 MITM=appv8.qukantianxia.com,appv7.qukantx.com
+
+#趣看天下签到定时执行任务loon定时格式参考
+#趣看天下task Loon的格式
+cron "0 21,31,50 0-22 * * ?" script-path=qktx_task.js, tag=趣看天下
+Qx的参考app例子,有不懂的加微信撸金币群。
 
 */
 //以上使用说明
@@ -70,6 +66,7 @@ var newnum=0;
 var qktx_coin=0;
 var gonext=0;
 var yunxing_begin=0;
+var qktx_ttnum=4;
 var qktx_num=0;var qktx_result="";
 const qktx_urlckname="qktx_urlckname"+qktxid;
 var qktx_urlck=$iosrule.read(qktx_urlckname);
@@ -80,11 +77,7 @@ var qktx_rid=$iosrule.read(qktx_ridname);
 const qktx_urlrckname="qktx_urlrckname"+qktxid;
 var qktx_urlrck=$iosrule.read(qktx_urlrckname);
 
-const qktx_frboxurlname="qktx_frboxurlname"+qktxid;
-const ktx_taskboxurlname="qktx_taskboxurlname"+qktxid;
-var qktx_frboxurl=$iosrule.read(qktx_frboxurlname);
 
-var ktx_taskboxurl=$iosrule.read(ktx_taskboxurlname);
 
 
 const qktx_username="qktx_username"+qktxid;
@@ -139,9 +132,8 @@ setTimeout(function(){
 setTimeout(function(){
   
    qktx_task_youjiangfenxiang();
-   qktx_tsopenbox();
-   qktx_fropenbox();
-   qktx_completetask()
+   
+   
    
  }, 3* 1000);
 
@@ -149,7 +141,7 @@ setTimeout(function(){
    
    
    qktx_daytask();
- }, 5* 1000);
+ }, 10* 1000);
 
 setTimeout(function(){
    htt_getarticle();
@@ -166,17 +158,22 @@ function qktx_user(r)
 {
   var tt=qukantianxia;var result1="";
   var result2="";
-  if(typeof(qktx_userck)=="undefined")
-  qktx_msg(r+"用户信息ck没有获取","空");
+ 
+  
+
+      
+      
        const llUrl1 = {url:"https://appv7.qukantx.com/user/userPoint.do?bundleId=com.qktx.discovery&"+qktx_userck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
   
    $iosrule.get(llUrl1, function(error, response, data) {
      if(log==1)console.log("读取用户")
-      
-     var obj=JSON.parse(data);
-     if(data.indexOf("我的金币")>0)
- {result2="[总/今💰]"+obj.data.userInfo.userMenu[0].subTitle+"/"+obj.data.userInfo.userMenu[1].subTitle+"🕰"+obj.data.userInfo.userMenu[2].subTitle+"分";
-qktx_nm=obj.data.userInfo.name;}
+if(data!=null)
+     {if(data.indexOf("我的金币")>0)
+ {var obj=JSON.parse(data);
+   result2="[总/今💰]"+obj.data.userInfo.userMenu[0].subTitle+"/"+obj.data.userInfo.userMenu[1].subTitle+"🕰"+obj.data.userInfo.userMenu[2].subTitle+"分";
+qktx_nm=obj.data.userInfo.name;}}
+else {result2="[总/今💰]"+"获取错误❌"+"🕰获取错误❌";qktx_nm="昵称获取错误❌";}
+
 
 qktx_msg(r+result2,qktx_nm);
 
@@ -190,15 +187,25 @@ function qktx_task_youjiangfenxiang()
        const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-activity/userShareTask/addAwardShareCount?"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
   
    $iosrule.post(llUrl1, function(error, response, data) {})}
+   
+ function qktx_task_art()
+{
+  var tt=qukantianxia;var result1="";
+  var result2="";
+
+   const llUrl1 = {url:"https://appv7.qukantx.com/task/getTaskShareInfo.do?bundleId=com.qktx.discovery&"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
+     
+      $iosrule.get(llUrl1, function(error, response, data) {})}
 
 function qktx_daytask()
 {
   var tt=qukantianxia;var result1="";
   var result2="";
-       const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-activity/activity/getEverydayTasks?"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
+const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-activity/activity/getEverydayTasks?"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
   
    $iosrule.get(llUrl1, function(error, response, data) {
      if(log==1)console.log("获取每日任务")
+     if(data!=null){
      var obj=JSON.parse(data);
      
      if(obj.result==1)
@@ -212,8 +219,27 @@ function qktx_daytask()
           else  var sbox="✅";
      
      result2="[任务进度]"+obj.data.completedNum+"/"+obj.data.everydayTaskList.length+"\n"+"[第1个宝箱]  "+fbox+"[第2个宝箱]"+sbox+"\n";
-     
-     
+   
+if(obj.data.everydayTaskList[1].todayCount!==3)
+qktx_task_art();
+
+  
+    
+  if(obj.data.everydayTaskList[0].taskCondition==obj.data.everydayTaskList[0].todayCount)  qktx_getTaskAward("signTaskNew");
+
+
+if(obj.data.everydayTaskList[1].taskCondition==obj.data.everydayTaskList[1].todayCount)  qktx_getTaskAward("shareTaskCountNew");
+
+if(obj.data.everydayTaskList[2].taskCondition==obj.data.everydayTaskList[2].todayCount)  qktx_getTaskAward("awardShare");
+
+
+if(obj.data.everydayTaskList[3].taskCondition==obj.data.everydayTaskList[3].todayCount)  qktx_getTaskAward("readHotNew");
+
+
+if(obj.data.everydayTaskList[4].taskCondition==obj.data.everydayTaskList[4].todayCount)  qktx_getTaskAward("readTimeNew");
+
+
+
   for(var i=0;i<obj.data.everydayTaskList.length;i++)
 {var task_ok=obj.data.everydayTaskList[i].completeStatus;
 var task_id=obj.data.everydayTaskList[i].activityId;
@@ -224,7 +250,6 @@ var task_my="["+obj.data.everydayTaskList[i].taskCondition+"/"+obj.data.everyday
 if(task_ok>0) status="✅";else
 status="❎";
 
-
 result2+=task_tt+"📈"+task_my+"   "+status+"\n";
 
 
@@ -233,9 +258,10 @@ qktx_msg(""+"\n"+result2,qktx_nm);
 
 
 
-}
+}}
 
-   }
+   }else
+        {result2="[任务进度]获取失败❌"+"\n"+"[第1个宝箱]获取失败❌"+"[第2个宝箱]获取失败❌"+"\n";qktx_msg(""+"\n"+result2,qktx_nm);}
      
  })}
 
@@ -243,25 +269,17 @@ function qktx_getTaskAward(flag)
 {
   var tt=qukantianxia;var result1="";
   var result2="";
+    var zhuanfa=qktx_urlck.substring(qktx_urlck.indexOf("taskId=")+16,qktx_urlck.length);
   var aFlag="&activityFlag="+flag+"&getTaskAward=3&adsAppIds=";
-       const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-activity/activity/getTaskAward?"+qktx_urlck+aFlag,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
+       const llUrlts = {url:"https://appv8.qukantianxia.com/qktx-activity/activity/getTaskAward?"+zhuanfa+aFlag,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx","Content-Type":"application/x-www-form-urlencoded"},timeout:60};
   
-       $iosrule.post(llUrl1, function(error, response, data) {})}
+  $iosrule.post(llUrlts, function(error, response, data){
+  })};
+  
        
    
    
- function qktx_completetask()
-  {
-    qktx_getTaskAward("readTimeNew");
-    qktx_getTaskAward("readHotNew");
-    qktx_getTaskAward("awardShare");
-    qktx_getTaskAward("shareTaskCountNew");
-    
-    qktx_getTaskAward("signTaskNew");
-    
-    
-  }
-   
+ 
    
    
 
@@ -281,6 +299,7 @@ function qktx_daysign()
  result2="✅";
 else if(obj.result==20001)
 result2="✅✅";
+else result2="获取失败❌";
 
 qktx_cxdaysign(result2);
 
@@ -290,60 +309,24 @@ function qktx_cxdaysign(r)
 {
   var tt=qukantianxia;var result1="";
   var result2="";
+
+    
+    
        const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-activity/activity/getSignDetail?"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
   
    $iosrule.get(llUrl1, function(error, response, data) {
-
+if(data!=null){
     if(log==1)console.log("签到查询")
      var obj=JSON.parse(data);
      if(obj.result==1)
- {r+=" [天数]"+obj.data.signTotalNum;
-
-qktx_msg("[签到✍🏻️] "+r,qktx_nm);}
+ {r+=" [天数]"+obj.data.signTotalNum;}
+}
+else r+=" [天数]"+"获取错误❌";
+qktx_msg("[签到✍🏻️] "+r,qktx_nm);
 })}
 
 
 
-function qktx_tsopenbox()
-{
-  var tt=qukantianxia;var result1="";
-  var result2="";
-  
-  if(typeof(ktx_taskboxurl)=="undefined")
-  qktx_msg("[每日任务开宝箱] "+"没获取ck",qktx_nm);
-       const llUrl1 = {url:ktx_taskboxurl,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
-  
-   $iosrule.post(llUrl1, function(error, response, data) {
-     
-   if(log==1)console.log("每日任务宝箱")
-     var obj=JSON.parse(data);
-     if(data.indexOf("coin")>0)
-     result2="[💰]"+obj.data.coin;
-else if(data.indexOf("已领")>0)
-result2="✅";else if(obj.result==20106)
-result2="未达到条件"
-qktx_msg("[每日任务开宝箱] "+result2,qktx_nm);
-})}
-
-
-function qktx_fropenbox()
-{
-  var tt=qukantianxia;var result1="";
-  var result2="";
-    if(typeof(qktx_frboxurl)=="undefined")
-       qktx_msg("[好友开宝箱] "+"没有获取ck",qktx_nm);
-       
-       const llUrl1 = {url:qktx_frboxurl,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
-  const llUrl2 = {url:"https://appv8.qukantianxia.com/qktx-activity/share/getUserInviteCode?"+qktx_urlck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
-   $iosrule.post(llUrl1, function(error, response, data) {
-     if(log==1)console.log("好友界面宝箱")
-   
-     var obj=JSON.parse(data);
-     if(data.indexOf("openBoxPoints")>0)
-     result2="[金币]"+obj.data.openBoxPoints;
-else if(data.indexOf("成功")>0)
-result2="✅";
-   $iosrule.get(llUrl2, function(error, response, data) {var obj=JSON.parse(data);result2+="⏰:"+formatSeconds(obj.data.boxTime/1000);qktx_msg("[好友开宝箱] "+result2,qktx_nm);})})}
 
 
 
@@ -402,22 +385,21 @@ function htt_bestread4(flag,sb)
    var result1="【阅读奖励】";var result2="";
 var tt=qukantianxia;
 
-if(typeof(qktx_urlrck)=="undefined")
-
-qktx_msg("","没有获取阅读ck");
-
     const llUrl1 = {url:"https://appv7.qukantx.com/addCoin.json?"+qktx_urlrck,headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:6000000};
 
  $iosrule.get(llUrl1, function(error, response, data) {
 var obj=JSON.parse(data);
+if(data!=null){
 if(log==1)console.log("开始阅读")
-   if(data.indexOf("很久")<0&&data.indexOf("异常")<0&&data.indexOf("请先阅读")<0&data.indexOf("锁")<0)
+   if(obj.result==1)
+   {if(data.indexOf("很久")<0&&data.indexOf("异常")<0&&data.indexOf("请先阅读")<0&data.indexOf("锁")<0)
 {
 if(log==1)console.log("趣看天下阅读中...🌱🌱🌱🌱🌱🌱🌱🌱🌱");
 qktx_coin+=obj.data.coinCount;
+result2=qktx_nm+"-[阅读]"+qktx_coin+"💰";
+}}}else result2=qktx_nm+"-[阅读]"+"💰获取失败❌";
 
-
-  qktx_msg("",qktx_nm+"-[阅读]"+qktx_coin+"💰");qktx_coin=0;}})}
+  qktx_msg("",result2);qktx_coin=0;})}
 
 
 
@@ -427,14 +409,19 @@ function htt_getarticle()
      const llUrl1 = {url:"https://appv8.qukantianxia.com/qktx-content/task/getArticleRelationList?"+qktx_urlck+"&articleType=1",headers:{"User-Agent":"Mozilla/5.0 (iPhone; CPU iPhone OS 12_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 NetType/4G Qktx"},timeout:60};
 
  $iosrule.get(llUrl1, function(error, response, data) {
-
+if(data!=null){
    var obj=JSON.parse(data);
    if(obj.result==1)
 {var sbbb=obj.data[0].taskId;
 qktx_urlrck=isdefined(qktx_urlrck,sbbb);
 qktx_urlck=isdefined(qktx_urlck,sbbb);
 if(log==1)console.log("趣看天下运行中...不要关闭，更新关注公众号iosrule，以下代码可能运行30秒以上");
-  htt_bestread(gonext,sbbb);}
+  htt_bestread(gonext,sbbb);}}else
+  {
+    if(log==1)console.log("趣看天下获取阅读数据失败，请获取ck后重试❌。更新关注公众号iosrule.");
+  }
+  
+  
 })    
 }
 
@@ -445,8 +432,9 @@ if(log==1)console.log("趣看天下运行中...不要关闭，更新关注公众
 function qktx_msg(r,s)
 {var tt=qukantianxia;
 r+="\n";qktx_num++;qktx_result+=r;
-  if(log==1)console.log(qktx_num)
- if(qktx_num==6)
+  if(log==1)console.log("[模块运行进度]"+qktx_ttnum+"/"+qktx_num+"🚘")
+  
+ if(qktx_num==qktx_ttnum)
   {var loon= $iosrule.read("iosrule_qktx");
  if (typeof(loon) !="undefined")
     {loon=loon.substring(7,loon.length);
