@@ -1,6 +1,3 @@
-
-//来源：https://github.com/sazs34/TaskConfig
-
 // cookie 获取：
 // 网页打开tieba.baidu.com，登陆后从“我的”点击进入“账户安全”即可。
 
@@ -133,187 +130,94 @@ const main = () => {
         return $hammer.alert(Protagonist, "签到失败", "未获取到cookie");
     }
 
-    const useParallel = 0; //0自动切换,1串行,2并行(当贴吧数量大于30个以后,并行可能会导致QX崩溃,所以您可以自动切换)
-    const singleNotifyCount = 20; //想签到几个汇总到一个通知里,这里就填几个(比如我有13个要签到的,这里填了5,就会分三次消息通知过去)
-    let process = {
-        total: 0,
-        result: [
-            // {
-            //     bar:'',
-            //     level:0,
-            //     exp:0,
-            //     errorCode:0,
-            //     errorMsg:''
-            // }
-        ]
-    };
     const host = "https://tieba.baidu.com";
-    let url_fetch_sign = {
-        url: `${host}/mo/q/newmoindex`,
-        headers: {
-            "Content-Type": "application/octet-stream",
-            Referer: `${host}/index/tbwise/forum`,
-            Cookie: cookieVal,
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16A366"
-        }
-    },
-    url_fetch_add = {
-        url: `${host}/sign/add`,
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Cookie: cookieVal,
-            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X; zh-CN) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/14B100 UCBrowser/10.7.5.650 Mobile"
-        },
-        body: ""
+    const successnum = 0;
+    const ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16A366";
+    const buildRequsetBody = body => {
+        return {
+            url: `${host}/sign/add`,
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Cookie: cookieVal,
+                "User-Agent": ua
+            },
+            body: body
+        };
     };
-    
-    const signBar = (bar, tbs) => {
-        if (bar.is_sign == 1) { //已签到的,直接不请求接口了
-            process.result.push({
-                bar: `${bar.forum_name}`,
-                level: bar.user_level,
-                exp: bar.user_exp,
-                errorCode: 9999,
-                errorMsg: "已签到"
-            });
-            return checkIsAllProcessed();
-        }
-        url_fetch_add.body = `tbs=${tbs}&kw=${bar.forum_name}&ie=utf-8`;
-        $hammer.request('post', url_fetch_add, (error,response,resp) => {
-            if(error){
-                $hammer.log('signBar error:', error);
-                process.result.push({
-                    bar: bar.forum_name,
-                    errorCode: 999,
-                    errorMsg: '接口错误'
-                });
-                return checkIsAllProcessed();
-            }
-            try {
-                const result = JSON.parse(response);
-                if (result.no == 0) {
-                    process.result.push({
-                        bar: bar.forum_name,
-                        errorCode: 0,
-                        errorMsg: `获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`
-                    });
-                } else {
-                    process.result.push({
-                        bar: bar.forum_name,
-                        errorCode: result.no,
-                        errorMsg: result.error
-                    });
+    const fetchMyLikedForums = () => {
+        return new Promise(resolve => {
+            const options = {
+                url: `${host}/mo/q/newmoindex`,
+                headers: {
+                    "Content-Type": "application/octet-stream",
+                    Referer: `${host}/index/tbwise/forum`,
+                    Cookie: cookieVal,
+                    "User-Agent": ua
                 }
-            } catch (e) {
-                $hammer.alert(Protagonist, "贴吧签到数据处理异常", JSON.stringify(e));
-            }
-            checkIsAllProcessed();
+            };
+            $hammer.request('get', options, (error, response, resp) => {
+                if(error){
+                    $hammer.alert(Protagonist, "未成功获取关注的贴吧列表", "签到失败");
+                    return resolve(false);
+                }
+                const body = JSON.parse(response);
+                const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
+                if (!isSuccessResponse) {
+                    $hammer.alert(Protagonist, (body && body.error) ? body.error : "接口数据获取失败", "签到失败");
+                    return resolve(false);
+                }
+                resolve(body.data);
+            });
+        })
+    };
+    const signin = async (bar, tbs) => {
+        return new Promise(resolve => {
+            const body = `tbs=${tbs}&kw=${bar.forum_name}&ie=utf-8`;
+            $hammer.request('post', buildRequsetBody(body), (error,response,resp) => {
+                if(error){
+                    $hammer.log(`${bar.forum_name} signin error:`, error);
+                    return resolve(`网络请求异常`);
+                }
+                let res = "";
+                try {
+                    const result = JSON.parse(response);
+                    $hammer.log(`${bar.forum_name}签到结果：\n${response}`);
+                    if(result.no == 0){
+                        successnum++;
+                        res = `获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`;
+                    }
+                    res = `签到失败(${result.no}):${result.error}`;
+                } catch (e) {
+                    res = `贴吧签到数据处理异常:${e.message}`
+                }
+                resolve(res);
+            });
         });
     };
-    
-    const signBars = (bars, tbs, index) => {
-        //$notify(Protagonist, `进度${index}/${bars.length}`, "");
-        if (index >= bars.length) {
-            //$notify(Protagonist, "签到已满", `${process.result.length}`);
-            return checkIsAllProcessed();
-        }
-        var bar = bars[index];
-        if (bar.is_sign == 1) { //已签到的,直接不请求接口了
-            process.result.push({
-                bar: `${bar.forum_name}`,
-                level: bar.user_level,
-                exp: bar.user_exp,
-                errorCode: 9999,
-                errorMsg: "已签到"
-            });
-            return signBars(bars, tbs, ++index);
-        }
-        url_fetch_add.body = `tbs=${tbs}&kw=${bar.forum_name}&ie=utf-8`;
-        $hammer.resquest('post', url_fetch_add, (error, response, resp) => {
-            if (error) {
-                $hammer.log('signBar error:', error);
-                process.result.push({
-                    bar: bar.forum_name,
-                    errorCode: 999,
-                    errorMsg: '接口错误'
-                });
-                return signBars(bars, tbs, ++index);
-            }
-            try {
-                const result = JSON.parse(response);
-                if (result.no == 0) {
-                    process.result.push({
-                        bar: bar.forum_name,
-                        errorCode: 0,
-                        errorMsg: `获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`
-                    });
-                } else {
-                    process.result.push({
-                        bar: bar.forum_name,
-                        errorCode: result.no,
-                        errorMsg: result.error
-                    });
-                }
-            } catch (e) {
-                $hammer.alert(Protagonist, "贴吧签到数据处理异常", JSON.stringify(e));
-            }
-            signBars(bars, tbs, ++index)
-        });
-    };
-    
-    const checkIsAllProcessed = () => {
-        //$hammer.log(Protagonist, `最终进度${process.result.length}/${process.total}`, "");
-        if (process.result.length != process.total) return;
-        for (var i = 0; i < Math.ceil(process.total / singleNotifyCount); i++) {
-            let notify = "";
-            const spliceArr = process.result.splice(0, singleNotifyCount);
-            let notifySuccessCount = 0;
-            for (const res of spliceArr) {
-                if (res.errorCode == 0 || res.errorCode == 9999) {
-                    notifySuccessCount++;
-                }
-                if (res.errorCode == 9999) {
-                    notify += `【${res.bar}】已经签到，当前等级${res.level},经验${res.exp}`;
-                } else {
-                    notify += `【${res.bar}】${res.errorCode==0?'签到成功':'签到失败'}，${res.errorCode==0?res.errorMsg:('原因：'+res.errorMsg)}`;
-                }
-            }
-            $hammer.alert(Protagonist, `签到${spliceArr.length}个,成功${notifySuccessCount}个`, notify);
-        }
-    };
-
-    const startSignin = () => {
-        $hammer.request('get', url_fetch_sign, (error, response, resp) => {
-            if(error){
-                return $hammer.alert(Protagonist, "签到失败", "未获取到签到列表");
-            }
-            const body = JSON.parse(response);
-            const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
-            if (!isSuccessResponse) {
-                return $hammer.alert(Protagonist, "签到失败", (body && body.error) ? body.error : "接口数据获取失败");
-            }
-            const forums = body.data.like_forum;
-            $hammer.log("forums:", forums);
-            process.total = forums.length;
-            if(~~process.total < 1){
+    const startSignin = async () => {
+        const resp = await fetchMyLikedForums();
+        if(resp){
+            const forums = resp.like_forum;
+            const total = forums.length;
+            if(total < 1){
                 return $hammer.alert(Protagonist, "签到失败", "请确认您有关注的贴吧");
             }
-            let list = "";
-            for(let inx in forums){
-                const item = forums[inx];
-                list += `吧名:${item.forum_name}, 等级:${item.user_level}\n`;
-            }
-            $hammer.log(`已关注贴吧列表:\n${list}`);
-            if (useParallel == 1 || (useParallel == 0 && process.total >= 30)) {
-                return signBars(forums, body.data.tbs, 0);
-            }
+            let result = `当前关注的贴吧有${total}个:\n`;
             for (const bar of forums) {
-                signBar(bar, body.data.tbs);
+                result += `【${bar.forum_name}】`;
+                if(bar.is_sign == 1){
+                    successnum++;
+                    result += `已经签到，当前等级:${res.level},经验:${res.exp}\n`;
+                    continue;
+                }
+                result += await signin(bar, resp.tbs);
+                result += "\n";
             }
-        });
+            $hammer.alert(Protagonist, result, `今日已签:${successnum}`);
+        }
+        $hammer.done();
     };
     startSignin();
 };
-
 
 $hammer.isRequest ? flushCookie() : main();
