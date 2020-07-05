@@ -190,7 +190,8 @@ function qktx_daytask() {
                     var task_id = obj.data.everydayTaskList[i].activityId;
                     var task_tt = "[" + obj.data.everydayTaskList[i].activityName + "]";
                     var task_my = "[" + obj.data.everydayTaskList[i].taskCondition + "/" + obj.data.everydayTaskList[i].todayCount + "]";
-
+                    if(obj.data.everydayTaskList[i].activityName == '搜索赚金币')
+                        qktx_searchTask(obj.data.everydayTaskList[i].taskCondition - obj.data.everydayTaskList[i].todayCount);
 
                     if (task_ok > 0) status = "✅"; else
                         status = "❎";
@@ -205,6 +206,23 @@ function qktx_daytask() {
         } else { result2 = "[任务进度]获取失败❌" + "\n" + "[第1个宝箱]获取失败❌" + "[第2个宝箱]获取失败❌" + "\n"; qktx_msg("" + "\n" + result2, qktx_nm); }
 
     })
+}
+
+function qktx_searchTask(limit=20){
+    let index = 0;
+    const options = $iosrule.read('QKTXSearchTaskCookie');
+    const timer = setTimeout(inx => {
+        if(!options || limit < 1){
+            clearTimeout(timer);
+            return false;
+        }
+        console.log('QKTXSearchTaskCookie.timestamp:' + options.timestamp.toString());
+        $iosrule.post(options, (error, result, response) => {
+            limit--;
+            let result = `搜索任务重放第${inx}次结果：`;
+            console.log(`${result}, ${error ? error : response}`);
+        });
+    }, 32000, index++);
 }
 
 function qktx_getTaskAward(flag) {
