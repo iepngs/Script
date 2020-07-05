@@ -130,8 +130,8 @@ const main = () => {
         return $hammer.alert(Protagonist, "签到失败", "未获取到cookie");
     }
 
+    let successnum = 0;
     const host = "https://tieba.baidu.com";
-    const successnum = 0;
     const ua = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16A366";
     const buildRequsetBody = body => {
         return {
@@ -184,11 +184,11 @@ const main = () => {
                     $hammer.log(`${bar.forum_name}签到结果：\n${response}`);
                     if(result.no == 0){
                         successnum++;
-                        res = `获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`;
+                        res = `✅获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`;
                     }
-                    res = `签到失败(${result.no}):${result.error}`;
+                    res = `❎签到失败(${result.no}):${result.error}`;
                 } catch (e) {
-                    res = `贴吧签到数据处理异常:${e.message}`
+                    res = `❎签到异常:${e.message}`
                 }
                 setTimeout(() => {
                     resolve(res);
@@ -209,7 +209,7 @@ const main = () => {
                 result += `【${bar.forum_name}】`;
                 if(bar.is_sign == 1){
                     successnum++;
-                    result += `已经签到，当前等级:${res.level},经验:${res.exp}\n`;
+                    result += `✅等级/经验:${bar.user_level}/${bar.user_exp}\n`;
                     continue;
                 }
                 result += await signin(bar, resp.tbs);
