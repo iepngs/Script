@@ -190,7 +190,9 @@ const main = () => {
                 } catch (e) {
                     res = `贴吧签到数据处理异常:${e.message}`
                 }
-                resolve(res);
+                setTimeout(() => {
+                    resolve(res);
+                }, Math.ceil(Math.random()*2000));
             });
         });
     };
@@ -213,7 +215,7 @@ const main = () => {
                 result += await signin(bar, resp.tbs);
                 result += "\n";
             }
-            $hammer.alert(Protagonist, result, `今日已签:${successnum}`);
+            $hammer.alert(Protagonist, result, `今日已签:${successnum}/${total}`);
         }
         $hammer.done();
     };
