@@ -283,18 +283,15 @@ const main = () => {
     };
 
     const startSignin = () => {
-        $hammer.log(`${Protagonist} startSignin`);
         $hammer.request('get', url_fetch_sign, (error, response, resp) => {
             if(error){
                 return $hammer.alert(Protagonist, "签到失败", "未获取到签到列表");
             }
-            $hammer.log(`${Protagonist} response`, response);
             const body = JSON.parse(response);
             const isSuccessResponse = body && body.no == 0 && body.error == "success" && body.data.tbs;
             if (!isSuccessResponse) {
                 return $hammer.alert(Protagonist, "签到失败", (body && body.error) ? body.error : "接口数据获取失败");
             }
-            $hammer.log("body:", body);
             const forums = body.data.like_forum;
             $hammer.log("forums:", forums);
             process.total = forums.length;
@@ -302,8 +299,8 @@ const main = () => {
                 return $hammer.alert(Protagonist, "签到失败", "请确认您有关注的贴吧");
             }
             let list = "";
-            for(let i in forums){
-                const item = forums['i'];
+            for(let inx in forums){
+                const item = forums[inx];
                 list += `吧名:${item.forum_name}, 等级:${item.user_level}\n`;
             }
             $hammer.log(`已关注贴吧列表:\n${list}`);
