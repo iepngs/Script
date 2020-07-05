@@ -146,7 +146,7 @@ const $hammer = (() => {
 
 // ----------------------------------------------------
 const notifyInterval = 3 //视频红包间隔通知开为1，常关为0
-const logs = 0; // 日志开关，0为关，1为开
+const showlog = 0; // 日志开关，0为关，1为开
 const cookieName = '腾讯新闻';
 const signurlVal = $hammer.read('sy_signurl_txnews');
 const cookieVal = $hammer.read('sy_cookie_txnews');
@@ -218,7 +218,7 @@ function getsign() {
             if (error) {
                 return $hammer.log(`${cookieName} 签到 - getsign error:`, error);
             }
-            $hammer.log(`${cookieName}签到 - getsign: ${response}`);
+            showlog && $hammer.log(`${cookieName}签到 - getsign: ${response}`);
             const obj = JSON.parse(response);
             if (obj.info == "success") {
                 const next = obj.data.next_points;
@@ -248,7 +248,7 @@ function toRead() {
             if (error) {
                 return $hammer.log(`${cookieName} - 阅读文章 getsign error:`, error);
             }
-            $hammer.log(`${cookieName}阅读文章 - data: ${response}`);
+            showlog && $hammer.log(`${cookieName}阅读文章 - data: ${response}`);
             const toread = JSON.parse(response);
             try {
                 if (toread.info == 'success' && toread.data.activity.id) {
@@ -276,7 +276,7 @@ function lookVideo() {
             if (error) {
                 $hammer.alert(cookieName, '观看视频:' + error);
             } else {
-                $hammer.log(`${cookieName}观看视频 - data: ${response}`);
+                showlog && $hammer.log(`${cookieName}观看视频 - data: ${response}`);
                 tolookresult = JSON.parse(response)
                 if (tolookresult.info == 'success') {
                     //RedID = tolookresult.data.activity.id
@@ -298,13 +298,13 @@ function runtask(task, delay) {
         };
         $hammer.request('post', options, (error, response, data) => {
             if(error){
-                $hammer.log(`tasks.runtask error(${data.status}):`,data);
+                $hammer.log(`tasks.runtask error(${data.status}):`, options, data);
             }
             const taskresult = JSON.parse(response);
             if (taskresult.info == 'success') {
-                $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
+                showlog && $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
             } else {
-                $hammer.log(`${cookieName}每日任务 - data: ${response}`)
+                showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`)
             }
             setTimeout(res, delay);
         });
@@ -330,18 +330,17 @@ function Tasklist() {
                 Cookie: cookieVal
             },
         }
-        $hammer.request('get', options, (error, response, data) => {
-            $hammer.log(`${cookieName}- data: ${response}`)
-            tasklist = JSON.parse(response)
-            if (tasklist.data.task_list !== null) {
-                for (t = 0; t < tasklist.data.task_list.length - 1; t++) {
-                    if (tasklist.data.task_list[t].task_quota != tasklist.data.task_list[t].task_rate){
-                        tasks();
-                    }
+        $hammer.request('get', options, async (error, response, data) => {
+            showlog && $hammer.log(`${cookieName}- Tasklist.data: ${response}`)
+            tasklist = JSON.parse(response);
+            tasklist = tasklist.data.task_list;
+            for (const item of tasklist) {
+                if (item.task_quota != item.task_rate){
+                    await tasks();
                 }
             }
+            resolve();
         })
-        resolve();
     })
 }
 
