@@ -292,7 +292,9 @@ const main = () => {
             if (!isSuccessResponse) {
                 return $hammer.alert(Protagonist, "签到失败", (body && body.error) ? body.error : "接口数据获取失败");
             }
+            $hammer.log("body:", body);
             const forums = body.data.like_forum;
+            $hammer.log("forums:", forums);
             process.total = forums.length;
             if(~~process.total < 1){
                 return $hammer.alert(Protagonist, "签到失败", "请确认您有关注的贴吧");
