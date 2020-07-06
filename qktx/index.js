@@ -190,8 +190,11 @@ function qktx_daytask() {
                     var task_id = obj.data.everydayTaskList[i].activityId;
                     var task_tt = "[" + obj.data.everydayTaskList[i].activityName + "]";
                     var task_my = "[" + obj.data.everydayTaskList[i].taskCondition + "/" + obj.data.everydayTaskList[i].todayCount + "]";
-                    if(obj.data.everydayTaskList[i].activityName == '搜索赚金币')
-                        qktx_searchTask(obj.data.everydayTaskList[i].taskCondition - obj.data.everydayTaskList[i].todayCount);
+                    if(obj.data.everydayTaskList[i].activityName == '搜索赚金币'){
+                        const remain = obj.data.everydayTaskList[i].taskCondition - obj.data.everydayTaskList[i].todayCount;
+                        console.log(`今日搜索赚金币剩余次数:${remain}`);
+                        qktx_searchTask(remain);
+                    }
 
                     if (task_ok > 0) status = "✅"; else
                         status = "❎";
@@ -203,7 +206,10 @@ function qktx_daytask() {
                 }
             }
 
-        } else { result2 = "[任务进度]获取失败❌" + "\n" + "[第1个宝箱]获取失败❌" + "[第2个宝箱]获取失败❌" + "\n"; qktx_msg("" + "\n" + result2, qktx_nm); }
+        } else { 
+            result2 = "[任务进度]获取失败❌" + "\n" + "[第1个宝箱]获取失败❌" + "[第2个宝箱]获取失败❌" + "\n"; 
+            qktx_msg("" + "\n" + result2, qktx_nm); 
+        }
 
     })
 }
@@ -211,11 +217,11 @@ function qktx_daytask() {
 async function qktx_searchTask(limit=20){
     const options = $iosrule.read('QKTXSearchTaskCookie');
     if(!options){
-        console.log("QKTXSearchTaskCookie not found.");
+        console.log("QKTXSearchTaskCookie not found or task finished.");
         return false;
     }
-    let index = 0;
     options = JSON.parse(options);
+    let index = 0;
     while(index++ < limit){
         let resp = await (()=>{
             return new Promise(resolve=>{
@@ -234,6 +240,7 @@ async function qktx_searchTask(limit=20){
             })
         })();
         if(!resp){break;}
+        if(index >= limit){$iosrule.write('','QKTXSearchTaskCookie');}
     }
 }
 
