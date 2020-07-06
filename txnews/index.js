@@ -307,7 +307,9 @@ function runtask(task, delay) {
                     showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`)
                 }
             }
-            setTimeout(res, delay);
+            setTimeout(()=>{
+                res(data);
+            }, delay);
         });
     });
 }
@@ -316,7 +318,10 @@ function tasks() {
     return new Promise(async (resolve, reject) => {
         const tasklist = ['9w6zkk', 'kl5p8h', 'erq8vx', 'aqyd3z', 'jslzr5', 'l7glnd', 'o96j0h', 'mide1n', 'u8z8vk'];
         for (i = 0; i < tasklist.length; i++) {
-            await runtask(tasklist[i], (i + 1) * 500);
+            const resp = await runtask(tasklist[i], (i + 1) * 500);
+            if(resp.status == 403 || resp.status == 404){
+                break;
+            }
         }
         resolve();
     })

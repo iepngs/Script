@@ -184,9 +184,11 @@ const main = () => {
                     $hammer.log(`${bar.forum_name}签到结果：\n${response}`);
                     if(result.no == 0){
                         successnum++;
-                        res = `✅获得${result.data.uinfo.cont_sign_num}积分,第${result.data.uinfo.user_sign_rank}个签到`;
+                        const info = result.data.uinfo;
+                        res = `✅获得${info.cont_sign_num}积分,第${info.user_sign_rank}个签到`;
+                    }else{
+                        res = `❎签到失败(${result.no}):${result.error}`;
                     }
-                    res = `❎签到失败(${result.no}):${result.error}`;
                 } catch (e) {
                     res = `❎签到异常:${e.message}`
                 }
