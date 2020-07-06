@@ -225,7 +225,7 @@ async function qktx_searchTask(limit=20){
     while(index++ < limit){
         let resp = await (()=>{
             return new Promise(resolve=>{
-                const delay = index == 1 ? 1000 : Math.ceil(32000+Math.random()*1000);
+                const delay = Math.ceil(32000+Math.random()*1000);
                 setTimeout(() => {
                     $iosrule.post(options, (error, result, response) => {
                         if(error){
