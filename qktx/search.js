@@ -103,18 +103,17 @@ const $hammer = (() => {
 
 
 (()=>{
-    if(!$hammer.isRequest){
-        return $hammer.done();
+    if($hammer.isRequest){
+        const cookieKey = 'QKTXSearchTaskCookie';
+        const cookieVal = JSON.stringify({
+            url: $request.url,
+            headers: $request.headers,
+            body: $request.body,
+            timestamp: Date.now()        
+        });
+        $hammer.log(`QKTXSearchTaskCookie:\n${cookieVal}`, $request.headers);
+        $hammer.write(cookieVal, cookieKey);
+        $hammer.alert("趣看天下", "剩余未完成部分将在下一次自动执行", "搜索任务已记录");
     }
-    const cookieKey = 'QKTXSearchTaskCookie';
-    const cookieVal = JSON.stringify({
-        url: $request.url,
-        headers: $request.headers,
-        body: $request.body,
-        timestamp: Date.now()        
-    });
-    $hammer.log(`QKTXSearchTaskCookie:\n${cookieVal}`);
-    $hammer.write(cookieVal, cookieKey);
-    $hammer.alert("趣看天下", "剩余未完成部分将在下一次自动执行", "搜索任务已记录");
     $hammer.done();
 })();
