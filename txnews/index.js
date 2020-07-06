@@ -299,12 +299,13 @@ function runtask(task, delay) {
         $hammer.request('post', options, (error, response, data) => {
             if(error){
                 $hammer.log(`tasks.runtask error(${data.status}):`, options, data);
-            }
-            const taskresult = JSON.parse(response);
-            if (taskresult.info == 'success') {
-                showlog && $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
-            } else {
-                showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`)
+            }else{
+                const taskresult = JSON.parse(response);
+                if (taskresult.info == 'success') {
+                    showlog && $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
+                } else {
+                    showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`)
+                }
             }
             setTimeout(res, delay);
         });
