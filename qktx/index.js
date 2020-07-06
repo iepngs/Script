@@ -208,21 +208,25 @@ function qktx_daytask() {
     })
 }
 
-function qktx_searchTask(limit=20){
+async function qktx_searchTask(limit=20){
     let index = 0;
     const options = $iosrule.read('QKTXSearchTaskCookie');
-    const timer = setTimeout(inx => {
-        if(!options || limit < 1){
-            clearTimeout(timer);
-            return false;
-        }
-        console.log('QKTXSearchTaskCookie.timestamp:' + options.timestamp.toString());
-        $iosrule.post(options, (error, result, response) => {
-            limit--;
-            const r = `搜索任务重放第${inx}次结果：`;
-            console.log(`${r}, ${error ? error : response}`);
-        });
-    }, 32000, index++);
+    if(!options){
+        return false;
+    }
+    while(index++ < limit){
+        await (()=>{
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    console.log('QKTXSearchTaskCookie.timestamp:' + options.timestamp.toString());
+                    $iosrule.post(options, (error, result, response) => {
+                        console.log(`搜索任务重放第${index}次结果：${error ? error : response}`);
+                        resolve();
+                    });
+                }, Math.ceil(32000+Math.random()*1000));
+            })
+        })();
+    }
 }
 
 function qktx_getTaskAward(flag) {

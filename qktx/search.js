@@ -103,17 +103,18 @@ const $hammer = (() => {
 
 
 (()=>{
-    if($hammer.isRequest){
+    if($hammer.isRequest && $request.method == "POST"){
         const cookieKey = 'QKTXSearchTaskCookie';
         const cookieVal = JSON.stringify({
             url: $request.url,
             headers: $request.headers,
             body: $request.body,
-            timestamp: Date.now()        
+            timestamp: Date.now()
         });
         $hammer.log(`QKTXSearchTaskCookie:\n${cookieVal}`, $request.headers);
         $hammer.write(cookieVal, cookieKey);
         $hammer.alert("趣看天下", "剩余未完成部分将在下一次自动执行", "搜索任务已记录");
     }
+    $hammere.log("QKTXSearchTaskCookie finished.");
     $hammer.done();
 })();
