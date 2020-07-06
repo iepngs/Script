@@ -153,28 +153,6 @@ const cookieVal = $hammer.read('sy_cookie_txnews');
 const videoVal = $hammer.read('video_txnews');
 
 // ----------------------------------------------------
-function flushCookie() {
-    if ($request.method == 'OPTIONS') {
-        return;
-    }
-    if ($request.body.indexOf("article_read") != -1) {
-        const signurlVal = $request.url;
-        const cookieVal = $request.headers.Cookie;
-        $hammer.log(`signurlVal:${signurlVal}`, `cookieVal:${cookieVal}`);
-        $hammer.write(signurlVal, 'sy_signurl_txnews');
-        $hammer.write(cookieVal, 'sy_cookie_txnews');
-        $hammer.alert(cookieName, `获取Cookie: 成功🎉`, ``)
-    }
-    if ($request.body.indexOf("video_read") != -1) {
-        const videoVal = $request.url;
-        $hammer.log(`videoVal:${videoVal}`);
-        $hammer.write(videoVal, 'video_txnews');
-        $hammer.alert(cookieName, `获取视频地址: 成功🎉`);
-    }
-}
-
-// ----------------------------------------------------
-
 let signinfo = '',
     Dictum = '',
     readnum = '',
@@ -289,7 +267,7 @@ function lookVideo() {
 }
 
 function runtask(task, delay) {
-    return new Promise(res => {
+    return new Promise(resolve => {
         const options = {
             url: `http://4ul.cn/${task}`,
             headers: {
@@ -300,15 +278,26 @@ function runtask(task, delay) {
             if(error){
                 $hammer.log(`tasks.runtask error(${data.status}):`, options, data);
             }else{
-                const taskresult = JSON.parse(response);
-                if (taskresult.info == 'success') {
-                    showlog && $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`)
-                } else {
-                    showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`)
+                try {
+                    const taskresult = JSON.parse(response);
+                    if (taskresult.info == 'success') {
+                        showlog && $hammer.log(`任务成功,总金币: ${taskresult.data.points}\n${data}`);
+                    } else {
+                        showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`);
+                    }
+                } catch (error) {
+                    if(data.status == 200){
+                        let refreshurl = /<meta .* content="0; url=(.*)"><\/head>/.exec(response);
+                        refreshurl = refreshurl ? refreshurl[1] : false;
+                        $hammer.log(`response request refresh url: ${refreshurl}`);
+                        //$hammer.request('get', refreshurl, (error,response)=>{})
+                    }
+                    showlog && $hammer.log(`${cookieName}每日任务 - data: ${error.message}, detail:`, data);
+                    data = {status: 403};
                 }
             }
             setTimeout(()=>{
-                res(data);
+                resolve(data);
             }, delay);
         });
     });
@@ -337,7 +326,7 @@ function Tasklist() {
             },
         }
         $hammer.request('get', options, async (error, response, data) => {
-            showlog && $hammer.log(`${cookieName}- Tasklist.data: ${response}`)
+            showlog && $hammer.log(`${cookieName}- Tasklist.data: ${response}`);
             tasklist = JSON.parse(response);
             tasklist = tasklist.data.task_list;
             for (const item of tasklist) {
