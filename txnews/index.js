@@ -338,6 +338,7 @@ function Tasklist() {
             for (const item of tasklist) {
                 if (item.task_quota != item.task_rate){
                     await tasks();
+                    break;
                 }
             }
             resolve();
