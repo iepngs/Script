@@ -5,7 +5,7 @@ try {
     resp.advertisement_info=[];
     resp = JSON.stringify(resp);
 } catch (e) {
-    console.log(e.message);
+    console.log(`weixin ad error:\n${e.message}`);
 }
 
 $done({body: resp});
