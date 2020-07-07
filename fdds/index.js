@@ -28,9 +28,13 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
             case "athena-orchestration-system/app/v100/memberInfo":
                 body.data.vipFlag = true;
                 break;
+            case "user-orchestration/user/api/v100/ceiltip":
+                body.data = {};
+                break;
             case "UserInfo/HasUserBuyed":
                 body.member = true;
                 body.buyed = true;
+                body.statusCode = 200;//0
                 break;
             case "userInfo":
             case "oauth/login":
@@ -40,6 +44,15 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
                 body.userStatus = 2;//1-4,1试用|4过期
                 body.expire_time = Date.now() + 365 * 86400 * 1000;
                 break;
+            case "fragment/content":
+                body.hasBought = true;
+                body.hasUnlocked = true;
+                body.memberOnly = false;
+                break;
+            case "app/hasUserBlackCard":
+                body.inActivity = true;
+                body.had = true;
+                // body.oldUser = true;
             default:
                 break;
         }
