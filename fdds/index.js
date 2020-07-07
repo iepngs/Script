@@ -34,7 +34,6 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
             case "UserInfo/HasUserBuyed":
                 body.member = true;
                 body.buyed = true;
-                body.statusCode = 200;//0
                 break;
             case "userInfo":
             case "oauth/login":
