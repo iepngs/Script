@@ -19,12 +19,12 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
         return $hammer.done();
     }
     const [, host, uri] = matcher;
-    $hammer.log("fdds $response:", $response);
     const originBodyContents = $response.body;
     $hammer.log(`fdds origin data:\n ${originBodyContents}`);
     let body = "";
     try {
         body = JSON.parse(originBodyContents);
+        $hammer.log(`fdds catched uri: ${uri}`);
         switch (uri) {
             case "athena-orchestration-system/app/v100/memberInfo":
                 body.data.vipFlag = true;
@@ -36,9 +36,10 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
             case "userInfo":
             case "oauth/login":
             case "login":
-                if (body.hasOwnProperty("is_vip")) body.is_vip = true;
-                if (body.hasOwnProperty("expire_time"))
-                    body.expire_time = Date.now() + 365 * 86400 * 1000;
+                body.is_vip = true;
+                body.userRoleCode = "10";//9-12,9试用|12过期
+                body.userStatus = 2;//1-4,1试用|4过期
+                body.expire_time = Date.now() + 365 * 86400 * 1000;
                 break;
             default:
                 break;
@@ -49,6 +50,6 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
         $hammer.log(`fdds解析错误：\n${e.message}`);
         body = originBodyContents;
     }
-    $hammer.log(`fdds final data:\n ${body}`);
+    $hammer.log(`fdds final data:\n ${originBodyContents}`);
     $hammer.done({ body: body });
 })()
