@@ -45,9 +45,9 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
                 body.expire_time = Date.now() + 365 * 86400 * 1000;
                 break;
             case "fragment/content":
+                body.trialDuration = body.duration;
                 body.hasBought = true;
                 body.hasUnlocked = true;
-                body.memberOnly = false;
                 break;
             case "app/hasUserBlackCard":
                 body.inActivity = true;
