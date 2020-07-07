@@ -41,8 +41,7 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
                 body.is_vip = true;
                 body.userRoleCode = "10";//9-12,9试用|12过期
                 body.userStatus = 2;//1-4,1试用|4过期
-                const currentYearLastSecond = (new Date()).getFullYear().toString()+"-12-31 23:59:59";
-                body.expire_time = (new Date(currentYearLastSecond)).getTime();
+                body.expire_time = Date.now() + 180*86400*1000;
                 break;
             case "fragment/content":
                 body.trialDuration = body.duration;
