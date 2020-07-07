@@ -19,6 +19,7 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
         return $hammer.done();
     }
     const [, host, uri] = matcher;
+    $hammer.log("fdds $request:", $request);
     const originBodyContents = $request.body;
     $hammer.log(`fdds origin data:\n ${originBodyContents}`);
     let body = "";
