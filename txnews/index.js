@@ -286,7 +286,7 @@ function runtask(task, delay) {
                         showlog && $hammer.log(`${cookieName}每日任务 - data: ${response}`);
                     }
                 } catch (error) {
-                    if(data.status == 200){
+                    if(data && data.status == 200){
                         let refreshurl = /<meta .* content="0; url=(.*)"><\/head>/.exec(response);
                         refreshurl = refreshurl ? refreshurl[1] : false;
                         $hammer.log(`response request refresh url: ${refreshurl}`);
