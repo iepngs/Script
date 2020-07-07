@@ -351,7 +351,7 @@ function StepsTotal() {
             },
         };
         $hammer.request('get', options, (error, response, data) => {
-            $hammer.log(`${cookieName}统计- data: ${response}`)
+            showlog && $hammer.log(`${cookieName}统计- data: ${response}`)
             const totalred = JSON.parse(response);
             if (totalred.ret == 0) {
                 for (i = 0; i < totalred.data.award.length; i++) {
@@ -386,7 +386,7 @@ function openApp() {
             body: `redpack_type=free_redpack&activity_id=readtask_welfare_lowactive`
         }
         $hammer.request('post', options, (error, response, data) => {
-            $hammer.log(`${cookieName}每日开启- data: ${response}`);
+            showlog && $hammer.log(`${cookieName}每日开启- data: ${response}`);
             let opcash = JSON.parse(response);
             if (opcash.data.award.num) {
                 redpackres = `【每日开启】到账` + opcash.data.award.num / 100 + ` 元 🌷\n`;
@@ -407,7 +407,7 @@ function Redpack() {
             body: `redpack_type=article&activity_id=readtask_welfare_lowactive`
         }
         $hammer.request('post', options, (error, response, data) => {
-            $hammer.log(`${cookieName}阅读红包- data: ${response}`);
+            showlog && $hammer.log(`${cookieName}阅读红包- data: ${response}`);
             let rcash = JSON.parse(response);
             try {
                 readredpack = Number();
@@ -438,7 +438,7 @@ function videoPack() {
                 body: `redpack_type=video&activity_id=readtask_welfare_lowactive`
             };
             $hammer.request('post', options, (error, response, data) => {
-                $hammer.log(`${cookieName}视频红包-data:${response}`);
+                showlog && $hammer.log(`${cookieName}视频红包-data:${response}`);
                 let vcash = JSON.parse(response);
                 let videoredpack = Number();
                 if (vcash.ret == 0) {
@@ -468,7 +468,7 @@ function getTotal() {
             if (error) {
                 $hammer.alert("获取收益信息失败‼️", '', error);
             } else {
-                $hammer.log("获取收益信息:", response)
+                showlog && $hammer.log("获取收益信息:", response)
                 const obj = JSON.parse(response)
                 subTile = '【收益总计】' + obj.data.wealth[0].title + '金币  ' + "现金: " + obj.data.wealth[1].title + '元';
             }
