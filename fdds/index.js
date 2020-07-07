@@ -49,6 +49,6 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
         $hammer.log(`fdds解析错误：\n${e.message}`);
         body = originBodyContents;
     }
-    $hammer.log(`fdds final data:\n ${originBodyContents}`);
+    $hammer.log(`fdds final data:\n ${body}`);
     $hammer.done({ body: body });
 })()
