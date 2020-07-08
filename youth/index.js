@@ -64,17 +64,15 @@ const timebodyKey = 'readtime_zq'
 const sy = init()
 const lastSigninDate = sy.getdata('youth_signDate');
 
-const signheaderVal = sy.getdata(signheaderKey)
-const redpbodyVal = sy.getdata(redpbodyKey)
-const articlebodyVal = sy.getdata(articlebodyKey)
-const timebodyVal = sy.getdata(timebodyKey)
+const signheaderVal = sy.getdata(signheaderKey);
+const redpbodyVal = sy.getdata(redpbodyKey);
+const articlebodyVal = sy.getdata(articlebodyKey);
+const timebodyVal = sy.getdata(timebodyKey);
+let rotarynum = "";
 let rotaryres = {};
 let isGetCookie = typeof $request !== 'undefined'
-if (isGetCookie) {
-    GetCookie()
-} else {
-    all()
-}
+
+isGetCookie ? GetCookie() : all();
 
 function GetCookie() {
     if ($request && $request.method != `OPTIONS` && $request.url.match(/\/TaskCenter\/(sign|getSign)/)) {
@@ -109,15 +107,15 @@ async function all() {
     }
     await sign();
     await signInfo();
-    await aticleshare();
-    await getAdVideo();
-    await gameVideo();
-    await Articlered();
-    await rotary();
-    await rotaryCheck();
     await punchCard();
     await endCard();
     await Cardshare();
+    await getAdVideo();
+    // await gameVideo();
+    await Articlered();
+    await aticleshare();
+    await rotary();
+    await rotaryCheck();
     await openbox();
     await share();
     await readArticle();
@@ -147,8 +145,7 @@ function sign() {
             } else if (signres.status == 0) {
                 signresult = `【签到信息】重复`;
                 detail = ``;
-            }
-            else if (signres.status == 1) {
+            }else if (signres.status == 1) {
                 signresult = `【签到信息】成功`;
                 detail = `金币: +${signres.score}，明日金币: +${signres.nextScore}\n`;
                 sy.setdata(signinDate, 'youth_signDate');
@@ -245,15 +242,15 @@ function readArticle() {
             if (logs) sy.log(`阅读奖励:${data}`)
             readres = JSON.parse(data)
             if (readres.items.max_notice == '\u770b\u592a\u4e45\u4e86\uff0c\u63621\u7bc7\u8bd5\u8bd5') {
-                //detail += ` \u770b\u592a\u4e45\u4e86\uff0c\u63621\u7bc7\u8bd5\u8bd5，`
-            }
-            else if (readres.items.read_score !== undefined) {
+                detail += `【阅读奖励】  看太久了，换1篇试试`
+            }else if (readres.items.read_score !== undefined) {
                 detail += `【阅读奖励】  +${readres.items.read_score}个青豆\n`
             }
             resolve()
         })
     })
 }
+
 //文章阅读附加
 function Articlered() {
     return new Promise((resolve, reject) => {
@@ -275,6 +272,7 @@ function Articlered() {
         })
     })
 }
+
 //转盘奖励
 function rotary() {
     const rotarbody = signheaderVal.split("&")[15] + '&' + signheaderVal.split("&")[8]
@@ -294,8 +292,7 @@ function rotary() {
                 }
                 if (rotaryres.code != 10010 && rotaryres.data.doubleNum != 0) {
                     TurnDouble()
-                }
-                else if (rotaryres.code == 10010) {
+                }else if (rotaryres.code == 10010) {
                     rotarynum = ` 转盘${rotaryres.msg}🎉`
                 }
                 resolve()
@@ -403,7 +400,7 @@ function Cardshare() {
         sy.post(starturl, (error, response, data) => {
             if (logs) sy.log(`打卡分享开启:${data}`)
             sharestart = JSON.parse(data)
-            detail += `【打卡分享】shareStart：${sharestart.msg}`
+            detail += `【打卡分享】shareStart：${sharestart.msg}\n`
             if (sharestart.code == 1) {
                 setTimeout(() => {
                     let endurl = {
@@ -427,6 +424,7 @@ function Cardshare() {
         })
     })
 }
+
 //开启时段宝箱
 function openbox() {
     return new Promise((resolve, reject) => {
@@ -549,13 +547,11 @@ function showmsg() {
     return new Promise(resolve => {
         if (rotaryres.status == 1 && rotaryres.data.remainTurn >= 97) {
             sy.msg(CookieName + " " + nick, subTitle, detail)  //默认前三次为通知
-        }
-        else if (rotaryres.status == 1 && rotaryres.data.remainTurn % notifyInterval == 0) {
+        }else if (rotaryres.status == 1 && rotaryres.data.remainTurn % notifyInterval == 0) {
             sy.msg(CookieName + " " + nick, subTitle, detail)//转盘次数/间隔整除时通知
-        }
-        else if (rotaryres.code == 10010 && notifyInterval != 0) {
+        }else if (rotaryres.code == 10010 && notifyInterval != 0) {
             rotarynum = ` 转盘${rotaryres.msg}🎉`
-            sy.msg(CookieName + " " + nick + "  " + rotarynum, subTitle, detail)//任务全部完成且通知间隔不为0时通知
+            sy.msg(CookieName, subTitle,  `${nick}\n${rotarynum}\n${detail}`)//任务全部完成且通知间隔不为0时通知
         }
         resolve();
     })
