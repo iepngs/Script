@@ -482,13 +482,13 @@ function showmsg() {
         const detail = signinfo + `` + `【文章阅读】已读/再读: ` + readnum + `/` + readtitle + ` 篇\n` + `【阅读红包】已开/总计: ` + openreadred + `/` + readredtotal + ` 个🧧\n` + `【观看视频】已看/再看: ` + videonum + `/` + videotitle + ` 分钟\n` + `【视频红包】已开/总计: ` + openvideored + `/` + videoredtotal + ` 个🧧\n【每日一句】` + Dictum + `\n`
         $hammer.log(subTile + `\n` + detail);
         if (notifyInterval == 1) {
-            $hammer.alert(cookieName, subTile, detail);
+            $hammer.alert(cookieName, detail, subTile);
         } else if (openreadred == readredtotal && openvideored != videoredtotal) {
-            $hammer.alert(cookieName + ` 阅读任务已完成✅`, subTile, detail);
+            $hammer.alert(cookieName + ` 阅读任务已完成✅`, detail, subTile);
         } else if (openreadred == readredtotal && openvideored == videoredtotal) {
-            $hammer.alert(cookieName + ` 今日任务已完成✅`, subTile, detail);
+            $hammer.alert(cookieName + ` 今日任务已完成✅`, detail, subTile);
         } else if (openreadred % notifyInterval == 0 && readcoins == "红包+1") {
-            $hammer.alert(cookieName, subTile, detail);
+            $hammer.alert(cookieName, detail, subTile);
         }
         resolve();
     })
