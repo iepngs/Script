@@ -179,8 +179,9 @@ function signInfo() {
 
 function aticleshare() {
     return new Promise((resolve, reject) => {
+        const rand = Math.random().toFixed(3).toString().substr(2).replace("0", "7");
         shareurl = {
-            url: `https://kd.youth.cn/n/27043840?46746961.html`,
+            url: `https://kd.youth.cn/n/27043${rand}?46746961.html`,
             headers: { Cookie: JSON.parse(signheaderVal)['Cookie'] },
         }
         sy.get(shareurl, (error, response, data) => {
@@ -242,7 +243,7 @@ function readArticle() {
             if (logs) sy.log(`阅读奖励:${data}`)
             readres = JSON.parse(data)
             if (readres.items.max_notice == '\u770b\u592a\u4e45\u4e86\uff0c\u63621\u7bc7\u8bd5\u8bd5') {
-                detail += `【阅读奖励】  看太久了，换1篇试试`
+                detail += `【阅读奖励】  看太久了，换1篇试试\n`
             }else if (readres.items.read_score !== undefined) {
                 detail += `【阅读奖励】  +${readres.items.read_score}个青豆\n`
             }
