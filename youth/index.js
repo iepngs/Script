@@ -81,7 +81,7 @@ function GetCookie() {
         const signheaderVal = JSON.stringify($request.headers)
         if (signheaderVal) sy.setdata(signheaderVal, signheaderKey)
         sy.log(`[${CookieName}] 获取Cookie: 成功,signheaderVal: ${signheaderVal}`)
-        sy.msg(CookieName, `获取Cookie: 成功🎉`, ``)
+        // sy.msg(CookieName, `获取Cookie: 成功🎉`, ``)
     }
     else if ($request && $request.method != `OPTIONS` && $request.url.match(/\/article\/complete/)) {
         const articlebodyVal = $request.body
