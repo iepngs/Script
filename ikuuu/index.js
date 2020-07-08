@@ -155,23 +155,18 @@ const Protagonist = "iKuuu";
 
 function GetCookie() {
     const CookieName = "IKUUU的Cookie";
-    try {
-        if ($request.headers) {
-            const CookieValue = $request.headers['Cookie'];
-            const cachedCookie = $hammer.read(CookieKey);
-            const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
-            if (dynamic) {
-                const result = $hammer.write(CookieValue, CookieKey);
-                $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
-            } else {
-                $hammer.alert(CookieName, 'cookie已存在');
-            }
-        } else {
-            $hammer.alert(CookieName, "请检查匹配URL或配置内脚本类型", "写入失败");
-        }
-    } catch (error) {
-        $hammer.alert(CookieName, "写入失败: 未知错误")
-        $hammer.log(error)
+    const CookieValue = $request.headers.Cookie;
+    if(!CookieValue){
+        $hammer.alert(CookieName, "未捕获到cookie信息");
+        return $hammer.done();
+    }
+    const historyCookieVal = $hammer.read(CookieKey);
+    const dynamic = historyCookieVal ? (historyCookieVal == CookieValue ? "" : "更新") : "写入";
+    if (dynamic) {
+        const result = $hammer.write(CookieValue, CookieKey);
+        $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
+    } else {
+        $hammer.alert(CookieName, 'cookie已存在');
     }
     $hammer.done();
 }
