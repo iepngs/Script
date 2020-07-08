@@ -154,18 +154,14 @@ const CookieKey = "CookieIKUUU";
 const Protagonist = "iKuuu";
 
 function GetCookie() {
-    $hammer.log("ikuuu GetCookie");
     const CookieName = "IKUUU的Cookie";
     const CookieValue = $request.headers.Cookie;
-    $hammer.log("ikuuu GetCookie CookieValue:", CookieValue);
     if(!CookieValue){
         $hammer.alert(CookieName, "未捕获到cookie信息");
         return $hammer.done();
     }
     const historyCookieVal = $hammer.read(CookieKey);
-    $hammer.log("ikuuu GetCookie historyCookieVal:", historyCookieVal);
     const dynamic = historyCookieVal ? (historyCookieVal == CookieValue ? "" : "更新") : "写入";
-    $hammer.log("ikuuu GetCookie dynamic:", dynamic);
     if (dynamic) {
         $hammer.write(CookieValue, CookieKey);
         $hammer.alert(CookieName, `${dynamic}成功🎉`);
@@ -181,8 +177,9 @@ function checkin() {
         $hammer.alert(Protagonist, "cookie没有，先去获取吧!");
         return $hammer.done();
     }
+    const host = `https://ikuuu.co`;
     let options = {
-        url: "https://ikuuu.co/user/checkin",
+        url: `${host}/user/checkin`,
         headers: {
             "accept": "application/json, text/javascript, */*; q=0.01",
             "origin": "https://ikuuu.co",
@@ -201,7 +198,7 @@ function checkin() {
         } catch (error) {
             $hammer.log(`${Protagonist}签到结果：`, result);
             if (result.body.indexOf("remember-me") > 0) {
-                $hammer.alert(Protagonist, "Cookie又过期了", "", "http://ikuuu.co/user/profile");
+                $hammer.alert(Protagonist, "Cookie又过期了", "", `${host}/user/profile`);
             } else {
                 $hammer.alert(Protagonist, "签到结果解析异常，看一下日志");
             }
