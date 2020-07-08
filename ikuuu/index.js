@@ -154,17 +154,21 @@ const CookieKey = "CookieIKUUU";
 const Protagonist = "iKuuu";
 
 function GetCookie() {
+    $hammer.log("ikuuu GetCookie");
     const CookieName = "IKUUU的Cookie";
     const CookieValue = $request.headers.Cookie;
+    $hammer.log("ikuuu GetCookie CookieValue:", CookieValue);
     if(!CookieValue){
         $hammer.alert(CookieName, "未捕获到cookie信息");
         return $hammer.done();
     }
     const historyCookieVal = $hammer.read(CookieKey);
+    $hammer.log("ikuuu GetCookie historyCookieVal:", historyCookieVal);
     const dynamic = historyCookieVal ? (historyCookieVal == CookieValue ? "" : "更新") : "写入";
+    $hammer.log("ikuuu GetCookie dynamic:", dynamic);
     if (dynamic) {
-        const result = $hammer.write(CookieValue, CookieKey);
-        $hammer.alert(CookieName, dynamic + (result ? "成功🎉" : "失败"));
+        $hammer.write(CookieValue, CookieKey);
+        $hammer.alert(CookieName, `${dynamic}成功🎉`);
     } else {
         $hammer.alert(CookieName, 'cookie已存在');
     }
