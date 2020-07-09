@@ -168,8 +168,8 @@ function signInfo() {
             if (logs) sy.log(`${CookieName}, 签到信息: ${data}`);
             signinfo = JSON.parse(data);
             if (signinfo.status == 1) {
-                subTitle = `【收益总计】${signinfo.data.user.score}青豆  现金约${signinfo.data.user.money}元`;
-                nick = `  账号: ${signinfo.data.user.nickname}`;
+                subTitle = `【收益总计】${signinfo.data.user.score}青豆  现金约${signinfo.data.user.money}元\n`;
+                nick = `账号: ${signinfo.data.user.nickname}`;
                 detail = `${signresult}(+${signinfo.data.sign_score}青豆) 已连签: ${signinfo.data.sign_day}天\n<本次收益>：\n`;
             } else {
                 subTitle = `${signinfo.msg}`;
@@ -244,11 +244,11 @@ function readArticle() {
         }
         sy.post(url, (error, response, data) => {
             if (logs) sy.log(`阅读奖励:${data}`)
-            readres = JSON.parse(data)
+            readres = JSON.parse(data);
             if (readres.items.max_notice == '\u770b\u592a\u4e45\u4e86\uff0c\u63621\u7bc7\u8bd5\u8bd5') {
-                detail += `【阅读奖励】看太久了，换1篇试试\n`
+                detail += `【阅读奖励】看太久了，换1篇试试\n`;
             }else if (readres.items.read_score !== undefined) {
-                detail += `【阅读奖励】+${readres.items.read_score}个青豆\n`
+                detail += `【阅读奖励】+${readres.items.read_score}个青豆\n`;
             }
             resolve()
         })
@@ -545,7 +545,7 @@ function earningsInfo() {
                     }
                     detail += '<今日合计>： ' + infores.history[0].score + " 青豆"
                 }
-                sy.log(CookieName + " " + nick + "  \n" + subTitle + detail)
+                sy.log(CookieName + "\n" + nick + "  \n" + subTitle + detail)
                 resolve()
             })
         })
