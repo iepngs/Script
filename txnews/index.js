@@ -500,13 +500,13 @@ function flushCookie() {
         const cookieVal = $request.headers.Cookie;
         $hammer.log(`txnews signurlVal:${requrl}`);
         $hammer.log(`txnews cookieVal:${cookieVal}`);
-        $hammer.write(requrl, 'sy_signurl_txnews2');
-        $hammer.write(cookieVal,  'sy_cookie_txnews2');
+        $hammer.write(requrl, 'sy_signurl_txnews');
+        $hammer.write(cookieVal,  'sy_cookie_txnews');
         $hammer.alert(cookieName, `获取Cookie: 成功🎉`, ``);
     }
     if ($request.body.indexOf("video_read") > 0 ) {
         $hammer.log(`txnews videoVal:${requrl}`);
-        $hammer.write(requrl, 'video_txnews2');
+        $hammer.write(requrl, 'video_txnews');
         $hammer.alert(cookieName, `获取视频地址: 成功🎉`);
     }
 }
