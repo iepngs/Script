@@ -218,7 +218,7 @@ function fetchMyTask(){
                 $hammer.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n===========`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
-                        if(["INVITATION", "ANY_ORDER"].indexOf(task.taskCode) == -1)
+                        if(["INVITATION", "ANY_ORDER", "POINT_EXCHANGE"].indexOf(task.taskCode) == -1)
                             taskAchieve(task.taskCode);
                         break;
                     case "TO_REWARD":
