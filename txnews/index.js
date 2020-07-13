@@ -146,7 +146,7 @@ const $hammer = (() => {
 
 // ----------------------------------------------------
 const notifyInterval = 3 //视频红包间隔通知开为1，常关为0
-const showlog = 0; // 日志开关，0为关，1为开
+const showlog = 1; // 日志开关，0为关，1为开
 const cookieName = '腾讯新闻';
 const signurlVal = $hammer.read('sy_signurl_txnews');
 const cookieVal = $hammer.read('sy_cookie_txnews');
