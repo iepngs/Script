@@ -164,7 +164,7 @@ let signinfo = '',
     openvideored = '',
     videoredtotal = '',
     readcoins = '',
-    videocoins = '',
+    // videocoins = '',
     getreadred = '',
     redpackres = '',
     subTile = '',
@@ -258,7 +258,7 @@ function lookVideo() {
                 tolookresult = JSON.parse(response)
                 if (tolookresult.info == 'success') {
                     //RedID = tolookresult.data.activity.id
-                    videocoins = tolookresult.data.countdown_timer.countdown_tips;
+                    // videocoins = tolookresult.data.countdown_timer.countdown_tips;
                 }
             }
             resolve();
