@@ -22,7 +22,7 @@
 //以上是配置说明
 const $iosrule = iosrule();//声明必须
 //====================================
-const log = 1;//开启日志
+const showlog = 1;//开启日志
 //++++++++++++++++++++++++++++++++-
 const jrttid = "A";
 const Protagonist = "今日头条激素版";
@@ -37,6 +37,7 @@ $iosrule.isRequest ? GetCookie() : main();
 //++++++++++++++++++++++++++++++++
 
 function GetCookie() {
+    console.log(Protagonist + "GetCookie().")
     var md_header = $request.headers;
     if(!md_header){
         $iosrule.end();
@@ -44,6 +45,11 @@ function GetCookie() {
     var md_bd = $request.body;
     var urlval = $request.url;
     var jrtt_sleepurlck = urlval.substring(urlval.indexOf("done_task/") + 10, urlval.length);
+    if(showlog){
+        console.log(Protagonist + "GetCookie(url):")
+        console.log(urlval);
+        console.log(jrtt_sleepurlck);
+    }
     var jrtthok1 = $iosrule.write(jrtt_sleepurlck, jrtt_sleepurlckname);
     var jrtthok2 = $iosrule.write(md_header["x-Tt-Token"], jrtt_sleepckname);
     var jrtthok3 = $iosrule.write(md_bd, jrtt_sleepbdname);
@@ -72,8 +78,8 @@ function jrtt_openbox() {
     var result1 = ""; var result2 = "";
     const llUrl1 = { url: "https://is-lq.snssdk.com/score_task/v1/task/open_treasure_box/" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck } };
     $iosrule.post(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条开宝箱data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条开宝箱data:" + data);
         if (obj.err_no == 0) {
             var tmm = obj.data.next_treasure_time - obj.data.current_time;
             result2 = "[金币]" + obj.data.score_amount + "[距下次开宝箱时间]" + formatSeconds(tmm);
@@ -91,8 +97,8 @@ function jrtt_matchbox(ssr) {
     var result2 = "";
     const llUrl1 = { url: "https://is-lq.snssdk.com/score_task/v1/tips/get_data/?" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck } };
     $iosrule.get(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条开宝箱data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条开宝箱data:" + data);
         if (obj.err_no == 0) {
             var tmm = obj.data.next_treasure_time - obj.data.current_time;
             result2 = "[距下次开宝箱时间]" + formatSeconds(tmm);
@@ -107,8 +113,8 @@ function jrtt_sleep_history(res) {
     var result1 = ""; var result2 = "";
     const llUrl1 = { url: "https://i-lq.snssdk.com/score_task/v1/sleep/history/" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck } };
     $iosrule.get(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条碎觉查询data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条碎觉查询data:" + data);
         if (obj.err_no == 0) {
             result2 = "[总金币]" + obj.data[0].sleep_score_amount + "-" + obj.data[0].date + res;
             papa("[睡觉💤奖励]", result2);
@@ -120,8 +126,8 @@ function jrtt_sleep_done() {
     var result1 = ""; var result2 = "";
     const llUrl1 = { url: "https://i-lq.snssdk.com/score_task/v1/sleep/done_task/" + jrtt_sleepurlck, headers: { "sdk-version": 2, "Content-Type": "application/json; encoding=utf-8", "x-Tt-Token": jrtt_sleepck }, body: jrtt_sleepbd };
     $iosrule.post(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条睡觉收割金币data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条睡觉收割金币data:" + data);
         if (obj.err_no == 0)
             result2 = "[睡觉剩下]" + formatSeconds(obj.data.sleep_last_time);
         else
@@ -136,8 +142,8 @@ function jrtt_sleep_mm() {
     const llUrl1 = { url: "https://i-lq.snssdk.com/score_task/v1/sleep/status/" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck } };
 
     $iosrule.get(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条睡觉状态查询data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条睡觉状态查询data:" + data);
         if (obj.err_no == 0) {
             result2 = "[睡觉🉑收货金币]" + obj.data.sleep_unexchanged_score + "\n" + "[上次睡觉时间]" + formatSeconds(obj.data.sleep_last_time);
 
@@ -162,14 +168,14 @@ function jrtt_sleep_begin() {
     const llUrl1 = { url: "https://i-lq.snssdk.com/score_task/v1/sleep/start/?" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck }, body: jrtt_sleepbd };
 
     $iosrule.post(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条开始睡觉data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条开始睡觉data:" + data);
         if (obj.err_no == 0)
             result2 = "开始睡觉。。";
         else if (obj.err_no == 1052)
             result2 = obj.err_tips;
         else result2 = "开始睡觉数据错误❌";
-        if (log == 1) console.log(result2);
+        showlog && console.log(result2);
         papa(result1, result2);
     })
 }
@@ -180,8 +186,8 @@ function jrtt_sign() {
     const llUrl2 = { url: "https://is-lq.snssdk.com/score_task/v1/task/sign_in/detail/" + jrtt_sleepurlck, headers: { "sdk-version": 2, "x-Tt-Token": jrtt_sleepck } };
 
     $iosrule.post(llUrl1, function (error, response, data) {
+        showlog && console.log("今日头条签到data:" + data);
         var obj = JSON.parse(data)
-        if (log == 1) console.log("今日头条签到data:" + data);
         if (obj.err_no == 0)
             result2 = "金币" + obj.data.score_amount;
         else if (obj.err_no == 1025)
