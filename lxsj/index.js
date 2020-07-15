@@ -8,6 +8,7 @@ const $hammer = (() => { const isRequest = "undefined" != typeof $request, isSur
 
 const Protagonist = "旅行世界购物版";
 const CookieKey = "lxsjCookie";
+const showlog = false;
 
 let lastResponse = {
     data: {},
@@ -54,7 +55,7 @@ function checkResult() {
         return lastResponse.error;
     }
     const response = lastResponse.data;
-    $hammer.log(`${Protagonist} checkResult data:`, response);
+    showlog && $hammer.log(`${Protagonist} checkResult data:`, response);
     const result = JSON.parse(response.body);
     if (response.status == 200) {
         if (result.adInfo == null) {
@@ -76,7 +77,7 @@ function checkResult() {
 // 解析response
 async function catchResponse() {
     lastResponse.data = $response;
-    $hammer.log(`${Protagonist} catchResponse:`, $response);
+    showlog && $hammer.log(`${Protagonist} catchResponse:`, $response);
     let index = 1;
     while (true) {
         const stopReplay = checkResult();
