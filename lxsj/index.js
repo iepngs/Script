@@ -16,78 +16,79 @@ let lastResponse = {
 
 // request的时候写入Cookie
 function GetCookie() {
-    const CookieValue = JSON.stringify($request);
+    const options = {
+        url: $request.url,
+        headers: $request.headers,
+        body: $request.body
+    };
+    const CookieValue = JSON.stringify(options);
     $hammer.write(CookieValue, CookieKey);
     $hammer.alert(Protagonist, `Cookie写入成功🎉`);
     $hammer.done();
 }
 
 // response的时候重放
-function replay(){
-    return new Promise(resolve=>{
-        const options = $hammer.read(CookieKey);
-        if(!options){
+function replay(index) {
+    return new Promise(resolve => {
+        $hammer.log(`${Protagonist} 第${index}次重放`);
+        let options = $hammer.read(CookieKey);
+        options = options ? JSON.parse(options) : false;
+        if (!options) {
             $hammer.alert(Protagonist, "Cookie不存在");
-            resolve(false);
+            return resolve(false);
         }
         $hammer.request("post", options, (error, response, data) => {
             lastResponse.data = data;
             lastResponse.error = error;
-            resolve(true);
+            setTimeout(()=>{
+                resolve(true);
+            }, 250);
         })
     });
 }
 
 // 检查投放结果
-function checkResult(){
-    if(lastResponse.error){
-        $hammer.log(`${Protagonist} request error:`, error);
-        $hammer.alert(Protagonist, lastResponse.error, "重放失败");
-        return false;
+function checkResult() {
+    if (lastResponse.error) {
+        $hammer.log(`${Protagonist} request error:`, lastResponse.error);
+        return lastResponse.error;
     }
-    $hammer.log(`${Protagonist} response data:`, lastResponse.data);
-    try {
-        const response = JSON.parse(lastResponse.data.body);
-        if(lastResponse.data.status == 200){
-            if(response.adInfo && response.adInfo != null){
-                $hammer.alert(Protagonist, "金币不够了，要看广告");
-                return false;
-            }
-            return true;
+    const response = lastResponse.data;
+    $hammer.log(`${Protagonist} checkResult data:`, response);
+    const result = JSON.parse(response.body);
+    if (response.status == 200) {
+        if (result.adInfo == null) {
+            return false;
         }
-        switch(response.errorCode){
-            case 40000:
-                // 位置满了
-                $hammer.alert(Protagonist, response.message);
-                break;
-            case 40001:
-                $hammer.alert(Protagonist, "token又失效了");
-                break;
-            default:
-                const title = response.message ? response.message : `只知道错误码:${response.errorCode}`;
-                $hammer.alert(Protagonist, title);
-                break;
-        }
-        return false;
-    } catch (error) {
-        $hammer.log(`${Protagonist} response data:`, data);
-        return false;
+        return "金币不够了，要看广告";
+    }
+    switch (result.errorCode) {
+        case 40000:
+            // 位置满了
+            return result.message;
+        case 40001:
+            return "token又失效了";
+        default:
+            return result.message ? result.message : `只知道错误码:${result.errorCode}`;
     }
 }
 
 // 解析response
-async function catchResponse(){
+async function catchResponse() {
     lastResponse.data = $response;
-    while(true){
-        if(!checkResult()) {
-            $hammer.alert(Protagonist, "重放中止");
+    $hammer.log(`${Protagonist} catchResponse:`, $response);
+    let index = 1;
+    while (true) {
+        const stopReplay = checkResult();
+        if (stopReplay) {
+            $hammer.alert(Protagonist, stopReplay, "重放中止");
             break;
         }
-        if(!(await replay())){
+        if (!(await replay(index++))) {
             break;
         }
     }
     $hammer.done();
 }
 
-$hammer.isRequest > 0 ? GetCookie() : catchResponse();
+typeof $response == "object" ? catchResponse() : GetCookie();
