@@ -342,7 +342,6 @@ function Tasklist() {
 
 //阅读文章统计
 function StepsTotal() {
-    //const ID =  signurlVal.match(/devid=[a-zA-Z0-9_-]+/g)
     return new Promise((resolve, reject) => {
         const options = {
             url: `https://api.inews.qq.com/activity/v1/activity/info/get?activity_id=readtask_welfare_lowactive&${ID}`,
