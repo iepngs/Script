@@ -1,6 +1,6 @@
 // MITM ios-fenqu11.lxsjgo.com
 
-// http-request ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/bug\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,tag=旅行世界购物版
+// http-request ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/(bug|home)\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,tag=旅行世界购物版
 // http-response ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/bug\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,timeout=10,tag=旅行世界购物版
 // = -----------------------------------
 
@@ -8,6 +8,7 @@ const $hammer = (() => { const isRequest = "undefined" != typeof $request, isSur
 
 const Protagonist = "旅行世界购物版";
 const CookieKey = "lxsjCookie";
+const HomeCookieKey = "lxsjHomeCookie";
 const showlog = false;
 
 let lastResponse = {
@@ -17,14 +18,15 @@ let lastResponse = {
 
 // request的时候写入Cookie
 function GetCookie() {
+    const homeUri = $request.url.indexOf("home?") > 0;
     const options = {
         url: $request.url,
         headers: $request.headers,
         body: $request.body
     };
     const CookieValue = JSON.stringify(options);
-    $hammer.write(CookieValue, CookieKey);
-    $hammer.alert(Protagonist, `Cookie写入成功🎉`);
+    $hammer.write(CookieValue, homeUri ? HomeCookieKey : CookieKey);
+    showlog && $hammer.alert(Protagonist, `Cookie写入成功🎉`);
     $hammer.done();
 }
 
@@ -74,6 +76,24 @@ function checkResult() {
     }
 }
 
+// 主页面刷新重放
+function flushHomePage(){
+    return new Promise(resolve=>{
+        let homeCookie = $hammer.read(HomeCookieKey);
+        if(!homeCookie){
+            return resolve();
+        }
+        homeCookie = JSON.parse(homeCookie);
+        homeCookie = homeCookie ? homeCookie : "";
+        if(!homeCookie){
+            return resolve();
+        }
+        $hammer.request("get", homeCookie, ()=>{
+            return resolve();
+        })
+    })
+}
+
 // 解析response
 async function catchResponse() {
     lastResponse.data = $response;
@@ -82,13 +102,14 @@ async function catchResponse() {
     while (true) {
         const stopReplay = checkResult();
         if (stopReplay) {
-            $hammer.alert(Protagonist, stopReplay, "重放中止");
+            showlog && $hammer.alert(Protagonist, stopReplay, "重放中止");
             break;
         }
         if (!(await replay(index++))) {
             break;
         }
     }
+    await flushHomePage();
     $hammer.done();
 }
 
