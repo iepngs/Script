@@ -78,6 +78,7 @@ function checkResult() {
 
 // 主页面刷新重放
 function flushHomePage(){
+    $hammer.log(`${Protagonist} ready to call flushHomePage().`);
     return new Promise(resolve=>{
         let homeCookie = $hammer.read(HomeCookieKey);
         if(!homeCookie){
@@ -89,6 +90,7 @@ function flushHomePage(){
             return resolve();
         }
         $hammer.request("get", homeCookie, ()=>{
+            $hammer.log(`${Protagonist} flushHomePage finished.`);
             return resolve();
         })
     })
