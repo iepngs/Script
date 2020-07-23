@@ -8,7 +8,6 @@ const $hammer = (() => { const isRequest = "undefined" != typeof $request, isSur
 
 const Protagonist = "旅行世界购物版";
 const CookieKey = "lxsjCookie";
-const HomeCookieKey = "lxsjHomeCookie";
 const showlog = false;
 
 let lastResponse = {
@@ -76,26 +75,6 @@ function checkResult() {
     }
 }
 
-// 主页面刷新重放
-function flushHomePage(){
-    $hammer.log(`${Protagonist} ready to call flushHomePage().`);
-    return new Promise(resolve=>{
-        let homeCookie = $hammer.read(HomeCookieKey);
-        if(!homeCookie){
-            return resolve();
-        }
-        homeCookie = JSON.parse(homeCookie);
-        homeCookie = homeCookie ? homeCookie : "";
-        if(!homeCookie){
-            return resolve();
-        }
-        $hammer.request("get", homeCookie, ()=>{
-            $hammer.log(`${Protagonist} flushHomePage finished.`);
-            return resolve();
-        })
-    })
-}
-
 // 解析response
 async function catchResponse() {
     lastResponse.data = $response;
@@ -111,7 +90,6 @@ async function catchResponse() {
             break;
         }
     }
-    await flushHomePage();
     $hammer.done();
 }
 
