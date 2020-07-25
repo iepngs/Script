@@ -1,6 +1,6 @@
 // MITM ios-fenqu11.lxsjgo.com
 
-// http-request ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/(bug|home)\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,tag=旅行世界购物版
+// http-request ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/bug\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,tag=旅行世界购物版
 // http-response ^https:\/\/ios-fenqu11\.lxsjgo\.com\/dog\/bug\?ts script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxsj/index.js,requires-body=true,timeout=10,tag=旅行世界购物版
 // = -----------------------------------
 
@@ -17,14 +17,13 @@ let lastResponse = {
 
 // request的时候写入Cookie
 function GetCookie() {
-    const homeUri = $request.url.indexOf("home?") > 0;
     const options = {
         url: $request.url,
         headers: $request.headers,
         body: $request.body
     };
     const CookieValue = JSON.stringify(options);
-    $hammer.write(CookieValue, homeUri ? HomeCookieKey : CookieKey);
+    $hammer.write(CookieValue, CookieKey);
     showlog && $hammer.alert(Protagonist, `Cookie写入成功🎉`);
     $hammer.done();
 }
