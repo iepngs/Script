@@ -35,7 +35,6 @@ const level = 0;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
 const Protagonist = "今日头条极速版";
 const host1 = "https://i.snssdk.com";
 const host2 = "https://is.snssdk.com";
-const querystring = jrtt_sleepurlck;
 let taskQS = "", taskHeaders = "";
 let readQS = "", readHeaders = "";
 let farmQS = "", farmHeaders = "";
@@ -45,14 +44,14 @@ const farmCookieKey = "jrttFarmCookie";
 const hour = +(new Date()).getHours();
 let tips = "";
 const log = (section, response, data) => {
-    level && $hammer.log(`${Protagonist} ${section} response: \n`, level == 1 ? response : data);
+    level && $hammer.log(`${Protagonist} ${section} response:`, level == 1 ? response : data);
 }
 
 //++++++++++++++++++++++++++++++++++++
 function GetCookie() {
     let suffix = /\/([^\/]+(?!.*\/))/.exec($request.url)[1].split("?");
     const uri = suffix.shift();
-    const queryString = suffix.length > 0 ? suffix.join("?"): "";
+    const queryString = suffix.length ? suffix.join("?"): "";
     $hammer.log(`${Protagonist} GetCookie(${uri}).`);
     let cookieVal = {
         qs: queryString,
