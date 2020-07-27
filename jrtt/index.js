@@ -237,15 +237,20 @@ const farmOptions = param => {
 function daliySignDetail(){
     return new Promise(resolve => {
         const options = initTaskOptions("task/sign_in/detail", 2);
-        $hammer.request('get', options, (error, response, data) => {
+        $hammer.request('get', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
                 return resolve(false);
             }
             log("签到状态", response, data);
             const obj = JSON.parse(response);
-            tips += "\n[签到状态] " + (obj.err_no == 0 ? `已连签:${obj.data.days}天` : obj.err_tips);
-            obj.data.today_signed || daliySign();
+            tips += "\n[签到状态] ";
+            if(obj.err_no){
+                tips += obj.err_tips;
+                return resolve(false);
+            }
+            tips += `已连签:${obj.data.days}天`;
+            obj.data.today_signed || await daliySign();
             resolve(true);
         })
     })
@@ -262,10 +267,8 @@ function daliySign() {
             }
             log("签到", response, data);
             const obj = JSON.parse(response);
-            $hammer.log(obj);
             const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
             tips += `\n[每日签到] ${result}`;
-            console.log(tips)
             setTimeout(()=>{
                 resolve(true);
             }, 1200);
@@ -430,10 +433,14 @@ function getGameSign() {
                 tips += result.message;
                 return resolve(false);
             }
+            let receive = "";
             for (item of result.data.sign){
                 if(item.status == 1){
-                    tips += `获得: ${item.num}个${item.name};`;
+                    receive += `${item.num}个${item.name};`;
                 }
+            }
+            if(receive){
+                tips += `获得: ${receive}`;
             }
             resolve(true);
         })
