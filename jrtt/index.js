@@ -160,7 +160,7 @@ function main() {
 function checkTaskCookie(){
     let taskCookieVal = $hammer.read(taskCookieKey);
     taskCookieVal = taskCookieVal ? JSON.parse(taskCookieVal) : "";
-    if(taskCookieVal){
+    if(!taskCookieVal){
         $hammer.alert(Protagonist, "任务Cookie不存在");
         return false;
     }
@@ -172,7 +172,7 @@ function checkTaskCookie(){
 function checkReadCookie(){
     let readCookieVal = $hammer.read(readCookieKey);
     readCookieVal = readCookieVal ? JSON.parse(readCookieVal) : "";
-    if(readCookieVal){
+    if(!readCookieVal){
         $hammer.log(`${$hammer.pad()}\n${Protagonist} 阅读Cookie不存在\n${$hammer.pad()}`);
         return false;
     }
@@ -185,7 +185,7 @@ function checkReadCookie(){
 function checkFarmCookie(){
     let farmCookieVal = $hammer.read(farmCookieKey);
     farmCookieVal = farmCookieVal ? JSON.parse(farmCookieVal) : "";
-    if(farmCookieVal){
+    if(!farmCookieVal){
         $hammer.alert(Protagonist, "游戏Cookie不存在");
         return false;
     }
