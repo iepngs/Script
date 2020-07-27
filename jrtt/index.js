@@ -99,11 +99,15 @@ async function main() {
         $hammer.log(`${Protagonist} run task.`);
         $hammer.log(`${Protagonist} run task.daliySignDetail`);
         await daliySignDetail();
-        $hammer.log(`${Protagonist} run task.viewSleepStatus`);
-        await viewSleepStatus();
-        $hammer.log(`${Protagonist} run task.openIndexBox`);
-        await openIndexBox();
+        // $hammer.log(`${Protagonist} run task.viewSleepStatus`);
+        // await viewSleepStatus();
+        // $hammer.log(`${Protagonist} run task.openIndexBox`);
+        // await openIndexBox();
     }
+    
+    $hammer.alert(Protagonist, tips);
+    return $hammer.done();
+
     $hammer.log(`${Protagonist} run read.`);
     await checkReadCookie() && setTimeout(async () => {
         await reading();
@@ -237,6 +241,10 @@ const farmOptions = param => {
 function daliySignDetail(){
     return new Promise(resolve => {
         const options = initTaskOptions("task/sign_in/detail", 2);
+
+        $hammer.log("daliySignDetail:", options);
+        return resolve(true);
+
         $hammer.request('get', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
@@ -281,7 +289,7 @@ function daliySign() {
 function openIndexBox() {
     return new Promise(resolve => {
         const options = initTaskOptions("task/open_treasure_box", 2);
-        $hammer.request('get', options, (error, response, data) => {
+        $hammer.request('post', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
                 return resolve(false);
@@ -301,8 +309,18 @@ function reading(){
     return new Promise(resolve => {
         let options = initTaskOptions("task/get_read_bonus", 2);
         const partten = /group_id=(\d+)/;
-        const article = partten.exec(options.url) + (Math.random()*1000).toFixed(0);
+        let article = partten.exec(options.url);
+        article = article ? article[1] : "";
+        if(!article){
+            $hammer.log(`${Protagonist} 阅读中止，cookie异常`);
+            return resolve(false);
+        }
+        article.replace(/\d{4}$/, (Math.random()*1e4).toFixed(0).padStart(4,"0"));
         options.url = options.url.replace(partten, `group_id=${article}`);
+        
+        $hammer.log("阅读 request header：", options);
+        return resolve(true);
+
         $hammer.request('get', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
