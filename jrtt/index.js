@@ -243,7 +243,7 @@ function daliySignDetail(){
                 return resolve(false);
             }
             log("签到状态", response, data);
-            const obj = JSON.parse(data);
+            const obj = JSON.parse(response);
             tips += "\n[签到状态] " + (obj.err_no == 0 ? `已连签:${obj.data.days}天` : obj.err_tips);
             obj.data.today_signed || daliySign();
             resolve(true);
@@ -261,7 +261,7 @@ function daliySign() {
                 return resolve(false);
             }
             log("签到", response, data);
-            const obj = JSON.parse(data);
+            const obj = JSON.parse(response);
             const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
             tips += `\n[每日签到] ${result}`;
             setTimeout(()=>{
@@ -282,7 +282,7 @@ function openIndexBox() {
                 return resolve(false);
             }
             log("首页宝箱", response, data);
-            const obj = JSON.parse(data);
+            const obj = JSON.parse(response);
             const result = obj.err_no == 0 ? `金币:+${obj.data.score_amount}, 下次时间: ${date("H点i分s秒", obj.data.next_treasure_time)}` : obj.err_tips;
             tips += `\n[首页宝箱] ${result}`;
             resolve(true);
@@ -304,7 +304,7 @@ function reading(){
                 return resolve(false);
             }
             log("阅读奖励", response, data);
-            const obj = JSON.parse(data);
+            const obj = JSON.parse(response);
             const result = obj.err_no == 0 ? `金币:+${obj.data.score_received}, 今日已读: ${obj.data.done_times}篇` : obj.err_tips;
             tips += `\n[阅读奖励] ${result}`;
             resolve(true);
