@@ -95,31 +95,33 @@ function GetCookie() {
 }
 
 //++++++++++++++++++++++++++++++++
-function main() {
-    if(checkTaskCookie()){
+async function main() {
+    if(await checkTaskCookie()){
         $hammer.log(`${Protagonist} run task.`);
         $hammer.log(`${Protagonist} run task.daliySignDetail`);
-        daliySignDetail();
+        await daliySignDetail();
         $hammer.log(`${Protagonist} run task.viewSleepStatus`);
-        viewSleepStatus();
+        await viewSleepStatus();
         $hammer.log(`${Protagonist} run task.openIndexBox`);
-        openIndexBox();
+        await openIndexBox();
     }
     $hammer.log(`${Protagonist} run read.`);
-    checkReadCookie() && setTimeout(reading, randomNumber(3, 61) * 1000);
+    await checkReadCookie() && setTimeout(async () => {
+        await reading();
+    }, randomNumber(3, 61) * 1000);
     $hammer.log(`${Protagonist} run farm.1`);
-    if(checkFarmCookie()){
+    if(await checkFarmCookie()){
         $hammer.log(`${Protagonist} run farm.2`);
         $hammer.log(`${Protagonist} run task.getGameSign`);
-        getGameSign();
+        await getGameSign();
         $hammer.log(`${Protagonist} run task.open_box`);
-        open_box();
+        await open_box();
         $hammer.log(`${Protagonist} run task.land_water`);
-        land_water();
+        await land_water();
         $hammer.log(`${Protagonist} run task.daily_task`);
-        daily_task();
+        await daily_task();
         $hammer.log(`${Protagonist} run task.game_farm_list`);
-        game_farm_list();
+        await game_farm_list();
     }
     $hammer.alert(Protagonist, tips);
     return $hammer.done();
@@ -128,28 +130,32 @@ function main() {
     // */2 8,9,12,21 * * *
     const minute = (new Date()).getMinutes();
     const onece = hour == 8 && minute > 57;
-    if(checkTaskCookie()){
+    if(await checkTaskCookie()){
         $hammer.log(`${Protagonist} run task.`);
         if(onece){
-            daliySignDetail();
-            viewSleepStatus();
+            await daliySignDetail();
+            await viewSleepStatus();
         }
-        minute < 3 && openIndexBox();
+        if(minute < 3){
+            await openIndexBox();
+        }
     }
     if([9,12,21].indexOf(hour) > -1){
         // 每篇文章阅读时长：63s-121s
-        checkReadCookie() && setTimeout(reading, randomNumber(3, 61) * 1000);
+        await checkReadCookie() && setTimeout(async () => {
+            await reading();
+        }, randomNumber(3, 61) * 1000);
     }
-    if(checkFarmCookie()){
+    if(await checkFarmCookie()){
         $hammer.log(`${Protagonist} run farm.`);
         if(onece){
-            getGameSign();
-            open_box();
-            land_water();
-            daily_task();
+            await getGameSign();
+            await open_box();
+            await land_water();
+            await daily_task();
         }
         if([9,8,12,21].indexOf(hour) > 0 && minute < 3){
-            game_farm_list();
+            await game_farm_list();
         }
     }
     $hammer.alert(Protagonist, tips);
@@ -158,41 +164,47 @@ function main() {
 
 //++++++++++++++++++++++++++++++++++++
 function checkTaskCookie(){
-    let taskCookieVal = $hammer.read(taskCookieKey);
-    taskCookieVal = taskCookieVal ? JSON.parse(taskCookieVal) : "";
-    if(!taskCookieVal){
-        $hammer.alert(Protagonist, "任务Cookie不存在");
-        return false;
-    }
-    taskQS = taskCookieVal.qs;
-    taskHeaders = taskCookieVal.headers;
-    return true;
+    return new Promise(resolve => {
+        let taskCookieVal = $hammer.read(taskCookieKey);
+        taskCookieVal = taskCookieVal ? JSON.parse(taskCookieVal) : "";
+        if(!taskCookieVal){
+            $hammer.alert(Protagonist, "任务Cookie不存在");
+            return resolve(false);
+        }
+        taskQS = taskCookieVal.qs;
+        taskHeaders = taskCookieVal.headers;
+        resolve(true);
+    })
 }
 
 function checkReadCookie(){
-    let readCookieVal = $hammer.read(readCookieKey);
-    readCookieVal = readCookieVal ? JSON.parse(readCookieVal) : "";
-    if(!readCookieVal){
-        $hammer.log(`${$hammer.pad()}\n${Protagonist} 阅读Cookie不存在\n${$hammer.pad()}`);
-        return false;
-    }
-    readQS = readCookieVal.qs;
-    readCookieVal.headers["sdk-version"] = 2;
-    readHeaders = readCookieVal.headers;
-    return true;
+    return new Promise(resolve => {
+        let readCookieVal = $hammer.read(readCookieKey);
+        readCookieVal = readCookieVal ? JSON.parse(readCookieVal) : "";
+        if(!readCookieVal){
+            $hammer.log(`${$hammer.pad()}\n${Protagonist} 阅读Cookie不存在\n${$hammer.pad()}`);
+            return resolve(false);
+        }
+        readQS = readCookieVal.qs;
+        readCookieVal.headers["sdk-version"] = 2;
+        readHeaders = readCookieVal.headers;
+        resolve(true);
+    })
 }
 
 function checkFarmCookie(){
-    let farmCookieVal = $hammer.read(farmCookieKey);
-    farmCookieVal = farmCookieVal ? JSON.parse(farmCookieVal) : "";
-    if(!farmCookieVal){
-        $hammer.alert(Protagonist, "游戏Cookie不存在");
-        return false;
-    }
-    farmQS = farmCookieVal.qs;
-    farmCookieVal.headers["Content-Type"] = "applicationo/json";
-    farmHeaders = farmCookieVal.headers;
-    return true;
+    return new Promise(resolve => {
+        let farmCookieVal = $hammer.read(farmCookieKey);
+        farmCookieVal = farmCookieVal ? JSON.parse(farmCookieVal) : "";
+        if(!farmCookieVal){
+            $hammer.alert(Protagonist, "游戏Cookie不存在");
+            return resolve(false);
+        }
+        farmQS = farmCookieVal.qs;
+        farmCookieVal.headers["Content-Type"] = "applicationo/json";
+        farmHeaders = farmCookieVal.headers;
+        resolve(true);
+    })
 }
 
 //++++++++++++++++++++++++++++++++++++
@@ -220,313 +232,367 @@ const farmOptions = param => {
 //++++++++++++++++++++++++++++++++++++
 // 签到状态
 function daliySignDetail(){
-    options = initTaskOptions("task/sign_in/detail", 2);
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
-            return;
-        }
-        log("签到状态", response, data);
-        const obj = JSON.parse(data);
-        tips += "\n[签到状态] " + (obj.err_no == 0 ? `已连签:${obj.data.days}天` : obj.err_tips);
-        if(!obj.data.today_signed){
-            daliySign();
-        }
+    return new Promise(resolve => {
+        const options = initTaskOptions("task/sign_in/detail", 2);
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("签到状态", response, data);
+            const obj = JSON.parse(data);
+            tips += "\n[签到状态] " + (obj.err_no == 0 ? `已连签:${obj.data.days}天` : obj.err_tips);
+            obj.data.today_signed || daliySign();
+            resolve(true);
+        })
     })
 }
 
 // 每日签到
 function daliySign() {
-    let options = initTaskOptions("task/sign_in", 2);
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 每日签到 请求异常:\n${error}`, data);
-            return;
-        }
-        log("签到", response, data);
-        const obj = JSON.parse(data);
-        const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
-        tips += `\n[每日签到] ${result}`;
+    return new Promise(resolve => {
+        const options = initTaskOptions("task/sign_in", 2);
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 每日签到 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("签到", response, data);
+            const obj = JSON.parse(data);
+            const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
+            tips += `\n[每日签到] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 //++++++++++++++++++++++++++++++++++++
 // 首页宝箱
 function openIndexBox() {
-    const options = initTaskOptions("task/open_treasure_box", 2);
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
-            return;
-        }
-        log("首页宝箱", response, data);
-        const obj = JSON.parse(data);
-        const result = obj.err_no == 0 ? `金币:+${obj.data.score_amount}, 下次时间: ${date("H点i分s秒", obj.data.next_treasure_time)}` : obj.err_tips;
-        tips += `\n[首页宝箱] ${result}`;
+    return new Promise(resolve => {
+        const options = initTaskOptions("task/open_treasure_box", 2);
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("首页宝箱", response, data);
+            const obj = JSON.parse(data);
+            const result = obj.err_no == 0 ? `金币:+${obj.data.score_amount}, 下次时间: ${date("H点i分s秒", obj.data.next_treasure_time)}` : obj.err_tips;
+            tips += `\n[首页宝箱] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 //++++++++++++++++++++++++++++++++++++
 // 阅读
 function reading(){
-    let options = initTaskOptions("task/get_read_bonus", 2);
-    const partten = /group_id=(\d+)/;
-    const article = partten.exec(options.url) + (Math.random()*1000).toFixed(0);
-    options.url = options.url.replace(partten, `group_id=${article}`);
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
-            return;
-        }
-        log("阅读奖励", response, data);
-        const obj = JSON.parse(data);
-        const result = obj.err_no == 0 ? `金币:+${obj.data.score_received}, 今日已读: ${obj.data.done_times}篇` : obj.err_tips;
-        tips += `\n[阅读奖励] ${result}`;
+    return new Promise(resolve => {
+        let options = initTaskOptions("task/get_read_bonus", 2);
+        const partten = /group_id=(\d+)/;
+        const article = partten.exec(options.url) + (Math.random()*1000).toFixed(0);
+        options.url = options.url.replace(partten, `group_id=${article}`);
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("阅读奖励", response, data);
+            const obj = JSON.parse(data);
+            const result = obj.err_no == 0 ? `金币:+${obj.data.score_received}, 今日已读: ${obj.data.done_times}篇` : obj.err_tips;
+            tips += `\n[阅读奖励] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 //++++++++++++++++++++++++++++++++++++
 // 查询睡觉任务状态
 function viewSleepStatus() {
-    const options = initTaskOptions("sleep/status");
-    $hammer.request('get', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 睡觉状态查询 请求异常:\n${error}`, data);
-            return;
-        }
-        log("睡觉状态查询", response, data);
-        const obj = JSON.parse(response);
-        if (obj.err_no != 0) {
-            $hammer.log(`${Protagonist} 睡觉状态查询异常:\n${obj.err_tips}`);
-            return;
-        }
-        // let amount = (obj.data.sleep_last_time / obj.data.sleep_coin_speed).toFixed(0) * sleep_coin_per_interval;
-        // amount = amount > 2665 ? 2665 : amount;
-        tips += `\n[睡觉待收金币] ${obj.data.sleep_unexchanged_score}\n[当前睡觉状态] `;
-        if(obj.data.sleeping){
-            tips += `已昏睡${obj.data.sleep_last_time}s`;
-            if(hour > 8 && hour < 20){
-                stopSleep();
+    return new Promise(resolve => {
+        const options = initTaskOptions("sleep/status");
+        $hammer.request('get', options, async (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 睡觉状态查询 请求异常:\n${error}`, data);
+                return resolve(false);
             }
-            return collectSleepCoin(obj.data.sleep_unexchanged_score);
-        }
-        tips += `睁着眼睛的没在睡`;
-        (hour > 7 && hour < 3) && startSleep();
+            log("睡觉状态查询", response, data);
+            const obj = JSON.parse(response);
+            if (obj.err_no != 0) {
+                $hammer.log(`${Protagonist} 睡觉状态查询异常:\n${obj.err_tips}`);
+                return resolve(false);
+            }
+            // let amount = (obj.data.sleep_last_time / obj.data.sleep_coin_speed).toFixed(0) * sleep_coin_per_interval;
+            // amount = amount > 2665 ? 2665 : amount;
+            tips += `\n[睡觉待收金币] ${obj.data.sleep_unexchanged_score}\n[当前睡觉状态] `;
+            if(obj.data.sleeping){
+                tips += `已昏睡${obj.data.sleep_last_time}s`;
+                if(hour > 8 && hour < 20){
+                    await stopSleep();
+                }
+                await collectSleepCoin(obj.data.sleep_unexchanged_score);
+                return resolve(true);
+            }
+            tips += `睁着眼睛的没在睡`;
+            (hour > 7 && hour < 3) && await startSleep();
+            resolve(true);
+        })
     })
 }
 
 // 开始睡觉
 function startSleep() {
-    let options = initTaskOptions("sleep/start");
-    options.body = JSON.stringify({task_id: 145});
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 开启睡觉 请求异常:\n${error}`, data);
-            return;
-        }
-        log("开启睡觉", response, data);
-        let obj = JSON.parse(response);
-        const result = obj.err_no == 0 ? (obj.data.sleeping ? "成功" : "失败") : obj.err_tips;
-        tips += `\n[开启睡觉状态] ${result}`;
+    return new Promise(resolve => {
+        let options = initTaskOptions("sleep/start");
+        options.body = JSON.stringify({task_id: 145});
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 开启睡觉 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("开启睡觉", response, data);
+            let obj = JSON.parse(response);
+            const result = obj.err_no == 0 ? (obj.data.sleeping ? "成功" : "失败") : obj.err_tips;
+            tips += `\n[开启睡觉状态] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 // 结束睡觉
 function stopSleep() {
-    let options = initTaskOptions("sleep/stop");
-    options.body = jrtt_sleepbd;
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 结束睡觉 请求异常:\n${error}`, data);
-            return;
-        }
-        log("停止睡觉", response, data);
-        let obj = JSON.parse(response);
-        const result = obj.err_no == 0 ? (obj.data.sleeping ? "成功" : "失败") : obj.err_tips;
-        tips += `\n[结束睡觉状态] ${result}`;
+    return new Promise(resolve => {
+        let options = initTaskOptions("sleep/stop");
+        options.body = jrtt_sleepbd;
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 结束睡觉 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("停止睡觉", response, data);
+            let obj = JSON.parse(response);
+            const result = obj.err_no == 0 ? (obj.data.sleeping ? "成功" : "失败") : obj.err_tips;
+            tips += `\n[结束睡觉状态] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 // 领取睡觉金币
 function collectSleepCoin(coins) {
-    if(coins < 1) {
-        return;
-    }
-    let options = initTaskOptions("sleep/done_task");
-    options.headers['Content-Type'] = "application/json; encoding=utf-8";
-    options.body = {
-        task_id: 145,
-        score_amount: coins
-    };
-    $hammer.request('post', options, (error, response, data) => {
-        if(error){
-            $hammer.log(`${Protagonist} 领取睡觉金币 请求异常:\n${error}`, data);
-            return;
+    return new Promise(resolve => {
+        if(coins < 1) {
+            return resolve(false);
         }
-        log("领取睡觉金币", response, data);
-        let obj = JSON.parse(response);
-        const result = obj.err_no == 0 ? (obj.data.sleeping ? `${coins}个` : "失败") : obj.err_tips;
-        tips += `\n[领取睡觉金币] ${result}`;
+        let options = initTaskOptions("sleep/done_task");
+        options.headers['Content-Type'] = "application/json; encoding=utf-8";
+        options.body = {
+            task_id: 145,
+            score_amount: coins
+        };
+        $hammer.request('post', options, (error, response, data) => {
+            if(error){
+                $hammer.log(`${Protagonist} 领取睡觉金币 请求异常:\n${error}`, data);
+                return resolve(false);
+            }
+            log("领取睡觉金币", response, data);
+            let obj = JSON.parse(response);
+            const result = obj.err_no == 0 ? (obj.data.sleeping ? `${coins}个` : "失败") : obj.err_tips;
+            tips += `\n[领取睡觉金币] ${result}`;
+            resolve(true);
+        })
     })
 }
 
 //++++++++++++++++++++++++++++++++++++
 //游戏签到
 function getGameSign() {
-    const options = farmOptions(`reward/sign_in&watch_ad=0`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 游戏签到 error: ${error}`);
-        }
-        log("游戏签到", response, data);
-        const result = JSON.parse(response);
-        tips += `\n[游戏签到] `;
-        if (result.status_code != 0) {
-            tips += result.message;
-            return;
-        }
-        for (item of result.data.sign){
-            if(item.status == 1){
-                tips += `获得: ${item.num}个${item.name};`;
+    return new Promise(resolve => {
+        const options = farmOptions(`reward/sign_in&watch_ad=0`);
+        $hammer.request('get', options, (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 游戏签到 error: ${error}`);
+                return resolve(false);
             }
-        }
+            log("游戏签到", response, data);
+            const result = JSON.parse(response);
+            tips += `\n[游戏签到] `;
+            if (result.status_code != 0) {
+                tips += result.message;
+                return resolve(false);
+            }
+            for (item of result.data.sign){
+                if(item.status == 1){
+                    tips += `获得: ${item.num}个${item.name};`;
+                }
+            }
+            resolve(true);
+        })
     })
 }
 
 //游戏宝箱
 function open_box(first=false) {
-    const options = farmOptions(`box/open`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 打开游戏宝箱 error: ${error}`);
-        }
-        log("打开游戏宝箱", response, data);
-        const result = JSON.parse(response);
-        tips += first ? `\n[打开游戏宝箱] ` : "";
-        if (result.status_code != 0) {
-            tips += result.message;
-            return;
-        }
-        tips += `获得金币：${result.data.incr_coin}`;
-        result.data.box_num && open_box(true);
+    return new Promise(resolve => {
+        const options = farmOptions(`box/open`);
+        $hammer.request('get', options, async (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 打开游戏宝箱 error: ${error}`);
+                return resolve(false);
+            }
+            log("打开游戏宝箱", response, data);
+            const result = JSON.parse(response);
+            tips += first ? `\n[打开游戏宝箱] ` : "";
+            if (result.status_code != 0) {
+                tips += result.message;
+                return resolve(false);
+            }
+            tips += `获得金币：${result.data.incr_coin}`;
+            result.data.box_num && await open_box(true);
+            resolve(true);
+        })
     })
 }
 
 //浇水
 function land_water(first=false) {
-    const options = farmOptions(`land_water`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            $hammer.log(`${Protagonist} 浇水 error: ${error}`);
-            return false;
-        }
-        log("浇水", response, data);
-        const result = JSON.parse(response);
-        tips += first ? `\n[游戏浇水] ` : "";
-        if (result.status_code != 0) {
-            tips += result.message;
-            return false;
-        }
-        if(first){
-            return true;
-        }
-        let times = 1;
-        let max = result.data.water / 10 - 10;
-        while(max-- > 0) {
-            if(!land_water(true)){
-                times++;
-                break;
+    return new Promise(resolve => {
+        const options = farmOptions(`land_water`);
+        $hammer.request('get', options, async (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 浇水 error: ${error}`);
+                return resolve(false);
             }
-        }
-        tips += `${times}次`;
-        for (const land of result.data.info) {
-            if (!land.status && land.unlock_able) {
-                unblock_land(land.land_id);
+            log("浇水", response, data);
+            const result = JSON.parse(response);
+            tips += first ? `\n[游戏浇水] ` : "";
+            if (result.status_code != 0) {
+                tips += result.message;
+                return resolve(false);
             }
-        }
+            if(first){
+                return resolve(true);
+            }
+            let times = 1;
+            let max = result.data.water / 10 - 10;
+            while(max-- > 0) {
+                if(!await land_water(true)){
+                    times++;
+                    break;
+                }
+            }
+            tips += `${times}次`;
+            for (const land of result.data.info) {
+                if (!land.status && land.unlock_able) {
+                    await unblock_land(land.land_id);
+                }
+            }
+            resolve(true);
+        })
     })
 }
 
 //解锁土地
 function unblock_land(land_id) {
-    const options = farmOptions(`land/unlock&land_id=${land_id}`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 解锁土地 error: ${error}`);
-        }
-        log("解锁土地", response, data);
-        const result = JSON.parse(response);
-        tips += `,第${land_id}块土地解锁：` + (result.status_code ? result.message : "成功");
+    return new Promise(resolve => {
+        const options = farmOptions(`land/unlock&land_id=${land_id}`);
+        $hammer.request('get', options, (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 解锁土地 error: ${error}`);
+                return resolve(false);
+            }
+            log("解锁土地", response, data);
+            const result = JSON.parse(response);
+            tips += `,第${land_id}块土地解锁：` + (result.status_code ? result.message : "成功");
+            resolve(true);
+        })
     })
 }
 
 //获取任务
 function daily_task() {
-    const options = farmOptions(`daily_task/list`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 获取任务 error: ${error}`);
-        }
-        const result = JSON.parse(response);
-        log("获取任务", response, data);
-        tips += `\n[获取游戏任务] 状态：`;
-        if (result.status_code != 0) {
-            tips += result.message;
-            return false;
-        }
-        tips += "正常";
-        for (const task of result.data) {
-            (task.status == 1) && task_reward(task.task_id);
-        }
+    return new Promise(resolve => {
+        const options = farmOptions(`daily_task/list`);
+        $hammer.request('get', options, async (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 获取任务 error: ${error}`);
+                return resolve(false);
+            }
+            const result = JSON.parse(response);
+            log("获取任务", response, data);
+            tips += `\n[获取游戏任务] 状态：`;
+            if (result.status_code != 0) {
+                tips += result.message;
+                return resolve(false);
+            }
+            tips += "正常";
+            for (const task of result.data) {
+                (task.status == 1) && await task_reward(task.task_id);
+            }
+            resolve(true);
+        })
     })
 }
 
 //领取任务奖励
 function task_reward(task_id) {
-    const options = farmOptions(`reward/task&task_id=${task_id}`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 游戏任务领取 error: ${error}`);
-        }
-        log("游戏任务领取", response, data);
-        const result = JSON.parse(response);
+    return new Promise(resolve => {
+        const options = farmOptions(`reward/task&task_id=${task_id}`);
+        $hammer.request('get', options, (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 游戏任务领取 error: ${error}`);
+                return resolve(false);
+            }
+            log("游戏任务领取", response, data);
+            const result = JSON.parse(response);
+            resolve(true);
+        })
     })
 }
 
 //三餐礼包状态
 function game_farm_list() {
-    const options = farmOptions(`gift/list`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 三餐礼包 error: ${error}`);
-        }
-        log("三餐礼包", response, data);
-        const result = JSON.parse(response);
-        if (result.status_code != 0) {
-            tips += `\n[三餐礼包查询] 异常：${result.message}`;
-            return false;
-        }
-        for (const task of result.data) {
-            (task.status == 1) && game_farm_reward(task.task_id);
-        }
+    return new Promise(resolve => {
+        const options = farmOptions(`gift/list`);
+        $hammer.request('get', options, async (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 三餐礼包 error: ${error}`);
+                return resolve(false);
+            }
+            log("三餐礼包", response, data);
+            const result = JSON.parse(response);
+            if (result.status_code != 0) {
+                tips += `\n[三餐礼包查询] 异常：${result.message}`;
+                return resolve(false);
+            }
+            for (const task of result.data) {
+                (task.status == 1) && await game_farm_reward(task.task_id);
+            }
+            resolve(true);
+        })
     })
 }
 
 //三餐礼包领取
 function game_farm_reward(task_id) {
-    const options = farmOptions(`reward/gift&gift_id=${task_id}`);
-    $hammer.request('get', options, (error, response, data) =>{
-        if(error){
-            return $hammer.log(`${Protagonist} 三餐领取 error: ${error}`);
-        }
-        log("三餐领取", response, data);
-        const result = JSON.parse(response);
-        tips += `\n[三餐领取] `;
-        if (result.status_code != 0) {
-            tips += `异常：${result.message}`;
-            return false;
-        }
-        tips += `金币：${result.message}`;
+    return new Promise(resolve => {
+        const options = farmOptions(`reward/gift&gift_id=${task_id}`);
+        $hammer.request('get', options, (error, response, data) =>{
+            if(error){
+                $hammer.log(`${Protagonist} 三餐领取 error: ${error}`);
+                return resolve(false);
+            }
+            log("三餐领取", response, data);
+            const result = JSON.parse(response);
+            tips += `\n[三餐领取] `;
+            if (result.status_code != 0) {
+                tips += `异常：${result.message}`;
+                return resolve(false);
+            }
+            tips += `金币：${result.message}`;
+            resolve(true);
+        })
     })
 }
 
