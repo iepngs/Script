@@ -104,14 +104,16 @@ async function main() {
         // $hammer.log(`${Protagonist} run task.openIndexBox`);
         // await openIndexBox();
     }
-    
-    $hammer.alert(Protagonist, tips);
-    return $hammer.done();
-
     $hammer.log(`${Protagonist} run read.`);
     await checkReadCookie() && setTimeout(async () => {
         await reading();
     }, randomNumber(3, 61) * 1000);
+    
+    
+    $hammer.alert(Protagonist, tips);
+    return $hammer.done();
+
+
     $hammer.log(`${Protagonist} run farm.1`);
     if(await checkFarmCookie()){
         $hammer.log(`${Protagonist} run farm.2`);
