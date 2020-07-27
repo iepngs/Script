@@ -59,7 +59,7 @@ const log = (section, response, data) => {
 
 //++++++++++++++++++++++++++++++++++++
 function GetCookie() {
-    let suffix = /\/([^\/]+(?!.*\/))/.exec($request.url)[1].split("?");
+    let suffix = /\/([^\/]+(?!.*\/))/.exec($request.url.replace("/?", "?"))[1].split("?");
     const uri = suffix.shift();
     const queryString = suffix.length ? suffix.join("?"): "";
     $hammer.log(`${Protagonist} GetCookie(${uri ? uri : $request.url}).`);
