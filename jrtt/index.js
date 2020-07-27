@@ -177,6 +177,7 @@ function checkTaskCookie(){
             return resolve(false);
         }
         taskQS = taskCookieVal.qs;
+        taskCookieVal.headers["sdk-version"] = 2;
         taskHeaders = taskCookieVal.headers;
         resolve(true);
     })
