@@ -262,8 +262,10 @@ function daliySign() {
             }
             log("签到", response, data);
             const obj = JSON.parse(response);
+            $hammer.log(obj);
             const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
             tips += `\n[每日签到] ${result}`;
+            console.log(tips)
             setTimeout(()=>{
                 resolve(true);
             }, 1200);
