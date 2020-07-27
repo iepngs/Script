@@ -38,7 +38,7 @@ function randomNumber(start, end, fixed = 0) {const differ = end - start, random
 
 //以上是配置说明
 //====================================
-const level = 1;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
+const level = 2;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
 //++++++++++++++++++++++++++++++++-
 
 //++++++++++++++++++++++++++++++++++++
@@ -90,13 +90,41 @@ function GetCookie() {
         default:
             return $hammer.done();
     }
-    $hammer.log(`${Protagonist} ${uri}cookie: ${JSON.stringify(cookieVal)}`);
     $hammer.alert(Protagonist, `${category}Cookie已写入`);
     $hammer.done();
 }
 
 //++++++++++++++++++++++++++++++++
 function main() {
+    if(checkTaskCookie()){
+        $hammer.log(`${Protagonist} run task.`);
+        $hammer.log(`${Protagonist} run task.daliySignDetail`);
+        daliySignDetail();
+        $hammer.log(`${Protagonist} run task.viewSleepStatus`);
+        viewSleepStatus();
+        $hammer.log(`${Protagonist} run task.openIndexBox`);
+        openIndexBox();
+    }
+    $hammer.log(`${Protagonist} run read.`);
+    checkReadCookie() && setTimeout(reading, randomNumber(3, 61) * 1000);
+    $hammer.log(`${Protagonist} run farm.1`);
+    if(checkFarmCookie()){
+        $hammer.log(`${Protagonist} run farm.2`);
+        $hammer.log(`${Protagonist} run task.getGameSign`);
+        getGameSign();
+        $hammer.log(`${Protagonist} run task.open_box`);
+        open_box();
+        $hammer.log(`${Protagonist} run task.land_water`);
+        land_water();
+        $hammer.log(`${Protagonist} run task.daily_task`);
+        daily_task();
+        $hammer.log(`${Protagonist} run task.game_farm_list`);
+        game_farm_list();
+    }
+    $hammer.alert(Protagonist, tips);
+    return $hammer.done();
+
+
     // */2 8,9,12,21 * * *
     const minute = (new Date()).getMinutes();
     const onece = hour == 8 && minute > 57;
