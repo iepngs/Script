@@ -209,13 +209,17 @@ function checkFarmCookie(){
 //++++++++++++++++++++++++++++++++++++
 // 任务options
 const initTaskOptions = (uri, host=1) => {
-    return uri == "task/get_read_bonus" ? {
-        url: `${host == 1 ? host1 : host2}/score_task/v1/${uri}?${readQS}`,
+    let options = uri == "task/get_read_bonus" ? {
+        url: `${host == 1 ? host1 : host2}/score_task/v1/${uri}/?${readQS}`,
         headers: readHeaders
     } : {
-        url: `${host == 1 ? host1 : host2}/score_task/v1/${uri}?${taskQS}`,
+        url: `${host == 1 ? host1 : host2}/score_task/v1/${uri}/?${taskQS}`,
         headers: taskHeaders
     }
+    if(!uri.indexOf("sleep")){
+        options.url.replace("/?", "/?request_from=web&");
+    }
+    return options;
 };
 
 // 游戏options
@@ -233,7 +237,7 @@ const farmOptions = param => {
 function daliySignDetail(){
     return new Promise(resolve => {
         const options = initTaskOptions("task/sign_in/detail", 2);
-        $hammer.request('post', options, (error, response, data) => {
+        $hammer.request('get', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
                 return resolve(false);
@@ -272,7 +276,7 @@ function daliySign() {
 function openIndexBox() {
     return new Promise(resolve => {
         const options = initTaskOptions("task/open_treasure_box", 2);
-        $hammer.request('post', options, (error, response, data) => {
+        $hammer.request('get', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
                 return resolve(false);
@@ -294,7 +298,7 @@ function reading(){
         const partten = /group_id=(\d+)/;
         const article = partten.exec(options.url) + (Math.random()*1000).toFixed(0);
         options.url = options.url.replace(partten, `group_id=${article}`);
-        $hammer.request('post', options, (error, response, data) => {
+        $hammer.request('get', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
                 return resolve(false);
@@ -312,8 +316,7 @@ function reading(){
 // 查询睡觉任务状态
 function viewSleepStatus() {
     return new Promise(resolve => {
-        let options = initTaskOptions("sleep/status");
-        options.url.replace("?", "?request_from=web&");
+        const options = initTaskOptions("sleep/status");
         $hammer.request('get', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 睡觉状态查询 请求异常:\n${error}`, data);
@@ -347,7 +350,6 @@ function viewSleepStatus() {
 function startSleep() {
     return new Promise(resolve => {
         let options = initTaskOptions("sleep/start");
-        options.url.replace("?", "?request_from=web&");
         options.body = JSON.stringify({task_id: 145});
         $hammer.request('post', options, (error, response, data) => {
             if(error){
@@ -367,7 +369,6 @@ function startSleep() {
 function stopSleep() {
     return new Promise(resolve => {
         let options = initTaskOptions("sleep/stop");
-        options.url.replace("?", "?request_from=web&");
         options.body = jrtt_sleepbd;
         $hammer.request('post', options, (error, response, data) => {
             if(error){
@@ -390,7 +391,7 @@ function collectSleepCoin(coins) {
             return resolve(false);
         }
         let options = initTaskOptions("sleep/done_task");
-        options.url.replace("?", "?rit=undifined&use_ecpm=undefined&request_from=web&");
+        options.url.replace("/?", "?rit=undifined&use_ecpm=undefined");
         options.headers['Content-Type'] = "application/json; encoding=utf-8";
         options.body = {
             task_id: 145,
