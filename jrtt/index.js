@@ -99,21 +99,13 @@ async function main() {
         $hammer.log(`${Protagonist} run task.`);
         $hammer.log(`${Protagonist} run task.daliySignDetail`);
         await daliySignDetail();
-        // $hammer.log(`${Protagonist} run task.viewSleepStatus`);
-        // await viewSleepStatus();
-        // $hammer.log(`${Protagonist} run task.openIndexBox`);
-        // await openIndexBox();
+        $hammer.log(`${Protagonist} run task.viewSleepStatus`);
+        await viewSleepStatus();
+        $hammer.log(`${Protagonist} run task.openIndexBox`);
+        await openIndexBox();
     }
     $hammer.log(`${Protagonist} run read.`);
-    await checkReadCookie() && setTimeout(async () => {
-        await reading();
-    }, randomNumber(3, 61) * 1000);
-    
-    
-    $hammer.alert(Protagonist, tips);
-    return $hammer.done();
-
-
+    await checkReadCookie() && await reading();
     $hammer.log(`${Protagonist} run farm.1`);
     if(await checkFarmCookie()){
         $hammer.log(`${Protagonist} run farm.2`);
@@ -244,9 +236,6 @@ const farmOptions = param => {
 function daliySignDetail(){
     return new Promise(resolve => {
         const options = initTaskOptions("task/sign_in/detail", 2);
-
-        $hammer.log("daliySignDetail:", options);
-
         $hammer.request('get', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 签到状态 请求异常:\n${error}`, data);
@@ -319,20 +308,21 @@ function reading(){
         }
         article.replace(/\d{4}$/, (Math.random()*1e4).toFixed(0).padStart(4,"0"));
         options.url = options.url.replace(partten, `group_id=${article}`);
-        
-        $hammer.log("阅读 request header：", options);
-
-        $hammer.request('get', options, (error, response, data) => {
-            if(error){
-                $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
-                return resolve(false);
-            }
-            log("阅读奖励", response, data);
-            const obj = JSON.parse(response);
-            const result = obj.err_no == 0 ? `金币:+${obj.data.score_received}, 今日已读: ${obj.data.done_times}篇` : obj.err_tips;
-            tips += `\n[阅读奖励] ${result}`;
-            resolve(true);
-        })
+        const delaySeconds = randomNumber(3, 61);
+        level && $hammer.log(`${Protagonist} will be execute reading after delay ${delaySeconds}s.`);
+        setTimeout(() => {
+            $hammer.request('get', options, (error, response, data) => {
+                if(error){
+                    $hammer.log(`${Protagonist} 阅读奖励 请求异常:\n${error}`, data);
+                    return resolve(false);
+                }
+                log("阅读奖励", response, data);
+                const obj = JSON.parse(response);
+                const result = obj.err_no == 0 ? `金币:+${obj.data.score_received}, 今日已读: ${obj.data.done_times}篇` : obj.err_tips;
+                tips += `\n[阅读奖励] ${result}`;
+                resolve(true);
+            })
+        }, delaySeconds * 1000);
     })
 }
 
