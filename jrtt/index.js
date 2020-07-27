@@ -1,30 +1,40 @@
 /*
+1元现金速撸
+ 
+下载【今日头条极速版】
+      ↓
+进入"任务"
+      ↓
+填邀请码【1996253918】
+
+即可立即提现1元到支付宝，秒到账！点击下载 
+https://a2.app.qq.com/o/simple.jsp?pkgname=com.ss.android.article.lite&ckey=CK1431889492477
+
 
 iepngs
-
-2020.7.24 今日头条极速版
-
 签到、首页宝箱、阅读、睡觉、游戏
+
 
 */
 
 // ====================================
-// #今日头条签到获取ck loon
+// #今日头条签到获取ck
 // 1.阅读文章弹出金币
 // 2.我的 > 签到
 // 3.游戏
 // http-request ^https:\/\/is\.snssdk\.com\/score_task\/v1\/task\/(sign_in|get_read_bonus) script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-任务
 // http-request ^https:\/\/i\.snssdk\.com\/ttgame\/game_farm\/home_info script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-游戏
 // ====================================
-// #今日头条定时任务 loon
-// cron "*/6 7-18 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,tag=今日头条极速版
+// #今日头条定时任务
+// Warning：定时时间不要动
+// cron "*/2 8,9,12,21 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,tag=今日头条极速版
 // ====================================
 // MITM=i.snssdk.com,is.snssdk.com
 // ====================================
 
 const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefined"!=typeof $httpClient,isQuanX="undefined"!=typeof $task;const log=(...n)=>{for(let i in n)console.log(n[i])};const alert=(title,body="",subtitle="",options={})=>{let link=null;switch(typeof options){case"string":link=isQuanX?{"open-url":options}:options;break;case"object":if(["null","{}"].indexOf(JSON.stringify(options))==-1){link=isQuanX?options:options["open-url"];break}default:link=isQuanX?{}:""}if(isSurge)return $notification.post(title,subtitle,body,link);if(isQuanX)return $notify(title,subtitle,body,link);log("==============📣系统通知📣==============");log("title:",title,"subtitle:",subtitle,"body:",body,"link:",link)};const read=key=>{if(isSurge)return $persistentStore.read(key);if(isQuanX)return $prefs.valueForKey(key)};const write=(val,key)=>{if(isSurge)return $persistentStore.write(val,key);if(isQuanX)return $prefs.setValueForKey(val,key)};const request=(method,params,callback)=>{let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(m,u){return err=>{log(`\n===request error-s--\n`);log(`${m} ${u}`,err);log(`\n===request error-e--\n`)}}(method,options.url);if(isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}if(isQuanX){options.method=method;$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}};const done=(value={})=>{if(isQuanX)return isRequest?$done(value):null;if(isSurge)return isRequest?$done(value):$done()};const pad=(c="~",s=false,l=15)=>s?console.log(c.padEnd(l,c)):c.padEnd(l,c);return{isRequest,isSurge,isQuanX,log,alert,read,write,request,done,pad}})();
 function date(fmt, dateObject = '') { dateObject = dateObject ? (dateObject == "object" ? dateObject : (new Date(+dateObject.toString().padEnd(13, "0").substr(0, 13)))) : new Date(); let ret; const opt = { "Y": dateObject.getFullYear().toString(), "m": (dateObject.getMonth() + 1).toString(), "d": dateObject.getDate().toString(), "H": dateObject.getHours().toString(), "i": dateObject.getMinutes().toString(), "s": dateObject.getSeconds().toString() }; for (let k in opt) { ret = new RegExp("(" + k + ")").exec(fmt); if (ret) { fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k].padStart(2, "0") : opt[k]) }; }; return fmt; }
-
+function randomNumber(start, end, fixed = 0) {const differ = end - start, random = Math.random();return (start + differ * random).toFixed(fixed);};
 
 //以上是配置说明
 //====================================
@@ -52,7 +62,7 @@ function GetCookie() {
     let suffix = /\/([^\/]+(?!.*\/))/.exec($request.url)[1].split("?");
     const uri = suffix.shift();
     const queryString = suffix.length ? suffix.join("?"): "";
-    $hammer.log(`${Protagonist} GetCookie(${uri}).`);
+    $hammer.log(`${Protagonist} GetCookie(${uri ? uri : $request.url}).`);
     let cookieVal = {
         qs: queryString,
         headers: {
@@ -60,48 +70,58 @@ function GetCookie() {
         }
     }
     const copyHeaders = header => (cookieVal.headers[header] = $request.headers[header]);
+    let category = "";
     switch (uri) {
         case "sign_in":
-            // 签到
             // get https://is.snssdk.com/score_task/v1/task/sign_in
+            category = "签到";
         case "get_read_bonus":
-            // 阅读
             // get https://is.snssdk.com/score_task/v1/task/get_read_bonus
+            category = "阅读";
             copyHeaders("x-Tt-Token");
             $hammer.write(JSON.stringify(cookieVal), uri == "sign_in" ? taskCookieKey : readCookieKey);
             break;
         case "home_info":
-            // 游戏
             // get https://i.snssdk.com/ttgame/game_farm/home_info
+            category = "游戏"
             ["Cookie", "Referer"].forEach(copyHeaders);
             $hammer.write(JSON.stringify(cookieVal), farmCookieKey);
             break;
         default:
             return $hammer.done();
     }
-    $hammer.alert(Protagonist, "Cookie已写入");
+    $hammer.alert(Protagonist, `${category}Cookie已写入`);
     $hammer.done();
 }
 
 //++++++++++++++++++++++++++++++++
 function main() {
+    // */2 8,9,12,21 * * *
+    const minute = (new Date()).getMinutes();
+    const onece = hour == 8 && minute > 57;
     if(checkTaskCookie()){
         $hammer.log(`${Protagonist} run task.`);
-        daliySignDetail();
-        openIndexBox();
-        viewSleepStatus();
+        if(onece){
+            daliySignDetail();
+            viewSleepStatus();
+        }
+        minute < 3 && openIndexBox();
     }
-    const minute = (new Date()).getMinutes();
-    if(minute < 15 || minute > 45){
-        checkReadCookie() && reading();
+    if([9,12,21].indexOf(hour) > -1){
+        // 每篇文章阅读时长：63s-121s
+        checkReadCookie() && setTimeout(reading, randomNumber(3, 61) * 1000);
     }
     if(checkFarmCookie()){
         $hammer.log(`${Protagonist} run farm.`);
-        getGameSign();
-        open_box();
-        land_water();
-        daily_task();
-        game_farm_list();
+        if(onece){
+            getGameSign();
+            open_box();
+            land_water();
+            daily_task();
+        }
+        if([9,8,12,21].indexOf(hour) > 0 && minute < 3){
+            game_farm_list();
+        }
     }
     $hammer.alert(Protagonist, tips);
     $hammer.done();
@@ -171,9 +191,6 @@ const farmOptions = param => {
 //++++++++++++++++++++++++++++++++++++
 // 签到状态
 function daliySignDetail(){
-    if(hour > 8){
-        return;
-    }
     options = initTaskOptions("task/sign_in/detail", 2);
     $hammer.request('post', options, (error, response, data) => {
         if(error){
@@ -385,7 +402,7 @@ function land_water(first=false) {
             return true;
         }
         let times = 1;
-        let max = result.data.water / 10;
+        let max = result.data.water / 10 - 10;
         while(max-- > 0) {
             if(!land_water(true)){
                 times++;
