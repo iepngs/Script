@@ -1,4 +1,5 @@
 /*
+
 1元现金速撸
  
 下载【今日头条极速版】
@@ -13,7 +14,6 @@ https://a2.app.qq.com/o/simple.jsp?pkgname=com.ss.android.article.lite&ckey=CK14
 
 iepngs
 签到、首页宝箱、阅读、睡觉、游戏
-
 
 */
 
@@ -36,7 +36,6 @@ const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefi
 function date(fmt, dateObject = '') { dateObject = dateObject ? (dateObject == "object" ? dateObject : (new Date(+dateObject.toString().padEnd(13, "0").substr(0, 13)))) : new Date(); let ret; const opt = { "Y": dateObject.getFullYear().toString(), "m": (dateObject.getMonth() + 1).toString(), "d": dateObject.getDate().toString(), "H": dateObject.getHours().toString(), "i": dateObject.getMinutes().toString(), "s": dateObject.getSeconds().toString() }; for (let k in opt) { ret = new RegExp("(" + k + ")").exec(fmt); if (ret) { fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k].padStart(2, "0") : opt[k]) }; }; return fmt; }
 function randomNumber(start, end, fixed = 0) {const differ = end - start, random = Math.random();return (start + differ * random).toFixed(fixed);};
 
-//以上是配置说明
 //====================================
 const level = 2;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
 //++++++++++++++++++++++++++++++++-
@@ -261,7 +260,9 @@ function daliySign() {
             const obj = JSON.parse(data);
             const result = obj.err_no == 0 ? `金币 +${obj.data.score_amount}` : `失败: ${obj.err_tips}`;
             tips += `\n[每日签到] ${result}`;
-            resolve(true);
+            setTimeout(()=>{
+                resolve(true);
+            }, 1200);
         })
     })
 }
@@ -488,7 +489,9 @@ function land_water(first=false) {
                     await unblock_land(land.land_id);
                 }
             }
-            resolve(true);
+            setTimeout(()=>{
+                resolve(true);
+            }, randomNumber(1, 3)*1000);
         })
     })
 }
