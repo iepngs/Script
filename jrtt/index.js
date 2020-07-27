@@ -246,7 +246,6 @@ function daliySignDetail(){
         const options = initTaskOptions("task/sign_in/detail", 2);
 
         $hammer.log("daliySignDetail:", options);
-        return resolve(true);
 
         $hammer.request('get', options, async (error, response, data) => {
             if(error){
@@ -322,7 +321,6 @@ function reading(){
         options.url = options.url.replace(partten, `group_id=${article}`);
         
         $hammer.log("阅读 request header：", options);
-        return resolve(true);
 
         $hammer.request('get', options, (error, response, data) => {
             if(error){
