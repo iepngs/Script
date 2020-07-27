@@ -38,7 +38,7 @@ function randomNumber(start, end, fixed = 0) {const differ = end - start, random
 
 //以上是配置说明
 //====================================
-const level = 0;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
+const level = 1;//开启日志级别 0:关闭 1:响应body 2:响应所有数据
 //++++++++++++++++++++++++++++++++-
 
 //++++++++++++++++++++++++++++++++++++
@@ -83,13 +83,14 @@ function GetCookie() {
             break;
         case "home_info":
             // get https://i.snssdk.com/ttgame/game_farm/home_info
-            category = "游戏"
+            category = "游戏";
             ["Cookie", "Referer"].forEach(copyHeaders);
             $hammer.write(JSON.stringify(cookieVal), farmCookieKey);
             break;
         default:
             return $hammer.done();
     }
+    $hammer.log(`${Protagonist} ${uri}cookie: ${JSON.stringify(cookieVal)}`);
     $hammer.alert(Protagonist, `${category}Cookie已写入`);
     $hammer.done();
 }
