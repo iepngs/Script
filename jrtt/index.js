@@ -72,7 +72,7 @@ const dailyStep = () => {
 }
 
 //++++++++++++++++++++++++++++++++++++
-function GetCookie() {
+async function GetCookie() {
     if($request.url.indexOf("walk/count") > 0){
         let body = $request.body;
         if(hour < 21){
