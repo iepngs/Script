@@ -65,7 +65,7 @@ const dailyStep = () => {
             return resolve(history.step);
         }
         // 1w就够上限再多也没有意义
-        const step = randomNumber(10001, 16059);
+        const step = randomNumber(10001, 11007);
         $hammer.write(`{"step":${step},"date":${today}}`, stepCookieKey);
         resolve(step);
     })
@@ -131,7 +131,7 @@ async function main() {
             await viewSleepStatus();
         }
         (hour == 20 && minute < 30) && await viewSleepStatus();
-        (hour == 21 && minute > 30) && await walkPageData();
+        // (hour == 21 && minute > 30) && await walkPageData();
     }
     if(await checkFarmCookie()){
         onece && await getGameSign();
@@ -146,9 +146,7 @@ async function main() {
     }
     
     // 每日上限10篇,超过无奖励
-    if([8,9,12,20,21].indexOf(housr) > -1){
-        await checkReadCookie() && await reading();
-    }
+    await checkReadCookie() && await reading();
 
     $hammer.alert(Protagonist, tips);
     $hammer.done();
@@ -164,13 +162,6 @@ function checkTaskCookie(){
             return resolve(false);
         }
         taskQS = taskCookieVal.qs;
-        $hammer.log(`${Protagonist} checkTaskCookie\n${taskQS}\n${taskQS.indexOf("&amp;")}`);
-        if(taskQS.indexOf("&amp;") > 0){
-            let waring = `${Protagonist} checkTaskCookie 链接有异常：\n${$hammer.pad()}\n${taskQS}`;
-            taskQS = taskQS.replace("&amp;", "&");
-            waring += `\n${$hammer.pad()}\n手动修正后：\n${taskQS}\n原始Cookie:\n${$hammer.read(taskCookieKey)}`;
-            $hammer.log(waring);
-        }
         taskCookieVal.headers["sdk-version"] = 2;
         taskHeaders = taskCookieVal.headers;
         resolve(true);
@@ -186,12 +177,6 @@ function checkReadCookie(){
             return resolve(false);
         }
         readQS = readCookieVal.qs;
-        if(readQS.indexOf("&amp;") > 0){
-            let waring = `${Protagonist} checkReadCookie 链接有异常：\n${$hammer.pad()}\n${readQS}`;
-            readQS = readQS.replace("&amp;", "&");
-            waring += `\n${$hammer.pad()}\n手动修正后：\n${readQS}\n原始Cookie:\n${$hammer.read(readCookieKey)}`;
-            $hammer.log(waring);
-        }
         readCookieVal.headers["sdk-version"] = 2;
         readHeaders = readCookieVal.headers;
         resolve(true);
@@ -224,13 +209,7 @@ const initTaskOptions = (uri, host=1) => {
         headers: taskHeaders
     }
     if(!uri.indexOf("sleep")){
-        options.url = options.url.replace("/?", "/?request_from=web&");
-    }
-    if(options.url.indexOf("&amp;") > 0){
-        let waring = `${Protagonist} initTaskOptions 链接有异常：\n${$hammer.pad()}\n${options.url}`;
-        options.url = options.url.replace("&amp;", "&");
-        waring += `\n${$hammer.pad()}\n手动修正后：\n${options.url}`;
-        $hammer.log(waring);
+        options.url = options.url.replace("/?", "/?&_request_from=web&");
     }
     return options;
 };
@@ -293,10 +272,7 @@ function daliySign() {
 // 首页宝箱
 function openIndexBox() {
     return new Promise(resolve => {
-        let options = initTaskOptions("task/open_treasure_box", 2);
-        if(options.url.indexOf("&amp;") > 0){
-            options.url = options.url.replace("&amp;", "&");
-        }
+        const options = initTaskOptions("task/open_treasure_box", 2);
         $hammer.request('post', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
@@ -305,9 +281,6 @@ function openIndexBox() {
             log("首页宝箱", response, data);
             const obj = JSON.parse(response);
             const result = obj.err_no == 0 ? `金币:+${obj.data.score_amount}, 下次时间: ${date("H点i分s秒", obj.data.next_treasure_time)}` : obj.err_tips;
-            if(obj.err_no){
-                $hammer.log(`${Protagonist} 首页宝箱 响应异常:\n${response}`);
-            }
             tips += `\n[首页宝箱] ${result}`;
             setTimeout(function(){
                 resolve(true);
@@ -329,6 +302,15 @@ function reading(){
         }
         article = article.replace(/\d{3}$/, (Math.random()*1e3).toFixed(0).padStart(3,"0"));
         options.url = options.url.replace(/group_id=\d+/, `group_id=${article}`);
+        const readDuration = [8,9,12,20,21].indexOf(hour) > -1;
+        const pushFlag = "impression_type=push&";
+        const byPush = options.url.indexOf(pushFlag) > 0;
+        if(readDuration && byPush){
+            options.url = options.url.replace(pushFlag, "");
+        }
+        if(!readDuration && !byPush){
+            options.url = options.url.replace("group_id=", `${pushFlag}group_id=`);
+        }
         const delaySeconds = randomNumber(3, 61);
         level && $hammer.log(`${Protagonist} will be execute reading after delay ${delaySeconds}s.`);
         setTimeout(() => {
@@ -341,7 +323,7 @@ function reading(){
                 const obj = JSON.parse(response);
                 let result = obj.err_tips;
                 if(obj.err_no == 0){
-                    result = `金币:+${obj.data.score_amount},今日已读:${obj.data.icon_data.done_times}篇(${obj.data.icon_data.score_received}金币)`;
+                    result = `金币:+${obj.data.score_amount}`;
                 }else{
                     $hammer.log(`${Protagonist} 阅读响应数据异常：\n${response}`);
                 }
@@ -412,7 +394,7 @@ function startSleep() {
 function stopSleep() {
     return new Promise(resolve => {
         let options = initTaskOptions("sleep/stop");
-        options.body = '{"task_id": 145}';
+        options.body = '{"task_id":145}';
         setTimeout(() => {
             $hammer.request('post', options, (error, response, data) => {
                 if(error){
@@ -433,14 +415,14 @@ function stopSleep() {
 // 领取睡觉金币
 function collectSleepCoin(coins) {
     return new Promise(resolve => {
-        if(coins < 1) {
-            return resolve(false);
-        }
-        let options = initTaskOptions("sleep/done_task");
-        options.url = options.url.replace("/?", "?rit=undefined&use_ecpm=undefined&");
-        options.headers['Content-Type'] = "application/json; encoding=utf-8";
-        options.body = `{"task_id":145,"score_amount":${coins}}`;
         setTimeout(()=>{
+            if(coins < 1) {
+                return resolve(false);
+            }
+            let options = initTaskOptions("sleep/done_task");
+            options.url = options.url.replace("/?", "/?rit=undefined&use_ecpm=undefined");
+            options.headers['Content-Type'] = "application/json; encoding=utf-8";
+            options.body = `{"task_id":145,"score_amount":${coins}}`;
             $hammer.request('post', options, (error, response, data) => {
                 if(error){
                     $hammer.log(`${Protagonist} 领取睡觉金币 请求异常:\n${error}`, data);
@@ -461,7 +443,7 @@ function collectSleepCoin(coins) {
 function walkPageData() {
     return new Promise(resolve => {
         const options = initTaskOptions("walk/page_data");
-        $hammer.request('get', options, (error, response, data) => {
+        $hammer.request('get', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 走路活动 请求异常:\n${error}`, data);
                 return resolve(false);
@@ -473,15 +455,16 @@ function walkPageData() {
                 tips += `查询异常: ${obj.err_tips}`;
                 return resolve(false);
             }
-            tips += `今日排名超过${obj.data.city}地区${obj.data.rank}`;
+            tips += `${obj.data.city}地区`;
             for (const section of obj.data.today_info) {
+                // section.received_status == 2 && await collectWalkCoin(136);
                 if(section.received_status == 1){
                     await walkCount();
-                    if(obj.data.walk_info.length == 6 && !obj.data.is_awarded){
-                        await collectWalkCoin(137);
-                    }
                     break;
                 }
+            }
+            if(obj.data.walk_info.length == 6 && !obj.data.is_awarded){
+                await collectWalkCoin(137);
             }
             setTimeout(()=>{
                 resolve(true);
@@ -495,14 +478,15 @@ function walkCount() {
         let options = initTaskOptions("walk/count");
         const step = await dailyStep();
         options.body = `{"count":${step},"client_time":${+(Date.now()/1000).toFixed(0)}}`;
-        $hammer.request('post', options, (error, response, data) => {
+        $hammer.request('post', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 步数同步 请求异常:\n${error}`, data);
                 return resolve(false);
             }
             log("步数同步", response, data);
             const obj = JSON.parse(response);
-            const result = obj.err_no == 0 ? `已同步${obj.data.walk_count}步` : `失败: ${obj.err_tips}`;
+            $hammer.log(`${Protagonist} walk request body:\n${options.body}`);
+            const result = obj.err_no == 0 ? `已同步${obj.data.walk_count}步` : `失败(${step}): ${obj.err_tips}`;
             tips += `\n[步数同步] ${result}`;
             obj.err_no || await collectWalkCoin(136);
             setTimeout(()=>{
@@ -514,11 +498,11 @@ function walkCount() {
 
 function collectWalkCoin(id){
     return new Promise(resolve => {
-        let options = initTaskOptions("walk/bonus");
-        options.url = options.url.replace("/?", "?rit=undefined&use_ecpm=undefined&");
-        options.headers['Content-Type'] = "application/json; encoding=utf-8";
-        options.body = `{"task_id":${id},"client_time":${+(Date.now()/1000).toFixed(0)}}`;
         setTimeout(()=>{
+            let options = initTaskOptions("walk/bonus");
+            options.url = options.url.replace("/?", "/?rit=undefined&use_ecpm=undefined&");
+            options.headers['Content-Type'] = "application/json; encoding=utf-8";
+            options.body = `{"task_id":${id},"client_time":${+(Date.now()/1000).toFixed(0)}}`;
             $hammer.request('post', options, (error, response, data) => {
                 const title = id == 136 ? "走路日签" : "走路满勤";
                 if(error){
@@ -602,6 +586,7 @@ function farmPolling() {
                 tips += `异常：${result.message}`;
                 return resolve(false);
             }
+            tips += `状态：正常`;
             const info = result.data.info;
             if(info.box_num){
                 await open_box();
@@ -609,10 +594,16 @@ function farmPolling() {
             if(info.water > 100){
                 await land_water();
             }
+            $hammer.log(`${Protagonist} farmPolling.info:\n`, info)
+            let type = "未知";
             if(info.kind_of_game == 1 && info.kind_of_game_v2 == 3){
-                if(info.diglett_num && !info.diglett_cooling_time){
-                    await diglett_reward();
-                }
+                type = "打地鼠";
+            }
+            if(info.kind_of_game == 2 && info.kind_of_game_v2 == 1){
+                type = "钓鱼";
+            }
+            if(info.diglett_num && !info.diglett_cooling_time){
+                await diglettGame(type) && await diglettReward();
             }
             resolve(true);
         })
@@ -654,49 +645,49 @@ function open_box(again=false) {
 //浇水
 function land_water(again=false) {
     return new Promise(resolve => {
-        const options = farmOptions(`land_water`);
-        $hammer.request('get', options, async (error, response, data) =>{
-            if(error){
-                $hammer.log(`${Protagonist} 浇水 error: ${error}`);
-                return resolve(false);
-            }
-            log("浇水", response, data);
-            const result = JSON.parse(response);
-            tips += again ? `\n[游戏浇水] ` : "";
-            if (result.status_code != 0) {
-                tips += result.message;
-                return resolve(false);
-            }
-            if(again){
-                return resolve(true);
-            }
-            let times = 1;
-            let max = result.data.water / 10 - 10;
-            while(max-- > 0) {
-                if(!await land_water(true)){
-                    times++;
-                    break;
+        setTimeout(()=>{
+            const options = farmOptions(`land_water`);
+            $hammer.request('get', options, async (error, response, data) =>{
+                if(error){
+                    $hammer.log(`${Protagonist} 浇水 error: ${error}`);
+                    return resolve(false);
                 }
-            }
-            tips += `${times}次`;
-            for (const land of result.data.info) {
-                if (!land.status && land.unlock_able) {
-                    await unblockLand(land.land_id);
-                    break;
+                log("浇水", response, data);
+                const result = JSON.parse(response);
+                tips += again ? "" : `\n[游戏浇水] `;
+                if (result.status_code != 0) {
+                    tips += result.message;
+                    return resolve(false);
                 }
-                land.farm_event && await repairLand(land.land_id, land.event_type);
-            }
-            setTimeout(()=>{
+                if(again){
+                    return resolve(true);
+                }
+                let times = 1;
+                let max = result.data.water / 10 - 10;
+                while(max-- > 0) {
+                    if(!await land_water(true)){
+                        times++;
+                        break;
+                    }
+                }
+                tips += `${times}次`;
+                for (const land of result.data.info) {
+                    if (!land.status && land.unlock_able) {
+                        await unblockLand(land.land_id);
+                        break;
+                    }
+                    land.farm_event && await repairLand(land.land_id, land.farm_event.event_id);
+                }
                 return resolve(true);
-            }, randomNumber(3, 4)*1000);
-        })
+            })
+        }, randomNumber(5, 6)*1000);
     })
 }
 
 //修复土地
-function repairLand(id, event_type){
+function repairLand(id, type){
     return new Promise(resolve => {
-        const options = farmOptions(`handle_event&land_id=${id}&event_type=${event_type}&watch_ad=1`);
+        const options = farmOptions(`handle_event&land_id=${id}&event_type=${type}&watch_ad=1`);
         setTimeout(()=>{
             $hammer.request('get', options, (error, response, data) =>{
                 if(error){
@@ -790,7 +781,7 @@ function threeMeals() {
             for (const task of result.data) {
                 if(task.status == 1 || task.status == 4){
                     const rewardDesc = `${task.title}:${task.reward_num}${task.name}`;
-                    await game_farm_reward(task.gift_id, task.status, rewardDesc);
+                    await mealReward(task.gift_id, task.status, rewardDesc);
                 }
             }
             resolve(true);
@@ -799,7 +790,7 @@ function threeMeals() {
 }
 
 //三餐礼包领取
-function meal_reward(id, status, rewardDesc) {
+function mealReward(id, status, rewardDesc) {
     return new Promise(resolve => {
         const options = farmOptions(`reward/gift&gift_id=${id}&watch_ad=${status == 4 ? 1 : 0}`);
         $hammer.request('get', options, (error, response, data) =>{
@@ -820,7 +811,25 @@ function meal_reward(id, status, rewardDesc) {
     })
 }
 
-function diglett_reward() {
+function diglettGame(type) {
+    return new Promise(resolve => {
+        setTimeout(()=>{
+            const options = farmOptions(`diglett_game`);
+            $hammer.request('get', options, (error, response, data) =>{
+                if(error){
+                    $hammer.log(`${Protagonist} 随机游戏 error: ${error}`);
+                    return resolve(false);
+                }
+                log("随机游戏", response, data);
+                const result = JSON.parse(response);
+                tips += `\n[随机游戏] ${result.status_code ? result.message : type}`;
+                resolve(true);
+            })
+        }, 5000);
+    })
+}
+
+function diglettReward() {
     return new Promise(resolve => {
         const num = randomNumber(80, 90);
         const options = farmOptions(`diglett_reward&diamond_num=${num}&watch_ad=1`);
