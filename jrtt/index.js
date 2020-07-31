@@ -23,7 +23,7 @@ iepngs
 // 2.签到
 // 3.我的农场
 // http-request ^https:\/\/is\.snssdk\.com\/score_task\/v1\/task\/(sign_in|get_read_bonus) script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-任务
-// http-request ^https:\/\/i\.snssdk\.com\/(ttgame\/game_farm\/home_info|score_task\/v1\/walk\/count) script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-游戏
+// http-request ^https:\/\/i\.snssdk\.com\/ttgame\/game_farm\/home_info script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-游戏
 // ====================================
 // #今日头条定时任务
 // Warning：定时时间不要动
@@ -32,7 +32,7 @@ iepngs
 // MITM=i.snssdk.com,is.snssdk.com
 // ====================================
 
-const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefined"!=typeof $httpClient,isQuanX="undefined"!=typeof $task;const log=(...n)=>{for(let i in n)console.log(n[i])};const alert=(title,body="",subtitle="",options={})=>{let link=null;switch(typeof options){case"string":link=isQuanX?{"open-url":options}:options;break;case"object":if(["null","{}"].indexOf(JSON.stringify(options))==-1){link=isQuanX?options:options["open-url"];break}default:link=isQuanX?{}:""}if(isSurge)return $notification.post(title,subtitle,body,link);if(isQuanX)return $notify(title,subtitle,body,link);log("==============📣系统通知📣==============");log("title:",title,"subtitle:",subtitle,"body:",body,"link:",link)};const read=key=>{if(isSurge)return $persistentStore.read(key);if(isQuanX)return $prefs.valueForKey(key)};const write=(val,key)=>{if(isSurge)return $persistentStore.write(val,key);if(isQuanX)return $prefs.setValueForKey(val,key)};const request=(method,params,callback)=>{let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(m,u){return err=>{log(`\n===request error-s--\n`);log(`${m} ${u}`,err);log(`\n===request error-e--\n`)}}(method,options.url);if(isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}if(isQuanX){options.method=method;$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}};const done=(value={})=>{if(isQuanX)return isRequest?$done(value):null;if(isSurge)return isRequest?$done(value):$done()};const pad=(c="~",s=false,l=15)=>s?console.log(c.padEnd(l,c)):c.padEnd(l,c);return{isRequest,isSurge,isQuanX,log,alert,read,write,request,done,pad}})();
+const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefined"!=typeof $httpClient,isQuanX="undefined"!=typeof $task;const log=(...n)=>{for(let i in n)console.log(n[i])};const alert=(title,body="",subtitle="",options={})=>{let link=null;switch(typeof options){case"string":link=isQuanX?{"open-url":options}:options;break;case"object":if(["null","{}"].indexOf(JSON.stringify(options))==-1){link=isQuanX?options:options["open-url"];break}default:link=isQuanX?{}:""}if(isSurge)return $notification.post(title,subtitle,body,link);if(isQuanX)return $notify(title,subtitle,body,link);log("==============📣系统通知📣==============");log("title:",title,"subtitle:",subtitle,"body:",body,"link:",link)};const read=key=>{if(isSurge)return $persistentStore.read(key);if(isQuanX)return $prefs.valueForKey(key)};const write=(val,key)=>{if(isSurge)return $persistentStore.write(val,key);if(isQuanX)return $prefs.setValueForKey(val,key)};const request=(method,params,callback)=>{let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(m,u){return err=>{log(`\n===request error-s--\n`);log(`${m} ${u}`,err);log(`\n===request error-e--\n`)}}(method,options.url);if(isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}if(isQuanX){options.method=method;$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}};const done=(value={})=>{if(isQuanX)return isRequest?$done(value):null;if(isSurge)return isRequest?$done(value):$done()};const pad=(c="~",s=false,l=15)=>s?console.log(c.padEnd(l,c)):`\n${c.padEnd(l,c)}\n`;return{isRequest,isSurge,isQuanX,log,alert,read,write,request,done,pad}})();
 function date(fmt, dateObject = '') { dateObject = dateObject ? (dateObject == "object" ? dateObject : (new Date(+dateObject.toString().padEnd(13, "0").substr(0, 13)))) : new Date(); let ret; const opt = { "Y": dateObject.getFullYear().toString(), "m": (dateObject.getMonth() + 1).toString(), "d": dateObject.getDate().toString(), "H": dateObject.getHours().toString(), "i": dateObject.getMinutes().toString(), "s": dateObject.getSeconds().toString() }; for (let k in opt) { ret = new RegExp("(" + k + ")").exec(fmt); if (ret) { fmt = fmt.replace(ret[1], ret[1].length == 1 ? opt[k].padStart(2, "0") : opt[k]) }; }; return fmt; }
 function randomNumber(start, end, fixed = 0) {const differ = end - start, random = Math.random();return (start + differ * random).toFixed(fixed);};
 
@@ -73,18 +73,6 @@ const dailyStep = () => {
 
 //++++++++++++++++++++++++++++++++++++
 async function GetCookie() {
-    if($request.url.indexOf("walk/count") > 0){
-        let body = $request.body;
-        if(hour < 21){
-            return $hammer.done({body: body});
-        }
-        body = JSON.parse(body);
-        const step = await dailyStep();
-        if(body.count != step){
-            body.count = step;
-        }
-        return $hammer.done({body: JSON.stringify(body)});
-    }
     let suffix = /\/([^\/]+(?!.*\/))/.exec($request.url.replace("/?", "?"))[1].split("?");
     const uri = suffix.shift();
     const queryString = suffix.length ? suffix.join("?"): "";
@@ -97,16 +85,13 @@ async function GetCookie() {
     let category = "";
     switch (uri) {
         case "sign_in":
-            // get https://is.snssdk.com/score_task/v1/task/sign_in
             category = "签到";
         case "get_read_bonus":
-            // get https://is.snssdk.com/score_task/v1/task/get_read_bonus
             category = "阅读";
             copyHeaders("x-Tt-Token");
             $hammer.write(JSON.stringify(cookieVal), uri == "sign_in" ? taskCookieKey : readCookieKey);
             break;
         case "home_info":
-            // get https://i.snssdk.com/ttgame/game_farm/home_info
             category = "游戏";
             ["Cookie", "Referer"].forEach(copyHeaders);
             $hammer.write(JSON.stringify(cookieVal), farmCookieKey);
@@ -120,6 +105,14 @@ async function GetCookie() {
 
 //++++++++++++++++++++++++++++++++
 async function main() {
+    const dbg = false;
+    if(dbg && await checkTaskCookie()){
+        // 这仨有问题还么有搞定
+        await openIndexBox();
+        await walkCount();
+        await viewSleepStatus(true);
+        return $hammer.done();
+    }
     // 5,35 8-21 * * *
     const minute = (new Date()).getMinutes();
     const onece = hour == 8 && minute < 30;
@@ -272,7 +265,8 @@ function daliySign() {
 // 首页宝箱
 function openIndexBox() {
     return new Promise(resolve => {
-        const options = initTaskOptions("task/open_treasure_box", 2);
+        let options = initTaskOptions("task/open_treasure_box", 2);
+        options.body = "";
         $hammer.request('post', options, (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 首页宝箱 请求异常:\n${error}`, data);
@@ -311,7 +305,7 @@ function reading(){
         if(!readDuration && !byPush){
             options.url = options.url.replace("group_id=", `${pushFlag}group_id=`);
         }
-        const delaySeconds = randomNumber(3, 61);
+        const delaySeconds = randomNumber(3, 12);
         level && $hammer.log(`${Protagonist} will be execute reading after delay ${delaySeconds}s.`);
         setTimeout(() => {
             $hammer.request('get', options, (error, response, data) => {
@@ -336,7 +330,7 @@ function reading(){
 
 //++++++++++++++++++++++++++++++++++++
 // 查询睡觉任务状态
-function viewSleepStatus() {
+function viewSleepStatus(collect=false) {
     return new Promise(resolve => {
         const options = initTaskOptions("sleep/status");
         $hammer.request('get', options, async (error, response, data) => {
@@ -350,8 +344,6 @@ function viewSleepStatus() {
                 $hammer.log(`${Protagonist} 睡觉状态查询异常:\n${obj.err_tips}`);
                 return resolve(false);
             }
-            // let amount = (obj.data.sleep_last_time / obj.data.sleep_coin_speed).toFixed(0) * sleep_coin_per_interval;
-            // amount = amount > 2665 ? 2665 : amount;
             tips += `\n[睡觉待收金币] ${obj.data.sleep_unexchanged_score}\n[当前睡觉状态] `;
             if(obj.data.sleeping){
                 tips += `已昏睡${obj.data.sleep_last_time}s`;
@@ -361,6 +353,8 @@ function viewSleepStatus() {
                 }
                 await collectSleepCoin(obj.data.sleep_unexchanged_score);
                 return resolve(true);
+            }else{
+                collect && collectSleepCoin(obj.data.history_amount);
             }
             tips += `睁着眼睛的没在睡`;
             (hour > 19 && hour < 3) && await startSleep();
@@ -394,7 +388,7 @@ function startSleep() {
 function stopSleep() {
     return new Promise(resolve => {
         let options = initTaskOptions("sleep/stop");
-        options.body = '{"task_id":145}';
+        options.body = JSON.stringify({task_id: 145});
         setTimeout(() => {
             $hammer.request('post', options, (error, response, data) => {
                 if(error){
@@ -422,7 +416,7 @@ function collectSleepCoin(coins) {
             let options = initTaskOptions("sleep/done_task");
             options.url = options.url.replace("/?", "/?rit=undefined&use_ecpm=undefined");
             options.headers['Content-Type'] = "application/json; encoding=utf-8";
-            options.body = `{"task_id":145,"score_amount":${coins}}`;
+            options.body = JSON.stringify({task_id: 145, score_amount: coins});
             $hammer.request('post', options, (error, response, data) => {
                 if(error){
                     $hammer.log(`${Protagonist} 领取睡觉金币 请求异常:\n${error}`, data);
@@ -477,7 +471,10 @@ function walkCount() {
     return new Promise(async resolve => {
         let options = initTaskOptions("walk/count");
         const step = await dailyStep();
-        options.body = `{"count":${step},"client_time":${+(Date.now()/1000).toFixed(0)}}`;
+        options.body = JSON.stringify({
+            count: step,
+            client_time: +(Date.now()/1000).toFixed(0)
+        });
         $hammer.request('post', options, async (error, response, data) => {
             if(error){
                 $hammer.log(`${Protagonist} 步数同步 请求异常:\n${error}`, data);
@@ -502,7 +499,10 @@ function collectWalkCoin(id){
             let options = initTaskOptions("walk/bonus");
             options.url = options.url.replace("/?", "/?rit=undefined&use_ecpm=undefined&");
             options.headers['Content-Type'] = "application/json; encoding=utf-8";
-            options.body = `{"task_id":${id},"client_time":${+(Date.now()/1000).toFixed(0)}}`;
+            options.body = JSON.stringify({
+                task_id: id,
+                client_time: +(Date.now()/1000).toFixed(0)
+            });
             $hammer.request('post', options, (error, response, data) => {
                 const title = id == 136 ? "走路日签" : "走路满勤";
                 if(error){
@@ -594,13 +594,17 @@ function farmPolling() {
             if(info.water > 100){
                 await land_water();
             }
-            $hammer.log(`${Protagonist} farmPolling.info:\n`, info)
             let type = "未知";
-            if(info.kind_of_game == 1 && info.kind_of_game_v2 == 3){
-                type = "打地鼠";
-            }
-            if(info.kind_of_game == 2 && info.kind_of_game_v2 == 1){
-                type = "钓鱼";
+            switch (info.kind_of_game) {
+                case 1:
+                    type = "打地鼠";
+                    break;
+                case 2:
+                    type = "钓鱼";
+                    break;
+                default:
+                    $hammer.log(`${Protagonist} farmPolling.info:\n`, info);
+                    break;
             }
             if(info.diglett_num && !info.diglett_cooling_time){
                 await diglettGame(type) && await diglettReward();
