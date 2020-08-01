@@ -123,7 +123,7 @@ async function main() {
             await daliySignDetail();
             await viewSleepStatus();
         }
-        (hour == 20 && minute < 30) && await viewSleepStatus();
+        (hour == 20 && minute < 50) && await viewSleepStatus();
         // (hour == 21 && minute > 30) && await walkPageData();
     }
     if(await checkFarmCookie()){
