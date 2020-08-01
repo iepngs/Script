@@ -357,7 +357,7 @@ function viewSleepStatus(collect=false) {
                 collect && collectSleepCoin(obj.data.history_amount);
             }
             tips += `睁着眼睛的没在睡`;
-            (hour > 19 && hour < 3) && await startSleep();
+            (hour > 19 || hour < 3) && await startSleep();
             resolve(true);
         })
     })
