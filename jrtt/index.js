@@ -201,7 +201,7 @@ const initTaskOptions = (uri, host=1) => {
         url: `${host == 1 ? host1 : host2}/score_task/v1/${uri}/?${taskQS}`,
         headers: taskHeaders
     }
-    if(!uri.indexOf("sleep")){
+    if(uri.indexOf("sleep") > -1){
         options.url = options.url.replace("/?", "/?&_request_from=web&");
     }
     return options;
@@ -347,8 +347,7 @@ function viewSleepStatus(collect=false) {
             tips += `\n[睡觉待收金币] ${obj.data.sleep_unexchanged_score}\n[当前睡觉状态] `;
             if(obj.data.sleeping){
                 tips += `已昏睡${obj.data.sleep_last_time}s`;
-                if(hour > 8 && hour < 20){
-                    console.log(3)
+                if(hour > 7 && hour < 20){
                     await stopSleep();
                 }
                 await collectSleepCoin(obj.data.sleep_unexchanged_score);
