@@ -305,7 +305,7 @@ function reading(){
         if(!readDuration && !byPush){
             options.url = options.url.replace("group_id=", `${pushFlag}group_id=`);
         }
-        const delaySeconds = randomNumber(3, 12);
+        const delaySeconds = randomNumber(3, 10);
         level && $hammer.log(`${Protagonist} will be execute reading after delay ${delaySeconds}s.`);
         setTimeout(() => {
             $hammer.request('get', options, (error, response, data) => {
@@ -665,13 +665,14 @@ function land_water(again=false) {
                 if(again){
                     return resolve(true);
                 }
-                let times = 1;
+                let times = 0;
                 let max = result.data.water / 10 - 10;
                 while(max-- > 0) {
-                    if(!await land_water(true)){
-                        times++;
+                    const resp = await land_water(true);
+                    if(!resp){
                         break;
                     }
+                    times++;
                 }
                 tips += `${times}次`;
                 for (const land of result.data.info) {
@@ -683,7 +684,7 @@ function land_water(again=false) {
                 }
                 return resolve(true);
             })
-        }, randomNumber(5, 6)*1000);
+        }, randomNumber(2, 3)*1000);
     })
 }
 
