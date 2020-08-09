@@ -102,7 +102,7 @@ const $hammer = (() => {
 
 
 // 数据来源：https://github.com/NateScarlet/holiday-cn
-// https://raw.githubusercontent.com/NateScarlet/holiday-cn/master/2020.json
+// https://raw.staticdn.net/NateScarlet/holiday-cn/master/2020.json
 const cnHoliday = {
     "2020": [{"name":"端午节","date":"2020-06-25","isOffDay":true},{"name":"端午节","date":"2020-06-26","isOffDay":true},{"name":"端午节","date":"2020-06-27","isOffDay":true},{"name":"端午节","date":"2020-06-28","isOffDay":false},{"name":"国庆节、中秋节","date":"2020-09-27","isOffDay":false},{"name":"国庆节、中秋节","date":"2020-10-01","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-02","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-03","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-04","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-05","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-06","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-07","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-08","isOffDay":true},{"name":"国庆节、中秋节","date":"2020-10-10","isOffDay":false}]
 };

@@ -30,10 +30,10 @@ Loon 2.1.0+ 脚本配置:
 
 [Script]
 # 叮咚农场
-cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
+cron "1 8,12,17 * * *" script-path=https://raw.staticdn.net/iepngs/Script/master/dingdong/index.js,tag=叮咚养鱼
 
 # 获取Cookie
-http-request ^https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚农场
+http-request ^https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin script-path=https://raw.staticdn.net/iepngs/Script/master/dingdong/index.js,tag=叮咚农场
 
 **/
 const $hammer = (() => {

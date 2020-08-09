@@ -5,7 +5,7 @@
 
 [Script]
 // *Loon
-http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth
+http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 requires-body=true,timeout=10,script-path=https://raw.staticdn.net/iepngs/Script/master/lxhealth/index.js,tag=lxhealth
 
 // *QX
 ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body iepngs/Script/lxhealth/index.js,tag=lxhealth
