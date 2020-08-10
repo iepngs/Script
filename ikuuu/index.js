@@ -11,9 +11,9 @@ Surge 4.2.0+ 脚本配置:
 ************************
 
 [Script]
-ikuuu签到 = type=cron,cronexp=0 9 * * *,script-path=https://raw.githubusercontent.com/iepngs/Script/master/ikuuu/index.js
+ikuuu签到 = type=cron,cronexp=0 9 * * *,script-path=https://raw.staticdn.net/iepngs/Script/master/ikuuu/index.js
 
-ikuuu获取Cookie = type=http-request,pattern=https:\/\/ikuuu\.co\/user\/profile,script-path=https://raw.githubusercontent.com/iepngs/Script/master/ikuuu/index.js
+ikuuu获取Cookie = type=http-request,pattern=https:\/\/ikuuu\.co\/user\/profile,script-path=https://raw.staticdn.net/iepngs/Script/master/ikuuu/index.js
 
 [MITM] 
 hostname = ikuuu.co
@@ -39,10 +39,10 @@ Loon 2.1.0+ 脚本配置:
 
 [Script]
 # ikuuu签到
-cron "0 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/ikuuu/index.js
+cron "0 9 * * *" script-path=https://raw.staticdn.net/iepngs/Script/master/ikuuu/index.js
 
 # 获取Cookie 网站登录后点击我的信息页面
-http-request https:\/\/ikuuu\.co\/user\/profile script-path=https://raw.githubusercontent.com/iepngs/Script/master/ikuuu/index.js
+http-request https:\/\/ikuuu\.co\/user\/profile script-path=https://raw.staticdn.net/iepngs/Script/master/ikuuu/index.js
 
 [Mitm]
 hostname = ikuuu.co

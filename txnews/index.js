@@ -14,7 +14,7 @@
 Loon 2.1.0+
 [Script]
 # 本地脚本
-cron "04 00 * * *" script-path=https://raw.githubusercontent.com/iepngs/Scripts/master/txnews/index.js, enabled=true, tag=腾讯新闻
+cron "04 00 * * *" script-path=https://raw.staticdn.net/iepngs/Scripts/master/txnews/index.js, enabled=true, tag=腾讯新闻
 
 http-request https:\/\/api\.inews\.qq\.com\/event\/v1\/user\/event\/report\? script-path=index.js, requires-body=true
 
