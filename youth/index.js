@@ -24,20 +24,20 @@ by Macsuny
 ~~~~~~~~~~~~~~~~
 Surge 4.0 :
 [Script]
-中青看点 = type=cron,cronexp=35 5 0 * * *,script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js,script-update-interval=0
+中青看点 = type=cron,cronexp=35 5 0 * * *,script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js,script-update-interval=0
 
-中青看点 = type=http-request,pattern=https:\/\/\w+\.youth\.cn\/TaskCenter\/(sign|getSign),script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js
+中青看点 = type=http-request,pattern=https:\/\/\w+\.youth\.cn\/TaskCenter\/(sign|getSign),script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js
 
-中青看点 = type=http-request,pattern=https:\/\/ios\.baertt\.com\/v5\/(article\/complete|article\/red_packet|user\/app_stay\.json),script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js, requires-body=true
+中青看点 = type=http-request,pattern=https:\/\/ios\.baertt\.com\/v5\/(article\/complete|article\/red_packet|user\/app_stay\.json),script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js, requires-body=true
 
 ~~~~~~~~~~~~~~~~
 Loon 2.1.0+
 [Script]
 # 本地脚本
-cron "04 00 * * *" script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js, enabled=true, tag=中青看点
+cron "04 00 * * *" script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js, enabled=true, tag=中青看点
 
-http-request https:\/\/\w+\.youth\.cn\/TaskCenter\/(sign|getSign) script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js
-http-request https:\/\/ios\.baertt\.com\/v5\/(article\/complete|article\/red_packet|user\/app_stay\.json) script-path=https://raw.staticdn.net/Sunert/Scripts/master/Task/youth.js, requires-body=true
+http-request https:\/\/\w+\.youth\.cn\/TaskCenter\/(sign|getSign) script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js
+http-request https:\/\/ios\.baertt\.com\/v5\/(article\/complete|article\/red_packet|user\/app_stay\.json) script-path=https://raw.githubusercontent.com/Sunert/Scripts/master/Task/youth.js, requires-body=true
 -----------------
 QX 1.0. 7+ :
 [task_local]

@@ -3,9 +3,9 @@
 浏览器打开并登录：https://m.jd.com
 
 Surge4：
-http-response ^https:\/\/((rdcseason\.m\.jd\.com\/.{1}\/index)|(h5\.m\.jd\.com\/babelDiy\/Zeus)|(u\.jr\.jd\.com\/uc-fe-wxgrowing\/feedbag)|(wqs\.jd\.com\/fortune_island)) requires-body=1,max-size=0,script-path=https://raw.staticdn.net/iepngs/Script/master/jd/index.js
+http-response ^https:\/\/((rdcseason\.m\.jd\.com\/.{1}\/index)|(h5\.m\.jd\.com\/babelDiy\/Zeus)|(u\.jr\.jd\.com\/uc-fe-wxgrowing\/feedbag)|(wqs\.jd\.com\/fortune_island)) requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/iepngs/Script/master/jd/index.js
 QX：
-^https:\/\/((rdcseason\.m\.jd\.com\/.{1}\/index)|(h5\.m\.jd\.com\/babelDiy\/Zeus)|(u\.jr\.jd\.com\/uc-fe-wxgrowing\/feedbag)|(wqs\.jd\.com\/fortune_island)) url script-response-body https://raw.staticdn.net/iepngs/Script/master/jd/index.js
+^https:\/\/((rdcseason\.m\.jd\.com\/.{1}\/index)|(h5\.m\.jd\.com\/babelDiy\/Zeus)|(u\.jr\.jd\.com\/uc-fe-wxgrowing\/feedbag)|(wqs\.jd\.com\/fortune_island)) url script-response-body https://raw.githubusercontent.com/iepngs/Script/master/jd/index.js
 
 MITM:
 hostname = m.jd.com,wqs.jd.com,u.jr.jd.com,h5.m.jd.com,h5.m.jd.com,rdcseason.m.jd.com
