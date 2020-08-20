@@ -31,10 +31,10 @@ Loon 2.1.0+ 脚本配置:
 
 [Script]
 # go语言中文网签到
-cron "0 9 * * *" script-path=https://raw.staticdn.net/iepngs/Script/master/studygolang/index.js
+cron "0 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/studygolang/index.js
 
 # 获取Cookie 网站登录后点击自己头像右边用户名下面的“个人资料设置”页面
-http-request https:\/\/studygolang\.com\/account\/edit script-path=https://raw.staticdn.net/iepngs/Script/master/studygolang/index.js
+http-request https:\/\/studygolang\.com\/account\/edit script-path=https://raw.githubusercontent.com/iepngs/Script/master/studygolang/index.js
 
 **/
 

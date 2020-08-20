@@ -22,12 +22,12 @@ iepngs
 // 1.阅读文章弹出金币
 // 2.签到
 // 3.我的农场
-// http-request ^https:\/\/is\.snssdk\.com\/score_task\/v1\/task\/(sign_in|get_read_bonus) script-path=https://raw.staticdn.net/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-任务
-// http-request ^https:\/\/i\.snssdk\.com\/ttgame\/game_farm\/home_info script-path=https://raw.staticdn.net/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-游戏
+// http-request ^https:\/\/is\.snssdk\.com\/score_task\/v1\/task\/(sign_in|get_read_bonus) script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-任务
+// http-request ^https:\/\/i\.snssdk\.com\/ttgame\/game_farm\/home_info script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,requires-body=true,tag=今日头条极速版-游戏
 // ====================================
 // #今日头条定时任务
 // Warning：定时时间不要动
-// cron "5,35 8-21 * * *" script-path=https://raw.staticdn.net/iepngs/Script/master/jrtt/index.js,tag=今日头条极速版
+// cron "5,35 8-21 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/jrtt/index.js,tag=今日头条极速版
 // ====================================
 // MITM=i.snssdk.com,is.snssdk.com
 // ====================================
