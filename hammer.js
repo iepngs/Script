@@ -1,107 +1,214 @@
 /**
-
-const $hammer=(()=>{const isRequest="undefined"!=typeof $request,isSurge="undefined"!=typeof $httpClient,isQuanX="undefined"!=typeof $task;const log=(...n)=>{for(let i in n)console.log(n[i])};const alert=(title,body="",subtitle="",options={})=>{let link=null;switch(typeof options){case"string":link=isQuanX?{"open-url":options}:options;break;case"object":if(["null","{}"].indexOf(JSON.stringify(options))==-1){link=isQuanX?options:options["open-url"];break}default:link=isQuanX?{}:""}if(isSurge)return $notification.post(title,subtitle,body,link);if(isQuanX)return $notify(title,subtitle,body,link);log("==============📣系统通知📣==============");log("title:",title,"subtitle:",subtitle,"body:",body,"link:",link)};const read=key=>{if(isSurge)return $persistentStore.read(key);if(isQuanX)return $prefs.valueForKey(key)};const write=(val,key)=>{if(isSurge)return $persistentStore.write(val,key);if(isQuanX)return $prefs.setValueForKey(val,key)};const request=(method,params,callback)=>{let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(m,u){return err=>{log(`\n===request error-s--\n`);log(`${m} ${u}`,err);log(`\n===request error-e--\n`)}}(method,options.url);if(isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}if(isQuanX){options.method=method;$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}};const done=(value={})=>{if(isQuanX)return isRequest?$done(value):null;if(isSurge)return isRequest?$done(value):$done()};const pad=(c="~",s=false,l=15)=>s?console.log(c.padEnd(l,c)):`\n${c.padEnd(l,c)}\n`;return{isRequest,isSurge,isQuanX,log,alert,read,write,request,done,pad}})();
-
+ * 
+function hammer(t="untitled",l=1){return new class{constructor(t,l){this.name=t,this.logLevel=l,this.isRequest="undefined"!=typeof $request,this.isSurge="undefined"!=typeof $httpClient,this.isQuanX="undefined"!=typeof $task,this.isNode="function"==typeof require,this.node=(()=>{if(!this.isNode){return null}const file="localstorage.yaml";let f,y,r;try{f=require('fs');y=require('js-yaml');r=require('request');f.appendFile(file,"",function(err){if(err)throw err;})}catch(e){console.log("install unrequired module by: yarn add module_name");console.log(e.message);return{}}return{file:file,fs:f,yaml:y,request:r,}})()}log(...n){if(l<2){return null}console.log(`\n***********${this.name}***********`);for(let i in n)console.log(n[i])}alert(body="",subtitle="",options={}){if(l==2||l==0){return null}let link=null;switch(typeof options){case"string":link=this.isQuanX?{"open-url":options}:options;break;case"object":if(["null","{}"].indexOf(JSON.stringify(options))==-1){link=this.isQuanX?options:options["open-url"];break}default:link=this.isQuanX?{}:""}if(this.isSurge)return $notification.post(this.name,subtitle,body,link);if(this.isQuanX)return $notify(this.name,subtitle,body,link);console.log(`系统通知📣\ntitle:${this.name}\nsubtitle:${subtitle}\nbody:${body}\nlink:${link}`)}request(method,params,callback){let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(m,u){return err=>console.log(`${this.name}request error:\n${m}${u}`,err)}(method,options.url);if(this.isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}options.method=method;if(this.isQuanX){$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}if(this.isNode){if(options.method=="POST"&&options.body){try{options.body=JSON.parse(options.body);options.json=true}catch(e){console.log(e.message)}}this.node.request(options,function(error,response,body){response.status=response.statusCode;delete response.statusCode;callback(error,typeof body=="objecet"?JSON.stringify(body):body,response)})}}read(key){if(this.isSurge)return $persistentStore.read(key);if(this.isQuanX)return $prefs.valueForKey(key);if(this.isNode){let val="";try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");const data=this.node.yaml.safeLoad(fileContents);val=(typeof(data)=="object"&&data[key])?data[key]:""}catch(e){console.log(`读取文件时错误:\n${e.message}`);return""}return val}}write(val,key){if(this.isSurge)return $persistentStore.write(val,key);if(this.isQuanX)return $prefs.setValueForKey(val,key);if(this.isNode){try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");let data=this.node.yaml.safeLoad(fileContents);data=typeof data=="object"?data:{};data[key]=val;val=this.node.yaml.safeDump(data);this.node.fs.writeFileSync(this.node.file,val,'utf8')}catch(e){console.log(e.message);return false}return true}}delete(key){if(this.isNode){try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");let data=this.node.yaml.safeLoad(fileContents);data=typeof data=="object"?data:{};if(!data.hasOwnProperty(key)){return true}delete data[key];const val=this.node.yaml.safeDump(data);this.node.fs.writeFileSync(this.node.file,val,'utf8')}catch(e){console.log(e.message);return false}return true}}done(value={}){if(this.isQuanX)return this.isRequest?$done(value):null;if(this.isSurge)return this.isRequest?$done(value):$done()}pad(s=false,c="*",l=15){return s?this.log(c.padEnd(l,c)):`\n${c.padEnd(l,c)}\n`}}(t,l)}
  */
-const $hammer = (() => {
-    const isRequest = "undefined" != typeof $request,
-        isSurge = "undefined" != typeof $httpClient,
-        isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => { for (let i in n) console.log(n[i]) };
-    const alert = (title, body = "", subtitle = "", options = {}) => {
-        // option(<object>|<string>): {open-url: <string>, media-url: <string>}
-        let link = null;
-        switch (typeof options) {
-            case "string":
-                link = isQuanX ? {"open-url": options} : options;
-                break;
-            case "object":
-                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
-                    link = isQuanX ? options : options["open-url"];
-                    break;
+function hammer(t="untitled", l=1){
+    /**
+     * t <string> title
+     * l <integer> log-level 
+     *      0:alert-no  log-no
+     *      1:alert-yes log-no
+     *      2:alert-no  log-yes
+     *      3:alert-yes log-yes
+     */
+    return new class{
+        constructor(t, l){
+            this.name = t,
+            this.logLevel = l,
+            this.isRequest = "undefined" != typeof $request,
+            this.isSurge = "undefined" != typeof $httpClient,
+            this.isQuanX = "undefined" != typeof $task,
+            this.isNode = "function" == typeof require,
+            this.node=(()=>{
+                if(!this.isNode) {
+                    return null;
                 }
-            default:
-                link = isQuanX ? {} : "";
+                const file = "localstorage.yaml";
+                let f,y,r;
+                try {
+                    f = require('fs');
+                    y = require('js-yaml');
+                    r = require('request');
+                    f.appendFile(file, "", function (err) {
+                        if (err) throw err;
+                    })
+                } catch (e) {
+                    console.log("install unrequired module by: yarn add module_name");
+                    console.log(e.message);
+                    return {};
+                }
+                return {
+                    file: file,
+                    fs: f,
+                    yaml: y,
+                    request: r,
+                }
+            })()
         }
-        if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, body, link);
-        log("==============📣系统通知📣==============");
-        log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
-    };
-    const read = key => {
-        if (isSurge) return $persistentStore.read(key);
-        if (isQuanX) return $prefs.valueForKey(key);
-    };
-    const write = (val, key) => {
-        if (isSurge) return $persistentStore.write(val, key);
-        if (isQuanX) return $prefs.setValueForKey(val, key);
-    };
-    const request = (method, params, callback) => {
-        /**
-         * 
-         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
-         * 
-         * callback(
-         *      error, 
-         *      <response-body string>?,
-         *      {status: <int>, headers: <object>, body: <string>}?
-         * )
-         * 
-         */
-        let options = {};
-        if (typeof params == "string") {
-            options.url = params;
-        } else {
-            options.url = params.url;
-            if (typeof params == "object") {
-                params.headers && (options.headers = params.headers);
-                params.body && (options.body = params.body);
+        log(...n){
+            if(l < 2){
+                return null;
+            }
+            console.log(`\n*********** ${this.name} ***********`);
+            for (let i in n) console.log(n[i]);
+        }
+        alert(body = "", subtitle = "", options = {}){
+            // option(<object>|<string>): {open-url: <string>, media-url: <string>}
+            if(l == 2 || l == 0){
+                return null;
+            }
+            let link = null;
+            switch (typeof options) {
+                case "string":
+                    link = this.isQuanX ? {"open-url": options} : options;
+                    break;
+                case "object":
+                    if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
+                        link = this.isQuanX ? options : options["open-url"];
+                        break;
+                    }
+                default:
+                    link = this.isQuanX ? {} : "";
+            }
+            if (this.isSurge) return $notification.post(this.name, subtitle, body, link);
+            if (this.isQuanX) return $notify(this.name, subtitle, body, link);
+            console.log(`系统通知📣 \ntitle: ${this.name}\nsubtitle: ${subtitle}\nbody: ${body}\nlink: ${link}`);
+        }
+        request(method, params, callback){
+            /**
+             * 
+             * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
+             * 
+             * callback(
+             *      error, 
+             *      <response-body string>?,
+             *      {status: <int>, headers: <object>, body: <string>}?
+             * )
+             * 
+             */
+            let options = {};
+            if (typeof params == "string") {
+                options.url = params;
+            } else {
+                options.url = params.url;
+                if (typeof params == "object") {
+                    params.headers && (options.headers = params.headers);
+                    params.body && (options.body = params.body);
+                }
+            }
+            method = method.toUpperCase();
+    
+            const writeRequestErrorLog = function (m, u) {
+                return err => console.log(`${this.name}request error:\n${m} ${u}`, err);
+            }(method, options.url);
+    
+            if (this.isSurge) {
+                const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
+                return _runner(options, (error, response, body) => {
+                    if (error == null || error == "") {
+                        response.body = body;
+                        callback("", body, response);
+                    } else {
+                        writeRequestErrorLog(error);
+                        callback(error, "", response);
+                    }
+                });
+            }
+            options.method = method;
+            if (this.isQuanX) {
+                $task.fetch(options).then(
+                    response => {
+                        response.status = response.statusCode;
+                        delete response.statusCode;
+                        callback("", response.body, response);
+                    },
+                    reason => {
+                        writeRequestErrorLog(reason.error);
+                        response.status = response.statusCode;
+                        delete response.statusCode;
+                        callback(reason.error, "", response);
+                    }
+                );
+            }
+            if(this.isNode){
+                if (options.method == "POST" && options.body) {
+                    try {
+                        options.body = JSON.parse(options.body);
+                        options.json = true;
+                    } catch (e) {
+                        console.log(e.message);
+                    }
+                }
+                this.node.request(options, (error, response, body) => {
+                    if(typeof body == "object"){
+                        body = JSON.stringify(body);
+                    }
+                    response.status = response.statusCode;
+                    delete response.statusCode;
+                    callback(error, body, response);
+                })
             }
         }
-        method = method.toUpperCase();
-
-        const writeRequestErrorLog = function (m, u) {
-            return err => {
-                log(`\n=== request error -s--\n`);
-                log(`${m} ${u}`, err);
-                log(`\n=== request error -e--\n`);
-            };
-        }(method, options.url);
-
-        if (isSurge) {
-            const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, (error, response, body) => {
-                if (error == null || error == "") {
-                    response.body = body;
-                    callback("", body, response);
-                } else {
-                    writeRequestErrorLog(error);
-                    callback(error, "", response);
+        read(key){
+            if (this.isSurge) return $persistentStore.read(key);
+            if (this.isQuanX) return $prefs.valueForKey(key);
+            if (this.isNode) {
+                let val = "";
+                try{
+                    const fileContents = this.node.fs.readFileSync(this.node.file, "utf8");
+                    const data = this.node.yaml.safeLoad(fileContents);
+                    val = (typeof(data) == "object" && data[key]) ? data[key] : "";
+                }catch( e ){
+                    console.log(`读取文件时错误:\n${e.message}`);
+                    return "";
                 }
-            });
+                return val;
+            }
         }
-        if (isQuanX) {
-            options.method = method;
-            $task.fetch(options).then(
-                response => {
-                    response.status = response.statusCode;
-                    delete response.statusCode;
-                    callback("", response.body, response);
-                },
-                reason => {
-                    writeRequestErrorLog(reason.error);
-                    response.status = response.statusCode;
-                    delete response.statusCode;
-                    callback(reason.error, "", response);
+        write(val, key){
+            if (this.isSurge) return $persistentStore.write(val, key);
+            if (this.isQuanX) return $prefs.setValueForKey(val, key);
+            if (this.isNode) {
+                try {
+                    const fileContents = this.node.fs.readFileSync(this.node.file, "utf8");
+                    let data = this.node.yaml.safeLoad(fileContents);
+                    data = typeof data == "object" ? data : {};
+                    data[key] = val;
+                    val = this.node.yaml.safeDump(data);
+                    this.node.fs.writeFileSync(this.node.file, val, 'utf8');
+                } catch (e) {
+                    console.log(e.message);
+                    return false;
                 }
-            );
+                return true;
+            }
         }
-    };
-    const done = (value = {}) => {
-        if (isQuanX) return isRequest ? $done(value) : null;
-        if (isSurge) return isRequest ? $done(value) : $done();
-    };
-    const pad = (c="~", s=false, l=15) => s ? console.log(c.padEnd(l, c)) : `\n${c.padEnd(l,c)}\n`;
-    return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done, pad };
-})();
+        delete(key){
+            if(this.isNode){
+                try {
+                    const fileContents = this.node.fs.readFileSync(this.node.file, "utf8");
+                    let data = this.node.yaml.safeLoad(fileContents);
+                    data = typeof data == "object" ? data : {};
+                    if(!data.hasOwnProperty(key)){
+                        return true;
+                    }
+                    delete data[key];
+                    const val = this.node.yaml.safeDump(data);
+                    this.node.fs.writeFileSync(this.node.file, val, 'utf8');
+                } catch (e) {
+                    console.log(e.message);
+                    return false;
+                }
+                return true;
+            }
+        }
+        done(value = {}){
+            if (this.isQuanX) return this.isRequest ? $done(value) : null;
+            if (this.isSurge) return this.isRequest ? $done(value) : $done();
+        }
+        pad(s=false, c="*", l=15){
+            return s ? this.log(c.padEnd(l, c)) : `\n${c.padEnd(l,c)}\n`;
+        }
+    }(t, l)
+}
