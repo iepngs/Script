@@ -1,5 +1,5 @@
 // Task:
-// cron "15 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Scripts/master/ks/index.js,tag=快手极速版签到,enable=true
+// cron "15 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/ks/index.js,tag=快手极速版签到,enable=true
 
 // Script: 
 // http-request ^https:\/\/nebula\.kuaishou\.com\/rest\/n\/nebula\/sign\/sign script-path=https://raw.githubusercontent.com/iepngs/Script/master/ks/index.js,tag=快手极速版签到,enabled=true
