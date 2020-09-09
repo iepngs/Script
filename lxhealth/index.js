@@ -8,18 +8,22 @@
 // QX
 // [MITM]
 // hostname=sports.lifesense.com
+
 // [rewrite_local]
-// https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js
-// 16 9 * * * https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enabled=true
+// ^https?:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 url script-request-body https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js
+
+// [local_tasK]
+// 16 9 * * * https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js, tag=lxhealth, enabled=true
 
 // ----------------------------------------------------------------------------
 
 // Loon
 // [MITM]
 // hostname=sports.lifesense.com
+
 // [Script]
-// http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enable=true
-// cron "16 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enable=true
+// http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js, requires-body=true, timeout=10, tag=lxhealthCookie
+// cron "16 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js, tag=lxhealth, enabled=true
 
 // ----------------------------------------------------------------------------
 
