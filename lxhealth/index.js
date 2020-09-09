@@ -18,7 +18,7 @@
 // [MITM]
 // hostname=sports.lifesense.com
 // [Script]
-// http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2,script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enable=true
+// http-request ^https:\/\/sports\.lifesense\.com\/sport_service\/sport\/sport\/uploadMobileStepV2 script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enable=true
 // cron "16 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/lxhealth/index.js,tag=lxhealth,enable=true
 
 // ----------------------------------------------------------------------------
