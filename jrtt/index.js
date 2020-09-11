@@ -126,17 +126,17 @@ async function main() {
         (hour == 20 && minute < 30) && await viewSleepStatus();
         // (hour == 21 && minute > 30) && await walkPageData();
     }
-    if(await checkFarmCookie()){
-        onece && await getGameSign();
-        if([8,12,21].indexOf(hour) > -1 && minute < 30){
-            await offlineProfit();
-            await farmPolling();
-            await threeMeals();
-        }
-        if(conclusion && minute > 30){
-            await farmTask();
-        }
-    }
+    // if(await checkFarmCookie()){
+    //     onece && await getGameSign();
+    //     if([8,12,21].indexOf(hour) > -1 && minute < 30){
+    //         await offlineProfit();
+    //         await farmPolling();
+    //         await threeMeals();
+    //     }
+    //     if(conclusion && minute > 30){
+    //         await farmTask();
+    //     }
+    // }
     
     // 每日上限10篇,超过无奖励
     await checkReadCookie() && await reading();
