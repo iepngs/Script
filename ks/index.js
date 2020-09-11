@@ -1,3 +1,6 @@
+// 快手极速版签到
+// app下载⏬：https://nbic2zwnf.kwairr9aw56vso581r.com/f/Yzcsl79n_AO
+
 // Task:
 // cron "15 9 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/ks/index.js,tag=快手极速版签到,enable=true
 
