@@ -233,7 +233,7 @@ function reqplay(index) {
 }
 
 function ten() {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
         let runTimes = 0;
         let success = 0;
         while (true) {
