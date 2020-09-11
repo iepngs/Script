@@ -153,9 +153,8 @@ function sc() {
         resolve();
     })
 }
-
-async function boxall() {
-    return new Promise(resolve => {
+function boxall() {
+    return new Promise(async resolve => {
         await box();
         if ((new Date()).getDay() == 6) {
             await box6();
