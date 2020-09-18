@@ -74,17 +74,19 @@ async function main() {
                 }
                 if(response.error.code == 39004){
                     // 开启新一轮签到
-                    return setTimeout(resolve(2), 1234);
+                    return setTimeout(()=>{
+                        resolve(2);
+                    }, 1234);
                 }
                 $.alert(response.error.message, '', inlink);
                 return resolve(3);
             })
         })
     };
-    if(await toSign(options) == 2){
+    if((await toSign(options)) == 2){
         options.url = options.url.replace("doSign", "resetSign");
-        options.body = body.replace("v1_sign_doSign", "v1_sign_resetSign");
-        await sign(options);
+        options.body = options.body.replace("v1_sign_doSign", "v1_sign_resetSign");
+        await toSign(options);
     }
     $.done();
 }
