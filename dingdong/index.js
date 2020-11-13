@@ -161,7 +161,7 @@ function GetCookie() {
                 $hammer.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $hammer.read(CookieKey));
                 $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
             }else{
-                $hammer.alert("有一样的cookie在了");
+                $hammer.alert(Protagonist, "有一样的cookie在了");
             }
         }
     } catch (error) {
