@@ -72,7 +72,8 @@ async function main() {
                     $.alert(ret.message, `${ret.title},余额：${ret.currentAmount}`, inlink);
                     return resolve(1);
                 }
-                if(response.error.code == 39004){
+                if([39004, 39003].includes(+response.error.code)){
+                    $.alert(response.error.message);
                     // 开启新一轮签到
                     return setTimeout(()=>{
                         resolve(2);
