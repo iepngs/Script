@@ -300,22 +300,26 @@ function fishpond() {
         };        
         $hammer.request("post", options, (error, response) =>{
             if(error){
-                return $hammer.log(error);
+                $hammer.log(error);
+                return resolve();
             }
             response = JSON.parse(response);
             if(response.code){
                 $hammer.log(response);
-                return $hammer.alert(Protagonist, response.msg, "userguide/detail");
+                $hammer.alert(Protagonist, response.msg, "userguide/detail");
+                return resolve();
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                return $hammer.alert(Protagonist, "去看看,鱼应该已经养活了", "userguide/detail");
+                $hammer.alert(Protagonist, "去看看,鱼应该已经养活了", "userguide/detail");
+                return resolve();
             }
             propsId = data.props[0].propsId;
             const amount = data.props[0].amount;
             $hammer.log(`当前饲料剩余:${amount}g,${data.seeds[0].msg}`);
             if(amount < 10){
-                return $hammer.log("饲料不够，明天再喂吧。");
+                $hammer.log("饲料不够，明天再喂吧。");
+                return resolve();
             }
             seedId = data.seeds[0].seedId;
             $hammer.log("准备开始喂鱼啦");

@@ -69,7 +69,7 @@ async function main() {
                 response = JSON.parse(response);
                 if (response.status) {
                     const ret = response.data;
-                    $.alert(ret.message, `${ret.title},余额：${ret.currentAmount}`, inlink);
+                    $.alert(ret.message, ret.title, inlink);
                     return resolve(1);
                 }
                 if([39004, 39003].includes(+response.error.code)){
