@@ -102,7 +102,7 @@ function GetCookie() {
         if (qqreadtimeurlVal) $.setdata(qqreadtimeurlVal, qqreadtimeheaderKey);
         $.log(`[${qqreadtimeurlVal}] 获取时长url: 成功,qqreadtimeurlVal: ${qqreadtimeurlVal}`);
         $.msg(qqreadtimeurlKey, `获取时长url: 成功🎉`, ``);
-        const qqreadtimeheaderVal = JSON.stringify($request.headers);
+        qqreadtimeheaderVal = JSON.stringify($request.headers);
         if (qqreadtimeheaderVal) $.setdata(qqreadtimeheaderVal, qqreadtimeheaderKey);
         $.log(`[${qqreadtimeheaderVal}] 获取时长header: 成功,qqreadtimeheaderVal: ${qqreadtimeheaderVal}`);
         $.msg(qqreadtimeheaderKey, `获取时长header: 成功🎉`, ``);
