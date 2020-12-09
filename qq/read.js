@@ -73,6 +73,7 @@ const TIME = 30//单次时长上传限制，默认5分钟
 const maxtime = 12//每日上传时长限制，默认12小时
 const wktimess = 1200//周奖励领取标准，默认1200分钟
 var tz = ''
+let task={};
 
 
 const qqreadbodyKey = 'qqreadbd' + jbid
@@ -136,37 +137,33 @@ function all() {
                 )
                     qqreadtime();
                 // 上传时长
-                else if (i == 5 && task.data && task.data.taskList[1].doneFlag == 0)
+                else if (i == 5 && task && task.taskList[1].doneFlag == 0)
                     qqreadssr1();
                 // 阅读金币1
-                else if (i == 6 && task.data && task.data.taskList[2].doneFlag == 0) {
+                else if (i == 6 && task && task.taskList[2].doneFlag == 0) {
                     qqreadsign(); // 金币签到
                     qqreadtake(); // 阅豆签到
-                } else if (i == 7 && task.data && task.data.treasureBox.doneFlag == 0)
+                } else if (i == 7 && task && task.treasureBox.doneFlag == 0)
                     qqreadbox();
                 // 宝箱
-                else if (i == 8 && task.data && task.data.taskList[0].doneFlag == 0)
+                else if (i == 8 && task && task.taskList[0].doneFlag == 0)
                     qqreaddayread();
                 // 阅读任务
-                else if (i == 9 && task.data && task.data.taskList[1].doneFlag == 0)
+                else if (i == 9 && task && task.taskList[1].doneFlag == 0)
                     qqreadssr2();
                 // 阅读金币2
                 else if (i == 10) qqreadpick();
                 // 领周时长奖励
-                else if (i == 11 && task.data && task.data.taskList[3].doneFlag == 0)
+                else if (i == 11 && task && task.taskList[3].doneFlag == 0)
                     qqreadvideo();
                 // 视频任务
-                else if (i == 12 && task.data && task.data.taskList[2].doneFlag == 0)
+                else if (i == 12 && task && task.taskList[2].doneFlag == 0)
                     qqreadsign2();
                 // 签到翻倍
-                else if (
-                    i == 13 &&
-                    task.data &&
-                    task.data.treasureBox.videoDoneFlag == 0
-                )
+                else if (i == 13 && task && task.treasureBox.videoDoneFlag == 0)
                     qqreadbox2();
                 // 宝箱翻倍
-                else if (i == 14 && task.data && task.data.taskList[1].doneFlag == 0)
+                else if (i == 14 && task && task.taskList[1].doneFlag == 0)
                     qqreadssr3();
                 // 阅读金币3
 
@@ -191,7 +188,7 @@ function qqreadtask() {
         $.get(toqqreadtaskurl, (error, response, data) => {
             if (logs) $.log(`${jsname}, 任务列表: ${data}`)
             data = JSON.parse(data);
-            const task = data.data;
+            task = data.data;
             tz += `【现金余额】:${(task.user.amount / 10000).toFixed(2)}元\n` +
                 `【第${task.invite.issue}期】:时间${task.invite.dayRange}\n` +
                 ` 已邀请${task.invite.inviteCount}人，再邀请${task.invite.nextInviteConfig.count}人获得${task.invite.nextInviteConfig.amount}金币\n` +
@@ -543,9 +540,9 @@ function showmsg() {
     console.log(tz)
     if (notifyInterval == 1)
         $.msg(jsname, '', tz)//显示所有通知
-    else if (notifyInterval == 2 && task.data.treasureBox.doneFlag == 0)
+    else if (notifyInterval == 2 && task.treasureBox.doneFlag == 0)
         $.msg(jsname, '', tz)//宝箱领取成功通知
-    else if (notifyInterval == 3 && task.data.treasureBox.count == 0 || task.data.treasureBox.count == 15 || task.data.treasureBox.count == 30 || task.data.treasureBox.count == 45 || task.data.treasureBox.count == 60)
+    else if (notifyInterval == 3 && task.treasureBox.count == 0 || task.treasureBox.count == 15 || task.treasureBox.count == 30 || task.treasureBox.count == 45 || task.treasureBox.count == 60)
         $.msg(jsname, '', tz)//宝箱每15次通知一次
 }
 
