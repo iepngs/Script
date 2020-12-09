@@ -72,18 +72,18 @@ const dd = 1//单次任务延迟,默认1秒
 const TIME = 30//单次时长上传限制，默认5分钟
 const maxtime = 12//每日上传时长限制，默认12小时
 const wktimess = 1200//周奖励领取标准，默认1200分钟
-var tz = ''
-let task={};
+let tz = ''
+let task = {};
 
 
 const qqreadbodyKey = 'qqreadbd' + jbid
-const qqreadbodyVal = $.getdata(qqreadbodyKey)
+let qqreadbodyVal = $.getdata(qqreadbodyKey)
 
 const qqreadtimeurlKey = 'qqreadtimeurl' + jbid
-const qqreadtimeurlVal = $.getdata(qqreadtimeurlKey)
+let qqreadtimeurlVal = $.getdata(qqreadtimeurlKey)
 
 const qqreadtimeheaderKey = 'qqreadtimehd' + jbid
-const qqreadtimeheaderVal = $.getdata(qqreadtimeheaderKey)
+let qqreadtimeheaderVal = $.getdata(qqreadtimeheaderKey)
 
 
 //CK运行
