@@ -97,8 +97,7 @@ if (isGetCookie) {
 
 function GetCookie() {
     qqreadtimeurlVal = $request.url;
-    console.log(qqreadtimeurlVal);
-    if ($request.url.indexOf("addReadTimeWithBid") >= 0) {
+    if ($request.url.indexOf("addReadTimeWithBid") > 0) {
         if (qqreadtimeurlVal) $.setdata(qqreadtimeurlVal, qqreadtimeheaderKey);
         $.log(`[${qqreadtimeurlVal}] 获取时长url: 成功,qqreadtimeurlVal: ${qqreadtimeurlVal}`);
         $.msg(qqreadtimeurlKey, `获取时长url: 成功🎉`, ``);
@@ -213,7 +212,7 @@ function qqreadtrack() {
         };
         $.post(toqqreadtrackurl, (error, response, data) => {
             if (logs) $.log(`${jsname}, 更新: ${data}`);
-            track = JSON.parse(data);
+            const track = JSON.parse(data);
             tz += `【数据更新】:更新${track.msg}\n`;
             resolve();
         });
