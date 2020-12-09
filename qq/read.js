@@ -99,20 +99,16 @@ function GetCookie() {
     if ($request.url.indexOf("addReadTimeWithBid?") >= 0) {
         const qqreadtimeurlVal = $request.url;
         if (qqreadtimeurlVal) $.setdata(qqreadtimeurlVal, qqreadtimeheaderKey);
-        $.log(
-            `[${qqreadtimeurlVal}] 获取时长url: 成功,qqreadtimeurlVal: ${qqreadtimeurlVal}`
-        );
+        $.log(`[${qqreadtimeurlVal}] 获取时长url: 成功,qqreadtimeurlVal: ${qqreadtimeurlVal}`);
         $.msg(qqreadtimeurlKey, `获取时长url: 成功🎉`, ``);
         const qqreadtimeheaderVal = JSON.stringify($request.headers);
         if (qqreadtimeheaderVal) $.setdata(qqreadtimeheaderVal, qqreadtimeheaderKey);
-        $.log(
-            `[${qqreadtimeheaderVal}] 获取时长header: 成功,qqreadtimeheaderVal: ${qqreadtimeheaderVal}`
-        );
+        $.log(`[${qqreadtimeheaderVal}] 获取时长header: 成功,qqreadtimeheaderVal: ${qqreadtimeheaderVal}`);
         $.msg(qqreadtimeheaderKey, `获取时长header: 成功🎉`, ``);
         return
     }
-    const qqreadbodyVal = $request.body;
-    if (qqreadbodyVal.indexOf("bookDetail_bottomBar_read_C") >= 0 && qqreadbodyVal.indexOf("topBar_left_back_C") < 0 && qqreadbodyVal.indexOf("bookRead_dropOut_shelfYes_C") < 0) {
+    qqreadbodyVal = $request.body;
+    if (qqreadbodyVal.indexOf(`"eventID":"bookRead_show_I"`) > 0) {
         if (qqreadbodyVal) $.setdata(qqreadbodyVal, qqreadbodyKey);
         $.log(`[${qqreadbodyKey}] 获取更新body: 成功,qqreadbodyVal: ${qqreadbodyVal}`);
         $.msg(qqreadbodyKey, `获取更新body: 成功🎉`, ``);
