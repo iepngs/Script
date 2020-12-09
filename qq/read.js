@@ -96,8 +96,9 @@ if (isGetCookie) {
 }
 
 function GetCookie() {
-    if ($request.url.indexOf("addReadTimeWithBid?") >= 0) {
-        const qqreadtimeurlVal = $request.url;
+    qqreadtimeurlVal = $request.url;
+    console.log(qqreadtimeurlVal);
+    if ($request.url.indexOf("addReadTimeWithBid") >= 0) {
         if (qqreadtimeurlVal) $.setdata(qqreadtimeurlVal, qqreadtimeheaderKey);
         $.log(`[${qqreadtimeurlVal}] 获取时长url: 成功,qqreadtimeurlVal: ${qqreadtimeurlVal}`);
         $.msg(qqreadtimeurlKey, `获取时长url: 成功🎉`, ``);
@@ -185,16 +186,17 @@ function qqreadtask() {
             if (logs) $.log(`${jsname}, 任务列表: ${data}`)
             data = JSON.parse(data);
             task = data.data;
+            const taskList = task.taskList;
             tz += `【现金余额】:${(task.user.amount / 10000).toFixed(2)}元\n` +
                 `【第${task.invite.issue}期】:时间${task.invite.dayRange}\n` +
                 ` 已邀请${task.invite.inviteCount}人，再邀请${task.invite.nextInviteConfig.count}人获得${task.invite.nextInviteConfig.amount}金币\n` +
-                `【${[0].title}】:${taskList[0].amount}金币,${taskList[0].actionText}\n` +
+                `【${taskList[0].title}】:${taskList[0].amount}金币,${taskList[0].actionText}\n` +
                 `【${taskList[1].title}】:${taskList[1].amount}金币,${taskList[1].actionText}\n` +
                 `【${taskList[2].title}】:${taskList[2].amount}金币,${taskList[2].actionText}\n` +
                 `【${taskList[3].title}】:${taskList[3].amount}金币,${taskList[3].actionText}\n` +
                 `【宝箱任务${(task.treasureBox.count + 1)}】:${task.treasureBox.tipText}\n` +
                 `【${task.fans.title}】:${task.fans.fansCount}个好友,${task.fans.todayAmount}金币\n`;
-            resolve()
+            resolve();
         })
 
     })
