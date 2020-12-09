@@ -65,7 +65,7 @@ const $ = Env(jsname)
 console.log(`\n========= 脚本执行时间(TM)：${new Date(new Date().getTime() + 0 * 60 * 60 * 1000).toLocaleString('zh', { hour12: false })} =========\n预计运行16秒\n`)
 
 const logs = 0;   //0为关闭日志，1为开启
-const notifyInterval = 1
+const notifyInterval = 3
 //0为关闭通知，1为所有通知，2为宝箱领取成功通知，3为宝箱每15次通知一次
 
 const dd = 1//单次任务延迟,默认1秒
@@ -74,6 +74,7 @@ const maxtime = 12//每日上传时长限制，默认12小时
 const wktimess = 1200//周奖励领取标准，默认1200分钟
 let tz = ''
 let task = {};
+let config = {};
 
 
 const qqreadbodyKey = 'qqreadbd' + jbid
@@ -162,7 +163,6 @@ function all() {
                 else if (i == 14 && task && task.taskList[1].doneFlag == 0)
                     qqreadssr3();
                 // 阅读金币3
-
                 else if (i == 15) {
                     showmsg();//通知
                     $.done();//结束
