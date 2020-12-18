@@ -35,6 +35,35 @@ function GetCookie() {
     $.done();
 }
 
+function toSign(options) {
+    return new Promise(resolve => {
+        $.request("post", options, (error, response, data) => {
+            const type = options.url.split("/").pop();
+            if(error){
+                $.log(`${type} request error: \n${error}`);
+                return resolve(0);
+            }
+            $.log(`${type} response: \n${response}`);
+            response = JSON.parse(response);
+            const inlink = {"open-url": "yocial://webview/?url=https%3A%2F%2F2do.jd.com%2Fevents%2F7-days%2F%23%2F&login=1"};
+            if (response.status) {
+                const ret = response.data;
+                $.alert(ret.message, ret.title, inlink);
+                return resolve(1);
+            }
+            if([39004, 39003].includes(+response.error.code)){
+                $.alert(response.error.message);
+                // 开启新一轮签到
+                return setTimeout(()=>{
+                    resolve(2);
+                }, 1234);
+            }
+            $.alert(response.error.message, '', inlink);
+            return resolve(3);
+        })
+    })
+};
+
 async function main() {
     const cookie = $.read('CookieJD');
     const CookieVal = $.read(CookieKey);
@@ -56,34 +85,6 @@ async function main() {
         headers: headers,
         body: body
     }
-    const inlink = {"open-url": "yocial://webview/?url=https%3A%2F%2F2do.jd.com%2Fevents%2F7-days%2F%23%2F&login=1"};
-    const toSign = () => {
-        return new Promise(resolve => {
-            $.request('post', options, (error, response, data) => {
-                const type = options.url.split("/").pop();
-                if(error){
-                    $.log(`${type} request error: \n${error}`);
-                    return resolve(0);
-                }
-                $.log(`${type} response: \n${response}`);
-                response = JSON.parse(response);
-                if (response.status) {
-                    const ret = response.data;
-                    $.alert(ret.message, ret.title, inlink);
-                    return resolve(1);
-                }
-                if([39004, 39003].includes(+response.error.code)){
-                    $.alert(response.error.message);
-                    // 开启新一轮签到
-                    return setTimeout(()=>{
-                        resolve(2);
-                    }, 1234);
-                }
-                $.alert(response.error.message, '', inlink);
-                return resolve(3);
-            })
-        })
-    };
     if((await toSign(options)) == 2){
         options.url = options.url.replace("doSign", "resetSign");
         options.body = options.body.replace("v1_sign_doSign", "v1_sign_resetSign");
