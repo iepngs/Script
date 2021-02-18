@@ -15,7 +15,7 @@ jbid设置为1 >> 去获取一次账号1的ck,再设置为2 >> 登录账号2 >> 
 
 ⚠️cookie获取方法：
 
-进 https://m.q.qq.com/a/s/d3eacc70120b9a37e46bad408c0c4c2a  
+进 https://m.q.qq.com/a/s/d3eacc70120b9a37e46bad408c0c4c2a
 
 进书库选择一本书,看10秒以下,然后退出，获取时长url和时长header以及更新body，看书一定不能超过10秒
 
@@ -57,6 +57,7 @@ const jbid = 1//换号则修改这个值,默认账号1
 
 /////////改👆
 
+const EnterPoint = 'https://m.q.qq.com/a/s/d3eacc70120b9a37e46bad408c0c4c2a';
 
 
 const jsname = '企鹅读书'
@@ -536,11 +537,11 @@ function qqreadpick() {
 function showmsg() {
     console.log(tz)
     if (notifyInterval == 1)
-        $.msg(jsname, '', tz)//显示所有通知
+        $.msg(jsname, '', tz, EnterPoint)//显示所有通知
     else if (notifyInterval == 2 && task.treasureBox.doneFlag == 0)
-        $.msg(jsname, '', tz)//宝箱领取成功通知
+        $.msg(jsname, '', tz, EnterPoint)//宝箱领取成功通知
     else if (notifyInterval == 3 && task.treasureBox.count == 0 || task.treasureBox.count == 15 || task.treasureBox.count == 30 || task.treasureBox.count == 45 || task.treasureBox.count == 60)
-        $.msg(jsname, '', tz)//宝箱每15次通知一次
+        $.msg(jsname, '', tz, EnterPoint)//宝箱每15次通知一次
 }
 
 
