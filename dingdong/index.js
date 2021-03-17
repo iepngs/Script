@@ -132,7 +132,7 @@ const $hammer = (() => {
         }
     };
     const done = (value = {}) => {
-        if (isQuanX) return isRequest ? $done(value) : null;
+        if (isQuanX) return $done(value);
         if (isSurge) return isRequest ? $done(value) : $done();
     };
     return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
