@@ -355,6 +355,7 @@ function propsFeed(i){
             $hammer.log(description);
             if(remain < 10){
                 $hammer.alert(Protagonist, description, `今天喂了${i}次，现在饲料不够了`);
+                $done();
                 return resolve(false);
             }
             setTimeout(()=>{
