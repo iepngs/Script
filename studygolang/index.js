@@ -164,13 +164,14 @@ function GetCookie() {
 }
 
 function checkin() {
+    const host = "https://studygolang.com";
     const cookie = $hammer.read(CookieKey);
     if (!cookie) {
-        $hammer.alert(CookieKey, "cookie没有，先去获取吧！");
+        $hammer.alert(CookieKey, "cookie没有，先去获取吧！", host);
         return $hammer.done();
     }
     const options = {
-        url: "https://studygolang.com/mission/daily/redeem",
+        url: `${host}/mission/daily/redeem`,
         headers: {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Accept-Encoding": "gzip, deflate, br",
@@ -199,7 +200,7 @@ function checkin() {
                 }
             }
             $hammer.log(`${CookieKey}签到结果(1)：`, ret);
-            $hammer.alert(CookieKey, desc, "签到请求失败");
+            $hammer.alert(CookieKey, desc, "签到请求失败", host);
             return $hammer.done();
         }
         if(response.indexOf("已成功领取每日登录奖励")>0){
@@ -208,7 +209,7 @@ function checkin() {
         }
         $hammer.log(`${CookieKey}签到结果(2)：`, ret);
         const desc = response.indexOf("user_remember_me") > 0 ? "cookie已过期，请重新获取" : "响应异常，去看一下日志";
-        $hammer.alert(CookieKey, desc, "签到失败");
+        $hammer.alert(CookieKey, desc, "签到失败", host);
         $hammer.done();
     })
 }
