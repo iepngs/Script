@@ -36,139 +36,39 @@ cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Scri
 http-request ^https:\/\/maicai\.api\.ddxq\.mobi\/user\/checkLogin script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/index.js,tag=叮咚农场
 
 **/
-const $hammer = (() => {
-    const isRequest = "undefined" != typeof $request,
-        isSurge = "undefined" != typeof $httpClient,
-        isQuanX = "undefined" != typeof $task;
 
-    const log = (...n) => { for (let i in n) console.log(n[i]) };
-    const alert = (title, body = "", subtitle = "", options = {}) => {
-        // option(<object>|<string>): {open-url: <string>, media-url: <string>}
-        let link = null;
-        switch (typeof options) {
-            case "string":
-                link = isQuanX ? {"open-url": options} : options;
-                break;
-            case "object":
-                if(["null", "{}"].indexOf(JSON.stringify(options)) == -1){
-                    link = isQuanX ? options : options["open-url"];
-                    break;
-                }
-            default:
-                link = isQuanX ? {} : "";
-        }
-        if (isSurge) return $notification.post(title, subtitle, body, link);
-        if (isQuanX) return $notify(title, subtitle, body, link);
-        log("==============📣系统通知📣==============");
-        log("title:", title, "subtitle:", subtitle, "body:", body, "link:", link);
-    };
-    const read = key => {
-        if (isSurge) return $persistentStore.read(key);
-        if (isQuanX) return $prefs.valueForKey(key);
-    };
-    const write = (val, key) => {
-        if (isSurge) return $persistentStore.write(val, key);
-        if (isQuanX) return $prefs.setValueForKey(val, key);
-    };
-    const request = (method, params, callback) => {
-        /**
-         * 
-         * params(<object>): {url: <string>, headers: <object>, body: <string>} | <url string>
-         * 
-         * callback(
-         *      error, 
-         *      <response-body string>?,
-         *      {status: <int>, headers: <object>, body: <string>}?
-         * )
-         * 
-         */
-        let options = {};
-        if (typeof params == "string") {
-            options.url = params;
-        } else {
-            options.url = params.url;
-            if (typeof params == "object") {
-                params.headers && (options.headers = params.headers);
-                params.body && (options.body = params.body);
-            }
-        }
-        method = method.toUpperCase();
+const $ = hammer("叮咚农场", 3);
 
-        const writeRequestErrorLog = function (m, u) {
-            return err => {
-                log(`\n=== request error -s--\n`);
-                log(`${m} ${u}`, err);
-                log(`\n=== request error -e--\n`);
-            };
-        }(method, options.url);
-
-        if (isSurge) {
-            const _runner = method == "GET" ? $httpClient.get : $httpClient.post;
-            return _runner(options, (error, response, body) => {
-                if (error == null || error == "") {
-                    response.body = body;
-                    callback("", body, response);
-                } else {
-                    writeRequestErrorLog(error);
-                    callback(error, "", response);
-                }
-            });
-        }
-        if (isQuanX) {
-            options.method = method;
-            $task.fetch(options).then(
-                response => {
-                    response.status = response.statusCode;
-                    delete response.statusCode;
-                    callback("", response.body, response);
-                },
-                reason => {
-                    writeRequestErrorLog(reason.error);
-                    response.status = response.statusCode;
-                    delete response.statusCode;
-                    callback(reason.error, "", response);
-                }
-            );
-        }
-    };
-    const done = (value = {}) => {
-        if (isQuanX) return isRequest ? $done(value) : null;
-        if (isSurge) return isRequest ? $done(value) : $done();
-    };
-    return { isRequest, isSurge, isQuanX, log, alert, read, write, request, done };
-})();
-
-const Protagonist = '叮咚农场',
-    CookieKey = "CookieDDXQfarm",
+const CookieKey = "CookieDDXQfarm",
     StationIdCookieKey = "CookieDDXQfarmStationId",
     DD_API_HOST = 'https://farm.api.ddxq.mobi';
 
 let propsId = "", seedId = "";
 
-const cookie = $hammer.read(CookieKey);
-const station_id = $hammer.read(StationIdCookieKey);
+const cookie = $.read(CookieKey);
+const station_id = $.read(StationIdCookieKey);
 
 function GetCookie() {
     try {
         const StationIdCookieValue = /.*&station_id=(\w+)?&/.exec($request.url)?.[1];
         if ($request.headers && StationIdCookieValue) {
             const CookieValue = $request.headers['Cookie'];
-            const cachedCookie = $hammer.read(CookieKey);
+            const cachedCookie = $.read(CookieKey);
             const dynamic = cachedCookie ? (cachedCookie == CookieValue ? "" : "更新") : "写入";
             if(dynamic){
-                $hammer.write(StationIdCookieValue, StationIdCookieKey);
-                const result = $hammer.write(CookieValue, CookieKey);
-                $hammer.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $hammer.read(CookieKey));
-                $hammer.alert(Protagonist, dynamic + (result ? "成功🎉" : "失败"));
+                $.write(StationIdCookieValue, StationIdCookieKey);
+                const result = $.write(CookieValue, CookieKey);
+                $.log(`CookieKey: ${CookieKey}, CookieValue: ${CookieValue}, read: ` + $.read(CookieKey));
+                $.alert(dynamic + (result ? "成功🎉" : "失败"));
             }else{
-                $hammer.alert(Protagonist, "有一样的cookie在了");
+                $.alert("有一样的cookie在了");
             }
         }
     } catch (error) {
-        $hammer.alert(Protagonist, "写入失败: 未知错误");
-        $hammer.log(error);
+        $.alert("写入失败: 未知错误");
+        $.log(error);
     }
-    $hammer.done();
+    $.done();
 }
 
 const initRequestHeaders = function() {
@@ -193,15 +93,15 @@ function fetchMyTask(){
             headers: initRequestHeaders(),
             body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
         }
-        $hammer.request("post", options, (error, response) =>{
+        $.request("post", options, (error, response) =>{
             if(error){
-                $hammer.log(error)
+                $.log(error)
                 return
             }
             response = JSON.parse(response);
             if(response.code){
-                $hammer.log(response);
-                $hammer.alert(Protagonist, response.msg, "task/list");
+                $.log(response);
+                $.alert(response.msg, "task/list");
                 return
             }
             const taskList = response.data.userTasks;
@@ -215,7 +115,7 @@ function fetchMyTask(){
             for (const task of taskList) {
                 const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
-                $hammer.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n===========`);
+                $.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}\n===========`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
                         if(["INVITATION", "ANY_ORDER", "POINT_EXCHANGE"].indexOf(task.taskCode) == -1)
@@ -239,15 +139,15 @@ function taskAchieve(taskCode){
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&taskCode=${taskCode}`
     }
-    $hammer.request("post", options, (error, response) =>{
+    $.request("post", options, (error, response) =>{
         if(error){
-            $hammer.log(error)
+            $.log(error)
             return
         }
         response = JSON.parse(response);
         if(response.code){
-            $hammer.log(response);
-            $hammer.alert(Protagonist, response.msg, `task/achieve?${taskCode}`);
+            $.log(response);
+            $.alert(response.msg, `task/achieve?${taskCode}`);
             return
         }
         if (response.data.taskStatus == "ACHIEVED") {
@@ -257,9 +157,9 @@ function taskAchieve(taskCode){
             }else{
                 const amount = response.data.rewards.amount;
                 // if(taskCode == "LOTTERY"){
-                    // $hammer.alert(Protagonist, `本时段三餐开福袋已领取：${amount}g`);
+                    // $.alert(`本时段三餐开福袋已领取：${amount}g`);
                 // }else{
-                    $hammer.log(`任务完成，获得饲料：${amount}g`);
+                    $.log(`任务完成，获得饲料：${amount}g`);
                 // }
             }
         }
@@ -273,57 +173,56 @@ function taskReward(userTaskLogId){
         headers: initRequestHeaders(),
         body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`
     }
-    $hammer.request("post", options, (error, response) =>{
+    $.request("post", options, (error, response) =>{
         if(error){
-            $hammer.log(error)
+            $.log(error)
             return
         }
         response = JSON.parse(response);
         if(response.code){
-            $hammer.log(response);
-            $hammer.alert(Protagonist, response.msg, "task/reward");
+            $.log(response);
+            $.alert(response.msg, "task/reward");
             return
         }
-        $hammer.log(`任务完成，获得饲料：${response.data.rewards.amount}g`);
-        $hammer.log(response);
+        $.log(`任务完成，获得饲料：${response.data.rewards.amount}g`);
+        $.log(response);
     })
 }
 
 
 function fishpond() {
-    $hammer.log('正在获取鱼池信息…');
+    $.log('正在获取鱼池信息…');
     return new Promise(resolve => {
         const options = {
             url: `${DD_API_HOST}/api/userguide/detail`,
             headers: initRequestHeaders(),
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&guideCode=FISHPOND_V1`
         };        
-        $hammer.request("post", options, (error, response) =>{
+        $.request("post", options, (error, response) =>{
             if(error){
-                $hammer.log(error);
+                $.log(error);
                 return resolve();
             }
             response = JSON.parse(response);
             if(response.code){
-                $hammer.log(response);
-                $hammer.alert(Protagonist, response.msg, "userguide/detail");
+                $.log(response);
+                $.alert(response.msg, "userguide/detail");
                 return resolve();
             }
             const data = response.data;
             if(data.seeds[0].expPercent >= 100){
-                $hammer.alert(Protagonist, "去看看,鱼应该已经养活了", "userguide/detail");
+                $.alert("去看看,鱼应该已经养活了", "userguide/detail");
                 return resolve();
             }
             propsId = data.props[0].propsId;
             const amount = data.props[0].amount;
-            $hammer.log(`当前饲料剩余:${amount}g,${data.seeds[0].msg}`);
+            $.log(`当前饲料剩余:${amount}g,${data.seeds[0].msg}`);
             if(amount < 10){
-                $hammer.log("饲料不够，明天再喂吧。");
-                $done();
+                $.log("饲料不够，明天再喂吧。");
                 return resolve();
             }
             seedId = data.seeds[0].seedId;
-            $hammer.log("准备开始喂鱼啦");
+            $.log("准备开始喂鱼啦");
             resolve();
         })
     })
@@ -336,26 +235,25 @@ function propsFeed(i){
             headers: initRequestHeaders(),
             body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
         };
-        $hammer.log(`第${i}次喂鱼`);
-        $hammer.request("post", options, (error, response) => {
+        $.log(`第${i}次喂鱼`);
+        $.request("post", options, (error, response) => {
             if(error){
-                $hammer.log(error);
+                $.log(error);
                 return resolve(false);
             }
             response = JSON.parse(response);
             if(response.code){
-                $hammer.log(response);
-                $hammer.alert(Protagonist, response.msg, "props/feed");
+                $.log(response);
+                $.alert(response.msg, "props/feed");
                 return resolve(false);
             }
             const data = response.data;
-            $hammer.log(data.msg);
+            $.log(data.msg);
             const remain = data.props.amount;
             const description = `剩余饲料: ${remain}g, 进度: ${data.seed.expPercent}`;
-            $hammer.log(description);
+            $.log(description);
             if(remain < 10){
-                $hammer.alert(Protagonist, description, `今天喂了${i}次，现在饲料不够了`);
-                $done();
+                $.alert(description, `今天喂了${i}次，现在饲料不够了`);
                 return resolve(false);
             }
             setTimeout(()=>{
@@ -365,18 +263,20 @@ function propsFeed(i){
     })
 }
 
-$hammer.isRequest ? GetCookie() : (async function(){
+$.isRequest ? GetCookie() : (async function(){
     if(!cookie){
-        return $hammer.alert(Protagonist, "cookie不存在，先去获取吧");
+        return $.alert("cookie不存在，先去获取吧");
     }
 
     await fetchMyTask();
-    $hammer.log(`【${Protagonist}】任务部分结束。`);
+    $.log(`任务部分结束。`);
 
     await fishpond();
     let index = 1;
     while(await propsFeed(index)){
         index++;
     }
-    $hammer.done();
-})().catch(err => $hammer.log(`【🙅 ${Protagonist}】运行异常: ${err}`), $hammer.done());
+    $.done();
+})().catch(err => {$.log(`🙅 运行异常: ${err}`) && $.done()});
+
+function hammer(t="untitled",l=3){return new class{constructor(t,l){this.name=t,this.logLevel=l,this.isRequest=("object"==typeof $request)&&$request.method!="OPTIONS",this.isSurge="undefined"!=typeof $httpClient,this.isQuanX="undefined"!=typeof $task,this.isNode="function"==typeof require,this.node=(()=>{if(!this.isNode){return null}const file="localstorage.yml";let f,y,r;try{f=require('fs');y=require('js-yaml');r=require('request');f.appendFile(file,"",function(err){if(err)throw err;})}catch(e){console.log("install unrequired module by: yarn add module_name");console.log(e.message);return{}}return{file:file,fs:f,yaml:y,request:r,}})()}log(...n){if(l<2){return null}console.log(`\n***********${this.name}***********`);for(let i in n)console.log(typeof n[i]=="object"?JSON.stringify(n[i]):n[i])}alert(body="",subtitle="",options={}){if(l==2||l==0){return null}if(typeof options=="string"){options={"open-url":options}}let link=null;if(Object.keys(options).length){link=this.isQuanX?options:{openUrl:options["open-url"],mediaUrl:options["media-url"]}}if(this.isSurge)return $notification.post(this.name,subtitle,body,link);if(this.isQuanX)return $notify(this.name,subtitle,body,link);console.log(`系统通知📣\ntitle:${this.name}\nsubtitle:${subtitle}\nbody:${body}\nlink:${link}`)}request(method,params,callback){let options={};if(typeof params=="string"){options.url=params}else{options.url=params.url;if(typeof params=="object"){params.headers&&(options.headers=params.headers);params.body&&(options.body=params.body)}}method=method.toUpperCase();const writeRequestErrorLog=function(n,m,u){return err=>console.log(`${n}request error:\n${m}${u}\n${err}`)}(this.name,method,options.url);if(this.isSurge){const _runner=method=="GET"?$httpClient.get:$httpClient.post;return _runner(options,(error,response,body)=>{if(error==null||error==""){response.body=body;callback("",body,response)}else{writeRequestErrorLog(error);callback(error,"",response)}})}options.method=method;if(this.isQuanX){$task.fetch(options).then(response=>{response.status=response.statusCode;delete response.statusCode;callback("",response.body,response)},reason=>{writeRequestErrorLog(reason.error);response.status=response.statusCode;delete response.statusCode;callback(reason.error,"",response)})}if(this.isNode){if(options.method=="POST"&&options.body){try{options.body=JSON.parse(options.body);options.json=true}catch(e){console.log(e.message)}}this.node.request(options,(error,response,body)=>{if(typeof body=="object"){body=JSON.stringify(body)}if(typeof response=='object'&&response){response.status=response.statusCode;delete response.statusCode}callback(error,body,response)})}}read(key){if(this.isSurge)return $persistentStore.read(key);if(this.isQuanX)return $prefs.valueForKey(key);if(this.isNode){let val="";try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");const data=this.node.yaml.safeLoad(fileContents);val=(typeof(data)=="object"&&data[key])?data[key]:""}catch(e){console.log(`读取文件时错误:\n${e.message}`);return""}return val}}write(val,key){if(this.isSurge)return $persistentStore.write(val,key);if(this.isQuanX)return $prefs.setValueForKey(val,key);if(this.isNode){try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");let data=this.node.yaml.safeLoad(fileContents);data=typeof data=="object"?data:{};data[key]=val;val=this.node.yaml.safeDump(data);this.node.fs.writeFileSync(this.node.file,val,'utf8')}catch(e){console.log(e.message);return false}return true}}delete(key){if(this.isNode){try{const fileContents=this.node.fs.readFileSync(this.node.file,"utf8");let data=this.node.yaml.safeLoad(fileContents);data=typeof data=="object"?data:{};if(!data.hasOwnProperty(key)){return true}delete data[key];const val=this.node.yaml.safeDump(data);this.node.fs.writeFileSync(this.node.file,val,'utf8')}catch(e){console.log(e.message);return false}return true}}done(value={}){if(this.isQuanX)return $done(value);if(this.isSurge)return this.isRequest?$done(value):$done()}pad(s=false,c="*",l=15){return s?this.log(c.padEnd(l,c)):`\n${c.padEnd(l,c)}\n`}}(t,l)}
