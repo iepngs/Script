@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日志中控系统</title>
+    <link rel='dns-prefetch' href='//s.w.org' />
+    <meta name="keywords" content="日志中控">
+    <meta name="description" content="日志中控系统">
+    <meta name="apple-mobile-web-app-title" content="日志中控">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .demo-dialog-form .el-form-item {
+            margin-bottom: 0px;
+        }
+
+        .demo-table-expand {
+            font-size: 0;
+        }
+
+        .demo-table-expand label {
+            width: 90px;
+            color: #99a9bf;
+        }
+
+        .demo-table-expand .el-form-item {
+            margin-right: 0;
+            margin-bottom: 0;
+            width: 50%;
+        }
+
+        .el-dropdown-link {
+            cursor: pointer;
+            color: #409EFF;
+        }
+
+        .el-icon-arrow-down {
+            font-size: 12px;
+        }
+
+        .demonstration {
+            display: block;
+            color: #8492a6;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <el-row>
+            <el-col :span="24">
+                <template>
+                    <el-tabs v-model="activeName">
+                        <el-tab-pane label="日志查询" name="first">
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form :inline="true" :model="searchForm" class="demo-form-inline" size="small">
+                                        <el-form-item>
+                                            <el-select placeholder="平台标识" v-model="searchForm.project">
+                                                <el-option :label="val" :value="key" v-for="(val, key) in projects"
+                                                    :key="key"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="事件类型" v-model="searchForm.event_code">
+                                                <el-option :label="val.val" :value="key"
+                                                    v-for="(val, key) in eventCodes" :key="key">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="状态标记" v-model="searchForm.status" clearable>
+                                                <el-option :label="val.name" :value="key"
+                                                    v-for="(val, key) in eventStatus" :key="key"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="searchForm.event_tag" placeholder="事件标记" clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="searchForm.app_id" placeholder="应用编号" clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="searchForm.app_version" placeholder="应用版本" clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="searchForm.uid" placeholder="用户ID" clearable></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="系统类型" v-model="searchForm.os_type" clearable>
+                                                <el-option label="Android" value="Android"></el-option>
+                                                <el-option label="iOS" value="iOS"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-date-picker v-model="daterange" @change="daterangeChange" type="daterange"
+                                            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                                            value-format="yyyy-MM-dd" size="small">
+                                        </el-date-picker>
+                                        <el-form-item>
+                                            <el-switch v-model="searchForm.distinct" active-text="同类去重"
+                                                inactive-text="">
+                                            </el-switch>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="onSubmit">查询</el-button>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <template>
+                                        <el-table :data="tableData" style="width: 100%" max-height="650"
+                                            v-loading="loading">
+                                            <el-table-column type="expand">
+                                                <template slot-scope="props">
+                                                    <el-form label-position="left" inline class="demo-table-expand">
+                                                        <el-form-item label="设备类型">
+                                                            <span>{{props.row.device}}</span>
+                                                        </el-form-item>
+                                                        <el-form-item label="网络状态">
+                                                            <span>{{props.row.net_type}}</span>
+                                                        </el-form-item>
+                                                        <el-form-item label="系统类型">
+                                                            <span>{{props.row.os_type}}</span>
+                                                        </el-form-item>
+                                                        <el-form-item label="系统版本">
+                                                            <span>{{props.row.os_version}}</span>
+                                                        </el-form-item>
+                                                        <el-form-item label="事件简介">
+                                                            <pre style="color: #F56C6C;line-height: 1rem;margin-top: 0px;"
+                                                                v-html="props.row.event_brief"></pre>
+                                                            <el-link icon="el-icon-copy-document" :underline="false"
+                                                                v-if="props.row.event_brief != ''"
+                                                                @click="handleCopy(props.row.event_brief)">Copy
+                                                            </el-link>
+                                                        </el-form-item>
+                                                    </el-form>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="event_tag" label="事件标记" min-width="160px">
+                                                <template slot-scope="scope">
+                                                    <span style="color: #F56C6C;" :data-id="scope.row.id">{{scope.row.event_tag}}</span>
+                                                    <el-badge class="mark" :value="scope.row.counter" v-if="showBadge" />
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column prop="event_date" label="事件日期" min-width="100em">
+                                            </el-table-column>
+                                            <el-table-column prop="event_code" label="事件类型">
+                                            </el-table-column>
+                                            <el-table-column prop="appinfo" label="平台标识">
+                                            </el-table-column>
+                                            <el-table-column prop="uid" label="用户ID">
+                                            </el-table-column>
+                                            <el-table-column prop="app_version" label="应用版本">
+                                            </el-table-column>
+                                            <el-table-column prop="status" label="状态标记">
+                                                <template slot-scope="scope">
+                                                    <el-tag :type="eventStatus[scope.row.state]?.tagType">
+                                                        {{eventStatus[scope.row.state]?.name}}</el-tag>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column fixed="right" label="操作" width="90">
+                                                <template slot-scope="scope">
+                                                    <el-tooltip content="追溯日志" placement="top" effect="light">
+                                                        <el-button
+                                                            @click.native.prevent="ViewTraceFile(scope.row.trace_file)"
+                                                            :disabled="scope.row.trace_file == ''" type="primary"
+                                                            size="small" icon="el-icon-paperclip" circle></el-button>
+                                                    </el-tooltip>
+                                                    <!-- <el-link :href="scope.row.trace_file == '' ? 'javascript:void(0)' : scope.row.trace_file" type="success" target="_blank">追溯日志</el-link> -->
+                                                    <!-- <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" -->
+                                                    <!-- size="small">移除</el-button> -->
+                                                    <el-dropdown trigger="click" @command="handleMoreCommand">
+                                                        <span class="el-dropdown-link">
+                                                            <el-button type="info" class="el-button--small"
+                                                                icon="el-icon-more" circle>
+                                                            </el-button>
+                                                        </span>
+                                                        <el-dropdown-menu slot="dropdown">
+                                                            <el-dropdown-item icon="el-icon-connection"
+                                                                :command="beforeHandleCommand('postback', scope.row)">
+                                                                回传
+                                                            </el-dropdown-item>
+                                                            <el-dropdown-item icon="el-icon-s-flag"
+                                                                :command="beforeHandleCommand('markup', scope.row)">
+                                                                标记
+                                                            </el-dropdown-item>
+                                                        </el-dropdown-menu>
+                                                    </el-dropdown>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                    <div class="block">
+                                        <el-pagination @current-change="handleCurrentChange" :hide-on-single-page=true
+                                            :page-size="pageSize" layout="prev, pager, next, jumper"
+                                            :total="sourceLength">
+                                        </el-pagination>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </el-tab-pane>
+
+                        <el-tab-pane label="数据统计" name="second">
+                            // TODO. 数据统计
+                        </el-tab-pane>
+
+                        <el-tab-pane label="回传" name="third">
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form :inline="true" :model="postbackSearchForm" class="demo-form-inline"
+                                        size="small">
+                                        <el-form-item>
+                                            <el-select placeholder="平台标识" v-model="postbackSearchForm.project">
+                                                <el-option :label="val" :value="key" v-for="(val, key) in projects"
+                                                    :key="key"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="事件类型" v-model="postbackSearchForm.event_code"
+                                                clearable>
+                                                <el-option :label="val.val" :value="key"
+                                                    v-for="(val, key) in eventCodes" :key="key">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="回传进度" v-model="postbackSearchForm.status" clearable>
+                                                <el-option :label="val" :value="key"
+                                                    v-for="(val, key) in postbackStatus" :key="key">
+                                                </el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="postbackSearchForm.app_id" placeholder="应用编号" clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="postbackSearchForm.app_version" placeholder="应用版本"
+                                                clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-input v-model="postbackSearchForm.uid" placeholder="用户ID" clearable>
+                                            </el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-select placeholder="系统类型" v-model="postbackSearchForm.os_type"
+                                                clearable>
+                                                <el-option label="Android" value="Android"></el-option>
+                                                <el-option label="iOS" value="iOS"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                        <el-date-picker v-model="daterange2" @change="daterangeChange2" type="daterange"
+                                            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+                                            value-format="yyyy-MM-dd" size="small">
+                                        </el-date-picker>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="onSubmitPostbackSearch">查询</el-button>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-link icon="el-icon-circle-plus-outline" @click="newPostbackCron">新建
+                                            </el-link>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <template>
+                                        <el-table :data="postbackTableData" style="width: 100%" max-height="650"
+                                            v-loading="postbackLoading">
+                                            <el-table-column prop="event_date" label="事件日期" min-width="100em">
+                                            </el-table-column>
+                                            <el-table-column prop="event_code" label="事件类型">
+                                            </el-table-column>
+                                            <el-table-column prop="appinfo" label="平台标识">
+                                            </el-table-column>
+                                            <el-table-column prop="uid" label="用户ID">
+                                            </el-table-column>
+                                            <el-table-column prop="os_type" label="系统类型">
+                                            </el-table-column>
+                                            <el-table-column prop="app_id" label="应用编号">
+                                            </el-table-column>
+                                            <el-table-column prop="app_version" label="应用版本">
+                                            </el-table-column>
+                                            <el-table-column fixed="right" label="操作" width="90">
+                                                <template slot-scope="scope">
+                                                    <el-tooltip content="查看日志" placement="top" effect="light"
+                                                        v-if="scope.row.status===true">
+                                                        <el-button @click="prepareTraceFile(scope.row.trace_id)"
+                                                            type="primary" size="small" icon="el-icon-view" circle>
+                                                        </el-button>
+                                                    </el-tooltip>
+                                                    <el-button type="warning" size="small" icon="el-icon-loading"
+                                                        disabled="true" circle v-else-if="scope.row.status=='true'">
+                                                    </el-button>
+                                                    <el-tooltip content="取消回传请求" placement="top" effect="light" v-else>
+                                                        <el-button
+                                                            @click.native.prevent="cancelPostback(scope.$index, scope.row.id)"
+                                                            type="info" size="small" icon="el-icon-delete" circle>
+                                                        </el-button>
+                                                    </el-tooltip>
+                                                    <!-- <el-link :href="scope.row.trace_file == '' ? 'javascript:void(0)' : scope.row.trace_file" type="success" target="_blank">追溯日志</el-link> -->
+                                                    <!-- <el-button @click.native.prevent="deleteRow(scope.$index, tableData)" type="text" -->
+                                                    <!-- size="small">移除</el-button> -->
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                    <div class="block">
+                                        <el-pagination @current-change="handleCurrentChange2" :hide-on-single-page=true
+                                            :page-size="pageSize2" layout="prev, pager, next, jumper"
+                                            :total="postbackSourceLength">
+                                        </el-pagination>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </el-tab-pane>
+
+                        <el-tab-pane :label="message" name="version" disabled="true">version</el-tab-pane>
+
+                    </el-tabs>
+                </template>
+            </el-col>
+        </el-row>
+
+        <template>
+            <el-dialog title="确认标记信息" :visible.sync="markupDialogVisible" width="30%" :before-close="handleClose">
+                <el-form label-position="right" label-width="80px" :model="markupData" class="demo-dialog-form"
+                    v-loading="markupFormLoading">
+                    <el-form-item label="平台">
+                        <span>{{projects[markupData.project]}}</span>
+                        <!-- <el-input v-model="projects[markupData.project]"></el-input> -->
+                    </el-form-item>
+                    <el-form-item label="系统类型">
+                        <span>{{markupData.os_type}}</span>
+                        <!-- <el-input v-model="markupData.os_type"></el-input> -->
+                    </el-form-item>
+                    <el-form-item label="应用编号">
+                        <!-- <el-input v-model="markupData.app_id"></el-input> -->
+                        <span>{{markupData.app_id}}</span>
+                    </el-form-item>
+                    <el-form-item label="应用版本">
+                        <!-- <el-input v-model="markupData.app_version"></el-input> -->
+                        <span>{{markupData.app_version}}</span>
+                    </el-form-item>
+                    <el-form-item label="事件标记">
+                        <i>{{markupData.event_tag}}</i>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-radio-group v-model="mark" size="small" @change="submitMarkup" style="margin-top: 24px;">
+                            <el-radio-button v-for="(val, key) in hideDefaultEventStatus" :label="key" :disabled="markupData.status == key">{{val.name}}</el-radio-button>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
+        </template>
+
+        <template>
+            <el-dialog title="关联信息回传" :visible.sync="postbackDialogVisible" center="true">
+                <el-table :data="relationPostbackData" v-loading="relationPostbackTableLoading">
+                    <el-table-column property="event_date" label="日期"></el-table-column>
+                    <el-table-column property="action" label="操作轨迹">
+                        <template slot-scope="scope">
+                            <el-link v-if="scope.row.action.state==2" :underline="false" type="primary"
+                                icon="el-icon-view" @click="prepareTraceFile(scope.row.action.trace_id)">查看
+                            </el-link>
+                            <el-link v-else-if="scope.row.action.state==1" :underline="false"
+                                icon="el-icon-loading" disabled>等待回传
+                            </el-link>
+                            <el-link v-else-if="scope.row.action.state==99" :underline="false"
+                                icon="el-icon-loading" disabled>正在发起请求
+                            </el-link>
+                            <el-link v-else :underline="false" icon="el-icon-s-promotion" type="primary"
+                                @click="handlePostbackCron(scope.$index, scope.row.event_date, 'action')">
+                                请求回传</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="net" label="网络请求">
+                        <template slot-scope="scope">
+                            <el-link v-if="scope.row.net.state==2" :underline="false" type="primary"
+                                icon="el-icon-view" @click="prepareTraceFile(scope.row.net.trace_id)">
+                                查看
+                            </el-link>
+                            <el-link v-else-if="scope.row.net.state==1" :underline="false" icon="el-icon-loading"
+                                disabled>
+                                等待回传
+                            </el-link>
+                            <el-link v-else-if="scope.row.net.state==99" :underline="false"
+                                icon="el-icon-loading" disabled>正在发起请求
+                            </el-link>
+                            <el-link v-else :underline="false" icon="el-icon-s-promotion" type="primary"
+                                @click="handlePostbackCron(scope.$index, scope.row.event_date, 'net')">
+                                请求回传</el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="work" label="业务记录">
+                        <template slot-scope="scope">
+                            <el-link v-if="scope.row.work.state==2" :underline="false" type="primary"
+                                icon="el-icon-view" @click="prepareTraceFile(scope.row.work.trace_id)">
+                                查看
+                            </el-link>
+                            <el-link v-else-if="scope.row.work.state==1" :underline="false" icon="el-icon-loading"
+                                disabled>
+                                等待回传
+                            </el-link>
+                            <el-link v-else-if="scope.row.work.state==99" :underline="false"
+                                icon="el-icon-loading" disabled>正在发起请求
+                            </el-link>
+                            <el-link v-else :underline="false" icon="el-icon-s-promotion" type="primary"
+                                @click="handlePostbackCron(scope.$index, scope.row.event_date, 'work')">
+                                请求回传</el-link>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <span slot="footer" class="dialog-footer">
+                    <el-form :model="postbackForm" :inline="true" size="small" :rules="rules" ref="postbackForm"
+                        v-loading="postbackFormLoading">
+                        <el-form-item>
+                            <el-select placeholder="平台标识" v-model="postbackForm.project" disabled="true"
+                                style="width:140px">
+                                <el-option :label="val" :value="key" v-for="(val, key) in projects" :key="key">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-input v-model="postbackForm.uid" placeholder="请输入用户ID" disabled="true"
+                                style="width:160px">
+                                <template slot="prepend">用户ID:</template>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label-width="200" prop="event_date">
+                            <template slot-scope="scope">
+                                <el-date-picker align="right" type="date" v-model="postbackForm.event_date"
+                                    value-format="yyyy-MM-dd" placeholder="选择日期" :picker-options="pickerOptions"
+                                    style="width:130px">
+                                </el-date-picker>
+                            </template>
+                        </el-form-item>
+                        <el-form-item prop="event_code">
+                            <el-select placeholder="事件类型" multiple v-model="postbackForm.event_code">
+                                <el-option :label="val.val" :value="key" v-for="(val, key) in postbackEventCodes"
+                                    :key="key">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="onSubmitPostback" icon="el-icon-s-promotion">请求回传
+                            </el-button>
+                        </el-form-item>
+                    </el-form>
+                    <el-row>
+                        <el-progress :percentage="percentage" :status="progressStatus" v-if="showProgress">
+                        </el-progress>
+                    </el-row>
+                </span>
+            </el-dialog>
+        </template>
+
+        <template>
+            <el-dialog title="新建回传请求" :visible.sync="newPostbackDialogVisible" width="30%">
+                <el-form :model="newPostbackFormData" v-loading="newPostbackFormLoading"
+                    :rules="newPostbackCronFormRules" ref="newPostbackCronForm" size="small">
+                    <el-form-item label="平台" label-width="120px" prop="project">
+                        <el-select placeholder="平台标识" v-model="newPostbackFormData.project" disabled="true">
+                            <el-option :label="val" :value="key" v-for="(val, key) in projects" :key="key"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="事件类型" label-width="120px" prop="event_code">
+                        <el-select placeholder="事件类型" multiple v-model="newPostbackFormData.event_code">
+                            <el-option :label="val.val" :value="key" v-for="(val, key) in eventCodes" :key="key">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="事件日期" label-width="120px" prop="event_date">
+                        <el-date-picker placeholder="选择日期" value-format="yyyy-MM-dd"
+                            v-model="newPostbackFormData.event_date" autocomplete="off">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="用户ID" label-width="120px" prop="uid">
+                        <el-input placeholder="请输入uid" v-model="newPostbackFormData.uid" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="系统类型" label-width="120px" prop="os_type">
+                        <el-select placeholder="系统类型" v-model="newPostbackFormData.os_type" clearable
+                            autocomplete="off">
+                            <el-option label="Android" value="Android"></el-option>
+                            <el-option label="iOS" value="iOS"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="应用编号" label-width="120px" prop="app_id">
+                        <el-input placeholder="请输入app_id" v-model="newPostbackFormData.app_id" autocomplete="off">
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="应用版本" label-width="120px" prop="app_version">
+                        <el-input placeholder="请输入app_version" v-model="newPostbackFormData.app_version"
+                            autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <el-row>
+                    <el-progress :percentage="percentage2" :status="progressStatus2" v-if="showProgress2">
+                    </el-progress>
+                </el-row>
+                <span slot="footer" class="dialog-footer" v-if="hideOnUploading">
+                    <el-button @click="newPostbackDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="onSubmitPostbackForm">确 定</el-button>
+                </span>
+            </el-dialog>
+        </template>
+
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.1/dayjs.min.js"></script>
+<script>
+    const APIHOST = window.location.href.split("/")[4] == "Script" ? "http://localhost:4242" : "http://workapi.haiheng178.com";
+    new Vue({
+        el: '#app',
+        data: {
+            showBadge:false,
+            hideOnUploading: true,
+            showProgress: false,
+            percentage: 0,
+            progressStatus: null,
+            showProgress2: false,
+            percentage2: 0,
+            progressStatus2: null,
+            activeName: 'first',
+            message: 'Version: 1.1.4 Beta',
+            loading: false,
+            postbackLoading: false,
+            relationPostbackTableLoading: true,
+            postbackFormLoading: false,
+            markupFormLoading: false,
+            markupDialogVisible: false,
+            postbackDialogVisible: false,
+            newPostbackDialogVisible: false,
+            newPostbackFormLoading: false,
+            pageSize: 10,
+            pageSize2: 10,
+            sourceLength: 0, postbackSourceLength: 0,
+            tableData: [],
+            postbackTableData: [],
+            daterange: [],
+            daterange2: [],
+            searchForm: {
+                page: 1,
+                project: "11",
+                event_code: "1",
+                cognate: null,
+                event_tag: "",
+                app_id: "",
+                app_version: "",
+                uid: "",
+                os_type: "",
+                from: "",
+                to: "",
+                status: null,
+                distinct: true,
+            },
+            postbackSearchForm: {
+                page: 1,
+                project: "11",
+                event_code: null,
+                app_id: "",
+                app_version: "",
+                uid: "",
+                os_type: "",
+                from: "",
+                to: "",
+            },
+            newPostbackFormData: {
+                project: "",
+                event_code: null,
+                event_date: "",
+                uid: "",
+                os_type: "",
+                app_id: "",
+                app_version: "",
+            },
+            eventCodes: {
+                "1": {
+                    name: "bug",
+                    val: "崩溃日志"
+                },
+                "2": {
+                    name: "action",
+                    val: "操作轨迹",
+                },
+                "3": {
+                    name: "net",
+                    val: "网路请求",
+                },
+                "4": {
+                    name: "work",
+                    val: "业务记录",
+                },
+            },
+            postbackStatus: { "2": "已完成", "1": "待回传" },
+            projects: { "11": "奇遇直播", "13": "lucklive" },
+            eventStatus: {
+                "1": { tagType: "danger", name: "未解决" },
+                "2": { tagType: "success", name: "已解决" },
+                "3": { tagType: "info", name: "忽略" },
+                "4": { tagType: "warning", name: "待后端解决" },
+                "5": { tagType: "", name: "待三方解决" },
+            },
+            markupData: {},
+            mark: 0,
+            relationPostbackData: [],
+            postbackForm: {},
+            pickerOptions: {
+                disabledDate(time) {
+                    return time.getTime() > Date.now();
+                },
+                shortcuts: [{
+                    text: '今天',
+                    onClick(picker) {
+                        picker.$emit('pick', new Date());
+                    }
+                }, {
+                    text: '昨天',
+                    onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24);
+                        picker.$emit('pick', date);
+                    }
+                }]
+            },
+            rules: {
+                event_date: [
+                    { required: true, message: '请选择事件日期', trigger: 'change' }
+                ],
+                event_code: [
+                    { required: true, message: '请选择事件类型', trigger: 'change' },
+                ],
+            },
+            newPostbackCronFormRules: {
+                project: [
+                    { required: true, message: '请选择平台', trigger: 'change' },
+                ],
+                event_code: [
+                    { required: true, message: '请选择事件类型', trigger: 'change' },
+                ],
+                event_date: [
+                    { required: true, message: '请选择事件日期', trigger: 'change' }
+                ],
+                uid: [
+                    {
+                        required: true, type: 'number', message: '请输入用户ID', trigger: 'blur', transform: (value) => {
+                            return value || value === 0 ? Number(value) : "";
+                        }, pattern: /\d/
+                    },
+                ],
+                os_type: [
+                    { message: '请选择系统类型', trigger: 'blur' }
+                ],
+                app_id: [
+                    {
+                        type: 'number', message: '请输入应用编号', trigger: 'blur', transform(value) {
+                            return Number(value);
+                        }
+                    },
+                ],
+                app_version: [
+                    { message: '请输入应用版本', trigger: 'blur' }
+                ],
+            },
+        },
+        methods: {
+            daterangeChange(obj) {
+                if (obj === null) {
+                    this.daterange = [];
+                    this.searchForm.from = "";
+                    this.searchForm.to = "";
+                    return;
+                }
+                this.daterange = obj;
+                this.searchForm.from = obj[0];
+                this.searchForm.to = obj[1];
+            },
+            daterangeChange2(obj) {
+                if (obj === null) {
+                    this.daterange2 = [];
+                    this.postbackSearchForm.from = "";
+                    this.postbackSearchForm.to = "";
+                    return;
+                }
+                this.daterange2 = obj;
+                this.postbackSearchForm.from = obj[0];
+                this.postbackSearchForm.to = obj[1];
+            },
+            handleCopy(data) {
+                this.loading = true;
+                let oInput = document.createElement('input');
+                oInput.value = data;
+                document.body.appendChild(oInput);
+                oInput.select();
+                document.execCommand("Copy");
+                this.$message({
+                    message: '复制成功',
+                    type: 'success'
+                });
+                oInput.remove();
+            },
+            beforeHandleCommand(command, data) {
+                return {
+                    command: command,
+                    data: data,
+                }
+            },
+            handleMoreCommand(command) {
+                switch (command.command) {
+                    case "postback":
+                        this.postback(command.data);
+                        break;
+                    case "markup":
+                        this.markup(command.data);
+                        break;
+                }
+            },
+            handleClose(done) {
+                this.markupData = {};
+                this.mark = 0;
+                this.markupDialogVisible = false;
+            },
+            handlePostbackCron(index, eventDate, name) {
+                this.relationPostbackTableLoading = true;
+                let ec;
+                for (const key in this.eventCodes) {
+                    if (this.eventCodes[key].name == name) {
+                        ec = ~~key;
+                        break;
+                    }
+                }
+                const data = {
+                    project: this.postbackForm.project,
+                    uid: this.postbackForm.uid,
+                    event_date: eventDate,
+                    event_code: ec,
+                    relation_id: this.postbackForm.relation_id
+                };
+                this.postbackCron(index, data, true);
+            },
+            postbackCron(inx, body, showResult = false) {
+                axios.post(`${APIHOST}/postback/cron`, JSON.stringify(body))
+                    .then(resp => {
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$notify({
+                                title: '请求异常',
+                                message: data.message,
+                                type: 'warning',
+                                duration: 0
+                            });
+                            return
+                        }
+                        const node = this.eventCodes[body.event_code.toString()].name;
+                        if (inx > -1) {
+                            this.relationPostbackData[inx][node]["state"] = 1;
+                            this.$forceUpdate();
+                        }
+                        if (showResult) {
+                            this.$message({
+                                message: "已提交申请,请等待回传",
+                                type: "success",
+                            })
+                            this.relationPostbackTableLoading = false;
+                        }
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                        if (showResult) {
+                            this.relationPostbackTableLoading = false;
+                        }
+                    });
+            },
+            onSubmitPostback() {
+                this.$refs.postbackForm.validate(valid => {
+                    if (!valid) {
+                        this.$message.error("请检查表单必填项是否完整!");
+                        return false;
+                    }
+                    this.postbackFormLoading = true;
+                    this.showProgress = true;
+                    const codes = this.postbackForm.event_code;
+                    const action = {state: codes.includes("2") ? 99 : 0},
+                        net = {state: codes.includes("3") ? 99 : 0},
+                        work = {state: codes.includes("4") ? 99 : 0};
+                    let targetTrIndex = -1;
+                    for (const inx in this.relationPostbackData) {
+                        if (this.relationPostbackData[inx].event_date == this.postbackForm.event_date) {
+                            targetTrIndex = inx;
+                            break;
+                        }
+                    }
+                    if (targetTrIndex == -1) {
+                        this.relationPostbackData.push({
+                            event_date: this.postbackForm.event_date,
+                            action: action,
+                            net: net,
+                            work: work,
+                        });
+                        targetTrIndex = this.relationPostbackData.length - 1;
+                    } else {
+                        if (action.status) {
+                            this.relationPostbackData[targetTrIndex].action = action;
+                        }
+                        if (net.status) {
+                            this.relationPostbackData[targetTrIndex].net = net;
+                        }
+                        if (work.status) {
+                            this.relationPostbackData[targetTrIndex].work = work;
+                        }
+                    }
+                    const total = codes.length;
+                    for (let index = 0; index < total; index++) {
+                        let body = JSON.parse(JSON.stringify(this.postbackForm));
+                        body.event_code = ~~codes[index];
+                        this.postbackCron(targetTrIndex, body, false);
+                        this.percentage = (index + 1) / total * 100;
+                        if (this.percentage == 100) {
+                            this.progressStatus = "success";
+                            this.$message({
+                                message: '请求已提交,请等待回传',
+                                type: 'success'
+                            });
+                            setTimeout(() => {
+                                this.showProgress = false;
+                                this.postbackFormLoading = false;
+                            }, 2567);
+                            this.postbackForm.event_date = "";
+                            this.postbackForm.event_code = [];
+                        }
+                    }
+                });
+            },
+            onSubmitPostbackForm() {
+                this.$refs.newPostbackCronForm.validate(valid => {
+                    if (!valid) {
+                        this.$message.error("请检查表单必填项是否完整!");
+                        return false;
+                    }
+                    this.newPostbackFormLoading = true;
+                    this.hideOnUploading = false;
+                    this.showProgress2 = true;
+                    let body = JSON.parse(JSON.stringify(this.newPostbackFormData));
+                    body.uid = ~~body.uid;
+                    body.app_id = ~~body.app_id;
+                    const codes = this.newPostbackFormData.event_code;
+                    const total = codes.length;
+                    for (let index = 0; index < total; index++) {
+                        body.event_code = ~~codes[index];
+                        this.postbackCron(-1, body, false);
+                        this.percentage2 = (index + 1) / total * 100;
+                        if (this.percentage2 == 100) {
+                            this.progressStatus2 = "success";
+                            this.$message({
+                                message: '请求已提交,请等待回传',
+                                type: 'success'
+                            });
+                            setTimeout(() => {
+                                this.showProgress2 = false;
+                                this.newPostbackFormLoading = false;
+                            }, 2567);
+                            this.$refs.newPostbackCronForm.resetFields();
+                        }
+                    }
+                })
+            },
+            getRelationPostback(id) {
+                this.relationPostbackTableLoading = true;
+                this.relationPostbackData = [];
+                axios.post(`${APIHOST}/postback/relation`, JSON.stringify({relation_id: id}))
+                    .then(resp => {
+                        this.relationPostbackTableLoading = false;
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$message.error(data.message);
+                            return
+                        }
+                        if (data.data === null || data.data.length < 1) {
+                            return
+                        }
+                        let rows = [];
+                        for (let item of data.data) {
+                            let targetInx = -1;
+                            for (const key in rows) {
+                                if (rows[key].event_date == item.event_date) {
+                                    targetInx = key;
+                                    break;
+                                }
+                            }
+                            if (targetInx == -1) {
+                                let t = { event_date: item.event_date };
+                                for (const i in this.eventCodes) {
+                                    if (i == "1") {
+                                        continue;
+                                    }
+                                    t[this.eventCodes[i].name] = {state:0};
+                                }
+                                rows.push(t);
+                                targetInx = rows.length - 1;
+                            }
+                            item.state = ~~item.state;
+                            rows[targetInx][this.eventCodes[item.event_code.toString()].name] = item;
+                        }
+                        this.relationPostbackData = rows;
+                    }).catch(error => {
+                        this.relationPostbackTableLoading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                    })
+            },
+            postback(data) {
+                this.percentage = 0;
+                this.progressStatus = null;
+                this.postbackDialogVisible = true;
+                this.postbackForm = {
+                    relation_id: data.id,
+                    project: data.project,
+                    uid: data.uid,
+                    event_date: data.event_date,
+                    event_code: [],
+                };
+                this.getRelationPostback(data.id);
+            },
+            markup(data) {
+                this.markupData = data;
+                this.markupDialogVisible = true;
+            },
+            markupHandle(body) {
+                axios.post(`${APIHOST}/event/markup`, JSON.stringify(body))
+                    .then(resp => {
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$message.error(data.message);
+                            return
+                        }
+                        this.markupFormLoading = false;
+                        this.$message({
+                            message: '标记成功',
+                            type: 'success'
+                        })
+                        for (const tr in this.tableData) {
+                            if (this.tableData[tr].cognate == this.markupData.cognate) {
+                                this.tableData[tr].status = body.status;
+                            }
+                        }
+                        this.markupDialogVisible = false;
+                        this.markupData = {};
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                    });
+            },
+            submitMarkup(val, line) {
+                setTimeout(() => {
+                    this.$confirm('此操作将更改同类型事件状态, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.markupFormLoading = true;
+                        const data = {
+                            id: this.markupData.cognate,
+                            state: ~~val,
+                        }
+                        this.markupHandle(data);
+                    }).catch(error => {
+                        this.$message({
+                            type: 'info',
+                            message: '已中止标记操作'
+                        });
+                    });
+                }, 500);
+            },
+            deleteRow(index, rows) {
+                rows.splice(index, 1);
+            },
+            onSubmit() {
+                this.searchForm.page = 1;
+                this.showPageSource();
+            },
+            onSubmitPostbackSearch() {
+                this.postbackSearchForm.page = 1;
+                this.showPostbackPageSource();
+            },
+            cancelPostback(inx, id) {
+                this.$confirm('将取消回传请求, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.postbackTableData[inx].status = 'true';
+                    axios.post(`${APIHOST}/postback/cancel`, JSON.stringify({ id: id }))
+                        .then(resp => {
+                            if (resp.status != 200) {
+                                this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                                return
+                            }
+                            const data = resp.data;
+                            if (data.code != 200) {
+                                console.log(data);
+                                this.$message.error(data.message);
+                                return
+                            }
+                            this.$message({
+                                message: "已取消回传请求",
+                                type: "success"
+                            })
+                            setTimeout(() => {
+                                this.postbackTableData.splice(inx, 1);
+                            }, 1600)
+                        })
+                        .catch(error => {
+                            this.loading = false;
+                            console.error(error);
+                            this.$message.error(error);
+                        });
+                }).catch(error => {
+                    this.$message({
+                        type: 'info',
+                        message: '已中止取消操作'
+                    });
+                });
+            },
+            prepareTraceFile(id) {
+                axios.get(`${APIHOST}/log/${id}`)
+                    .then(resp => {
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$message.error(data.message);
+                            return
+                        }
+                        this.ViewTraceFile(data.data.trace_file);
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                    });
+            },
+            ViewTraceFile(link) {
+                if (typeof link == "string" && link != "") {
+                    window.open(link, "_blank");
+                }
+            },
+            handleCurrentChange(val) {
+                this.searchForm.page = val;
+                this.showPageSource();
+            },
+            handleCurrentChange2(val) {
+                this.postformSearchForm.page = val;
+                this.showPostbackPageSource();
+            },
+            showPageSource() {
+                this.loading = true;
+                this.sourceLength = 0;
+                this.tableData = [];
+                this.showBadge = this.searchForm.distinct;
+                axios.get(`${APIHOST}/event/history`, { params: this.searchForm })
+                    .then(resp => {
+                        this.loading = false;
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$message.error(data.message);
+                            return
+                        }
+                        const datum = data.data.datum;
+                        if (data.data === null || datum === null || datum.length < 1) {
+                            return
+                        }
+                        let rows = [];
+                        for (const item of datum) {
+                            const pt = Object.keys(this.projects).includes(item.project) ? this.projects[item.project] : item.project;
+                            item.appinfo = `${pt} | ${item.os_type} | ${item.app_id}`;
+                            item.event_code = this.eventCodes[item.event_code.toString()].val;
+                            rows.push(item);
+                        }
+                        this.tableData = rows;
+                        // const tableRows = data.data.datum.length;
+                        // this.sourceLength = (this.searchForm.page - 1) * this.pageSize + tableRows + (tableRows >= this.pageSize ? 1 : 0);
+                        this.sourceLength = data.data.total;
+                    })
+                    .catch(error => {
+                        this.loading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                    });
+            },
+            newPostbackCron() {
+                this.newPostbackFormData.project = this.postbackSearchForm.project;
+                this.newPostbackDialogVisible = true;
+                this.newPostbackFormData.event_date = dayjs().format('YYYY-MM-DD');
+                this.hideOnUploading = true;
+            },
+            showPostbackPageSource() {
+                this.postbackLoading = true;
+                this.postbackSourceLength = 0;
+                this.postbackTableData = [];
+                axios.get(`${APIHOST}/postback/history`, { params: this.postbackSearchForm })
+                    .then(resp => {
+                        this.postbackLoading = false;
+                        if (resp.status != 200) {
+                            this.$message.error(`请求出错 -httpCode:${resp.status}`);
+                            return
+                        }
+                        const data = resp.data;
+                        if (data.code != 200) {
+                            console.log(data);
+                            this.$message.error(data.message);
+                            return
+                        }
+                        const datum = data.data.datum;
+                        if (data.data === null || datum === null || datum.total < 1) {
+                            return
+                        }
+                        let rows = [];
+                        for (const item of datum) {
+                            item.appinfo = Object.keys(this.projects).includes(item.project) ? this.projects[item.project] : item.project;
+                            item.event_code = this.eventCodes[item.event_code.toString()].val;
+                            if (!item.app_id) {
+                                item.app_id = "-";
+                            }
+                            if (!item.app_version) {
+                                item.app_version = "-";
+                            }
+                            if (!item.os_type) {
+                                item.os_type = "-";
+                            }
+                            rows.push(item);
+                        }
+                        this.postbackTableData = rows;
+                        // const tableRows = data.data.length;
+                        // this.postbackSourceLength = (this.postbackSearchForm.page - 1) * this.pageSize2 + tableRows + (tableRows >= this.pageSize2 ? 1 : 0);
+                        this.postbackSourceLength = data.data.total;
+                    })
+                    .catch(error => {
+                        this.postbackLoading = false;
+                        console.error(error);
+                        this.$message.error(error);
+                    });
+            }
+        },
+        mounted() {
+            this.daterangeChange([dayjs().add(-7, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]);
+            this.daterangeChange2([dayjs().add(-7, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')]);
+            // this.showPageSource();
+        },
+        computed: {
+            postbackEventCodes() {
+                let pec = JSON.parse(JSON.stringify(this.eventCodes));
+                delete pec["1"];
+                return pec;
+            },
+            hideDefaultEventStatus() {
+                let es = JSON.parse(JSON.stringify(this.eventStatus));
+                // delete es["1"];
+                return es;
+            }
+        }
+    })
+</script>
+
+</html>
