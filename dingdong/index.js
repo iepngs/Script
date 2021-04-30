@@ -41,7 +41,7 @@ const $ = hammer("叮咚农场", 3);
 
 const CookieKey = "CookieDDXQfarm",
     StationIdCookieKey = "CookieDDXQfarmStationId",
-    DD_API_HOST = 'https://farm.api.ddxq.mobi';
+    DD_API_HOST = 'https://farm.api.ddxq.mobi/api/v2';
 
 let propsId = "", seedId = "";
 
@@ -89,11 +89,10 @@ const initRequestHeaders = function() {
 function fetchMyTask(){
     return new Promise(resolve =>{
         const options = {
-            url: `${DD_API_HOST}/api/task/list`,
-            headers: initRequestHeaders(),
-            body:`api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`
+            url: `${DD_API_HOST}/task/list?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1`,
+            headers: initRequestHeaders()
         }
-        $.request("post", options, (error, response) =>{
+        $.request("GET", options, (error, response) =>{
             if(error){
                 $.log(error)
                 return
@@ -104,6 +103,11 @@ function fetchMyTask(){
                 $.alert(response.msg, "task/list");
                 return
             }
+            if(response.error){
+                $.log(response);
+                $.alert(`${response.status}#${response.error}#${response.message}`, "task/list");
+                return
+            }
             const taskList = response.data.userTasks;
             const taskStatus = {
                 "TO_ACHIEVE": "未完成", 
@@ -112,6 +116,7 @@ function fetchMyTask(){
                 "WAITING_WINDOW": "未到领取时间",
                 "FINISHED": "完成，已领取奖励",
             };
+            console.log(taskStatus)
             for (const task of taskList) {
                 const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
@@ -135,11 +140,10 @@ function fetchMyTask(){
 // 做任务
 function taskAchieve(taskCode){
     const options = {
-        url: `${DD_API_HOST}/api/task/achieve`,
-        headers: initRequestHeaders(),
-        body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&taskCode=${taskCode}`
+        url: `${DD_API_HOST}/task/achieve?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&taskCode=${taskCode}`,
+        headers: initRequestHeaders()
     }
-    $.request("post", options, (error, response) =>{
+    $.request("GET", options, (error, response) =>{
         if(error){
             $.log(error)
             return
@@ -169,11 +173,10 @@ function taskAchieve(taskCode){
 // 有任务编号的领取奖励
 function taskReward(userTaskLogId){
     const options = {
-        url: `${DD_API_HOST}/api/task/reward`,
-        headers: initRequestHeaders(),
-        body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`
+        url: `${DD_API_HOST}/task/reward?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`,
+        headers: initRequestHeaders()
     }
-    $.request("post", options, (error, response) =>{
+    $.request("GET", options, (error, response) =>{
         if(error){
             $.log(error)
             return
@@ -194,11 +197,10 @@ function fishpond() {
     $.log('正在获取鱼池信息…');
     return new Promise(resolve => {
         const options = {
-            url: `${DD_API_HOST}/api/userguide/detail`,
-            headers: initRequestHeaders(),
-            body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&guideCode=FISHPOND_V1`
+            url: `${DD_API_HOST}/userguide/detail?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&guideCode=FISHPOND_V1`,
+            headers: initRequestHeaders()
         };        
-        $.request("post", options, (error, response) =>{
+        $.request("GET", options, (error, response) =>{
             if(error){
                 $.log(error);
                 return resolve();
@@ -231,12 +233,11 @@ function fishpond() {
 function propsFeed(i){
     return new Promise(resolve => {
         const options = {
-            url: `${DD_API_HOST}/api/props/feed`,
-            headers: initRequestHeaders(),
-            body: `api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`
+            url: `${DD_API_HOST}/props/feed?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&propsId=${propsId}&seedId=${seedId}`,
+            headers: initRequestHeaders()
         };
         $.log(`第${i}次喂鱼`);
-        $.request("post", options, (error, response) => {
+        $.request("GET", options, (error, response) => {
             if(error){
                 $.log(error);
                 return resolve(false);
