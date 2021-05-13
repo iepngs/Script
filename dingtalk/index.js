@@ -2,8 +2,6 @@
 // http://www.apihubs.cn/#/holidays
 // https://segmentfault.com/a/1190000038961352
 
-const needle = require('needle');
-
 const node = (new Date()).getHours() > 12 ? "下班" : "上班";
 const $ = hammer(`钉钉${node}打卡`, 3);
 
