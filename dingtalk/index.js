@@ -7,12 +7,12 @@ const $ = hammer(`钉钉${node}打卡`, 3);
 
 function initDate(){
     const ds = (d, s='') => {
-        const year = dateObj.getFullYear();
-        let month = dateObj.getMonth()+1;
+        const year = d.getFullYear();
+        let month = d.getMonth()+1;
         if(month<10){
             month = `0${month}`;
         }
-        let day = dateObj.getDate();
+        let day = d.getDate();
         if(day<10){
             day = `0${day}`;
         }
@@ -31,6 +31,7 @@ function initDate(){
 }
 
 function alertOptions() {
+    // 每个公司的这个corpId不一样
     const corpId = "ding307c0c3ff8b707a435c2f4657eb6378f",
     const link = "dingtalk://dingtalkclient/page/link?url=https%3A%2F%2Fattend.dingtalk.com%2Fattend%2Findex.html%3FcorpId%3D";
     return {"open-url": `${link}${corpId}`};
