@@ -1,11 +1,11 @@
 #[MITM]
-#hostname = api.gaoqingdianshi.com
+#hostname = act.gaoqingdianshi.com
 #APP登陆账号后，点击菜单栏'领现金'，即可获取Cookie
 #进入提现页面，点击随机金额，可获取提现地址!!
 #因为不是https无需添加 hostname，每日7点、12点、20点各运行一次，其他随意
 
 [Script]
-cron "1 7,12,20 * * *" script-path=https://ghproxy.com/https://raw.githubusercontent.com/GoodHolidays/Scripts/master/Task/dianshijia.js, tag=电视家
+cron "1 7,12,20 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dianshijia/dianshijia.js, tag=电视家
 
-http-request http:\/\/api\.gaoqingdianshi\.com\/api\/v\d+\/sign\/signin script-path=https://ghproxy.com/https://raw.githubusercontent.com/GoodHolidays/Scripts/master/Task/dianshijia.js, timeout=10, tag=电视家
-http-request http:\/\/api\.gaoqingdianshi\.com\/api\/v2\/cash\/withdrawal script-path=https://ghproxy.com/https://raw.githubusercontent.com/GoodHolidays/Scripts/master/Task/dianshijia.js, timeout=10, tag=电视家
+http-request http:\/\/act\.gaoqingdianshi\.com\/api\/v\d+\/sign\/signin script-path=https://ghproxy.com/https://raw.githubusercontent.com/GoodHolidays/Scripts/master/Task/dianshijia.js, timeout=10, tag=电视家
+http-request http:\/\/act\.gaoqingdianshi\.com\/api\/v2\/cash\/withdrawal script-path=https://ghproxy.com/https://raw.githubusercontent.com/GoodHolidays/Scripts/master/Task/dianshijia.js, timeout=10, tag=电视家
