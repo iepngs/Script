@@ -196,7 +196,7 @@ function FreshCray(data){
         return false;
     }
     const crv = data.crayResponseVo;
-    if(typeof(crv) != "object"){
+    if(!crv || typeof(crv) != "object"){
         return false;
     }
     const fields = ["crayGuide", "crayVo", "receiveStartTime", "feedStartTime", "feedEndTime", "feedToExchange"];
