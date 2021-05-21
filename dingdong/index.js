@@ -211,8 +211,11 @@ function FreshCray(data){
         return false;
     }
     const nowTs = (new Date()).getTime();
-    if(nowTs > crv.receiveStartTime && nowTs > crv.feedStartTime && nowTs < crv.feedEndTime){
-        return crv.crayGuide.isCompleted ? (Object.keys(crv.crayVo).includes("seedId") ? crv.crayVo : false) : false;
+    if(nowTs < crv.receiveStartTime || nowTs < crv.feedStartTime || nowTs > crv.feedEndTime){
+        return false;
+    }
+    if(crv.crayGuide.isCompleted && crv.crayVo && typeof crv.crayVo == "object" && Object.keys(crv.crayVo).includes("seedId")){
+        return crv.crayVo;
     }
     return false;
 }
