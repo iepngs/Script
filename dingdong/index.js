@@ -116,7 +116,6 @@ function fetchMyTask(){
                 "WAITING_WINDOW": "未到领取时间",
                 "FINISHED": "完成，已领取奖励",
             };
-            console.log(taskStatus)
             for (const task of taskList) {
                 const desc = task.descriptions?.[0] ? `:${task.descriptions[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
@@ -230,13 +229,13 @@ function fishpond() {
         $.request("GET", options, (error, response) =>{
             if(error){
                 $.log(error);
-                return resolve();
+                return resolve(false);
             }
             response = JSON.parse(response);
             if(response.code){
                 $.log(response);
                 $.alert(response.msg, "userguide/detail");
-                return resolve();
+                return resolve(false);
             }
             const data = response.data;
             const cray = FreshCray(data);
@@ -245,7 +244,7 @@ function fishpond() {
             if(pet.expPercent >= 100){
                 $.alert(`去看看,${petName}应该已经养活了`, "userguide/detail");
                 if(!cray){
-                    return resolve();
+                    return resolve(false);
                 }
                 // 龙虾完事继续养鱼
             }
@@ -253,12 +252,12 @@ function fishpond() {
             const amount = data.props[0].amount;
             $.log(`当前饲料剩余:${amount}g,${pet.msg}`);
             if(amount < 10){
-                $.log("饲料不够，明天再喂吧。");
-                return resolve();
+                $.alert("饲料不够，下次再喂吧。");
+                return resolve(false);
             }
             seedId = pet.seedId;
             $.log(`准备开始喂${petName}啦`);
-            resolve();
+            resolve(true);
         })
     })
 }
@@ -278,7 +277,7 @@ function propsFeed(i){
             response = JSON.parse(response);
             if(response.code){
                 $.log(response);
-                $.alert(response.msg, "props/feed");
+                (response.code == 800) || $.alert(response.msg, "props/feed");
                 return resolve(false);
             }
             const data = response.data;
@@ -305,10 +304,11 @@ $.isRequest ? GetCookie() : (async function(){
     await fetchMyTask();
     $.log(`任务部分结束。`);
 
-    await fishpond();
-    let index = 1;
-    while(await propsFeed(index)){
-        index++;
+    if(await fishpond()){
+        let index = 1;
+        while(await propsFeed(index)){
+            index++;
+        }
     }
     $.done();
 })().catch(err => {$.log(`🙅 运行异常: ${err}`) && $.done()});
