@@ -248,8 +248,8 @@ function fishpond() {
                 }
                 // 龙虾完事继续养鱼
             }
-            propsId = data.props[0].propsId;
-            const amount = data.props[0].amount;
+            propsId = data.feed.propsId;
+            const amount = data.feed.amount;
             $.log(`当前饲料剩余:${amount}g,${pet.msg}`);
             if(amount < 10){
                 $.alert("饲料不够，下次再喂吧。");
