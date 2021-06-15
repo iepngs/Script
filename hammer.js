@@ -44,8 +44,8 @@ function hammer(t="untitled", l=3){
                     yc = y.load(f.readFileSync(file, "utf8"));
                     sc = data => f.writeFileSync(file, y.safeDump(data), 'utf8');
                 } catch (e) {
-                    console.log("install unrequired module, example: yarn add js-yaml got");
                     console.log(e.message);
+                    console.log("install unrequired module, example: yarn add js-yaml got");
                     return {};
                 }
                 return {

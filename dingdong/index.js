@@ -239,7 +239,7 @@ function fishpond() {
             }
             const data = response.data;
             const cray = FreshCray(data);
-            const pet = cray ? cray : data.seeds[0];
+            const pet = cray ? cray : data.baseSeed;
             const petName = cray ? "小龙虾" : "鱼";
             if(pet.expPercent >= 100){
                 $.alert(`去看看,${petName}应该已经养活了`, "userguide/detail");
