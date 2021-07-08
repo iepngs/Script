@@ -1,5 +1,5 @@
 // cookie 获取：
-// 网页打开tieba.baidu.com，登陆后从“我的”点击进入“账户安全”即可。
+// 网页打开tieba.baidu.com，登陆后从“我的”点击进入“我的贴子”即可。
 
 const $hammer = (() => {
     const isRequest = "undefined" != typeof $request,
