@@ -6,9 +6,7 @@ const CookieKey = 'CookieTB';
 
 const flushCookie = () => {
     const regex = /(^|)BDUSS=([^;]*)(;|$)/;
-    console.log($request.headers.Cookie);
     const headerCookie = $request.headers.Cookie.match(regex)[0];
-    console.log(headerCookie);
     if(headerCookie){
         $.write(headerCookie, CookieKey);
         $.alert('Cookie已写入');
