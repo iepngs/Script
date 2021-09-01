@@ -29,7 +29,7 @@ Loon 2.1.0+ 脚本配置:
 
 [Script]
 # 叮咚果园
-cron "1 8,12,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/ddgy.js,tag=叮咚果园
+cron "1 8,11,17 * * *" script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/ddgy.js,tag=叮咚果园
 
 # 获取Cookie
 http-request ^https:\/\/farm\.api\.ddxq\.mobi\/api\/v2\/props\/feed script-path=https://raw.githubusercontent.com/iepngs/Script/master/dingdong/ddgy.js,tag=叮咚果园
@@ -96,7 +96,7 @@ const initRequestHeaders = function() {
 function fetchMyTask(){
     return new Promise(resolve =>{
         const options = {
-            url: `${DD_API_HOST}/task/list-orchard?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&uid=${uid}&latitude=30.272356&longitude=120.022035&reward=FEED&cityCode=0901`,
+            url: `${DD_API_HOST}/task/list?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&app_version=9.31.1&uid=${uid}&latitude=30.272356&longitude=120.022035&gameId=1&cityCode=0901`,
             headers: initRequestHeaders()
         }
         $.request("GET", options, (error, response) =>{
@@ -124,14 +124,17 @@ function fetchMyTask(){
                 "FINISHED": "完成，已领取奖励",
             };
             for (const task of taskList) {
-                if(["INVITATION", "ANY_ORDER", "POINT_EXCHANGE"].includes(task.taskCode)){
+                if(["INVITATION", "POINT_EXCHANGE", "LUCK_DRAW"].includes(task.taskCode)){
                     continue;
                 }
                 const desc = task.taskDescription[0] ? `:${task.taskDescription[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
-                console.log(`\n${task.taskName}${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}`);
+                console.log(`\n${task.taskName}(${task.taskCode})${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
+                        if(["ANY_ORDER", "BUY_GOODS", "MULTI_ORDER"].includes(task.taskCode)){
+                            continue;
+                        }
                         taskAchieve(task.taskCode);
                         break;
                     case "TO_REWARD":
@@ -147,7 +150,7 @@ function fetchMyTask(){
 // 做任务
 function taskAchieve(taskCode){
     const options = {
-        url: `${DD_API_HOST}/task/achieve?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&uid=${uid}&latitude=30.272356&longitude=120.022035&taskCode=${taskCode}`,
+        url: `${DD_API_HOST}/task/achieve?api_version=9.28.0&env=PE&app_client_id=3&station_id=${station_id}&native_version=9.31.1&h5_source=&page_type=2&gameId=2&city_number=0901&uid=${uid}&latitude=30.272356&longitude=120.022035&taskCode=${taskCode}`,
         headers: initRequestHeaders()
     }
     $.request("GET", options, (error, response) =>{
@@ -182,10 +185,9 @@ function taskAchieve(taskCode){
 }
 
 // 有任务编号的领取奖励
-// TODO.
 function taskReward(userTaskLogId){
     const options = {
-        url: `${DD_API_HOST}/task/reward?api_version=9.1.0&app_client_id=3&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}`,
+        url: `${DD_API_HOST}/task/reward?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}&uid=${uid}`,
         headers: initRequestHeaders()
     }
     $.request("GET", options, (error, response) =>{
