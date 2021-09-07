@@ -7,7 +7,7 @@
 ************************
 [Mitm]
 ************************
-hostname = maicai.api.ddxq.mobi
+hostname = farm.api.ddxq.mobi
 
 
 ************************
@@ -99,7 +99,7 @@ function fetchMyTask(){
             url: `${DD_API_HOST}/task/list?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&app_version=9.31.1&uid=${uid}&latitude=30.272356&longitude=120.022035&gameId=1&cityCode=0901`,
             headers: initRequestHeaders()
         }
-        $.request("GET", options, (error, response) =>{
+        $.request("GET", options, async (error, response) =>{
             if(error){
                 $.log(error)
                 return
@@ -129,16 +129,16 @@ function fetchMyTask(){
                 }
                 const desc = task.taskDescription[0] ? `:${task.taskDescription[0]}` : "";
                 const status = taskStatus[task.buttonStatus] ? taskStatus[task.buttonStatus] : (task.buttonStatus ? task.buttonStatus : "未知");
-                console.log(`\n${task.taskName}(${task.taskCode})${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}`);
                 switch (task.buttonStatus) {
                     case "TO_ACHIEVE":
                         if(["ANY_ORDER", "BUY_GOODS", "MULTI_ORDER"].includes(task.taskCode)){
                             continue;
                         }
-                        taskAchieve(task.taskCode);
+                        console.log(`\n${task.taskName}(${task.taskCode})${desc}\n- 持续天数:${task.continuousDays}\n- 任务状态:${status}`);
+                        await taskAchieve(task.taskCode);
                         break;
                     case "TO_REWARD":
-                        task.userTaskLogId && taskReward(task.userTaskLogId);
+                        task.userTaskLogId && await taskReward(task.userTaskLogId);
                         break;
                 }
             }
@@ -149,60 +149,79 @@ function fetchMyTask(){
 
 // 做任务
 function taskAchieve(taskCode){
-    const options = {
-        url: `${DD_API_HOST}/task/achieve?api_version=9.28.0&env=PE&app_client_id=3&station_id=${station_id}&native_version=9.31.1&h5_source=&page_type=2&gameId=2&city_number=0901&uid=${uid}&latitude=30.272356&longitude=120.022035&taskCode=${taskCode}`,
-        headers: initRequestHeaders()
-    }
-    $.request("GET", options, (error, response) =>{
-        if(error){
-            $.log(error)
-            return
+    return new Promise(resolve =>{
+        const options = {
+            url: `${DD_API_HOST}/task/achieve?api_version=9.28.0&env=PE&app_client_id=3&station_id=${station_id}&native_version=9.31.1&h5_source=&page_type=2&gameId=2&city_number=0901&uid=${uid}&latitude=30.272356&longitude=120.022035&taskCode=${taskCode}`,
+            headers: initRequestHeaders()
         }
-        response = JSON.parse(response);
-        if(response.code){
-            $.log(response);
-            $.alert(response.msg, `task/achieve?${taskCode}`);
-            return
-        }
-        if (response.data.taskStatus == "ACHIEVED") {
-            const userTaskLogId = response.data.hasOwnProperty("userTaskLogId")?response.data.userTaskLogId:null;
-            if(userTaskLogId){
-                taskReward(userTaskLogId);
-            }else{
-                let amount = 0;
-                for (const reward of response.data.rewards) {
-                    amount += reward.amount;
-                }
-                
-                // if(taskCode == "LOTTERY"){
-                    // $.alert(`本时段三餐开福袋已领取：${amount}g`);
-                // }else{
-                    console.log(`任务完成，获得水滴：${amount}g`);
-                // }
+        $.request("GET", options, async (error, response) =>{
+            if(error){
+                $.log(error)
+                return resolve();
             }
-        }
+            response = JSON.parse(response);
+            if(response.code){
+                $.log(response);
+                $.alert(response.msg, `task/achieve?${taskCode}`);
+                return resolve();
+            }
+            if (response.data.taskStatus == "ACHIEVED") {
+                const userTaskLogId = response.data.hasOwnProperty("userTaskLogId")?response.data.userTaskLogId:null;
+                if(userTaskLogId){
+                    await taskReward(userTaskLogId);
+                    return resolve();
+                }
+            }
+            await showReward(response.data.rewards);
+        })
     })
 }
 
 // 有任务编号的领取奖励
 function taskReward(userTaskLogId){
-    const options = {
-        url: `${DD_API_HOST}/task/reward?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}&uid=${uid}`,
-        headers: initRequestHeaders()
-    }
-    $.request("GET", options, (error, response) =>{
-        if(error){
-            $.log(error)
-            return
+    return new Promise(resolve => {
+        const options = {
+            url: `${DD_API_HOST}/task/reward?api_version=9.1.0&app_client_id=1&station_id=${station_id}&native_version=&latitude=30.272356&longitude=120.022035&gameId=1&userTaskLogId=${userTaskLogId}&uid=${uid}`,
+            headers: initRequestHeaders()
         }
-        response = JSON.parse(response);
-        if(response.code){
-            $.log(response);
-            $.alert(response.msg, "task/reward");
-            return
+        $.request("GET", options, async (error, response) =>{
+            if(error){
+                $.log(error)
+                return resolve();
+            }
+            response = JSON.parse(response);
+            if(response.code){
+                $.log(response);
+                $.alert(response.msg, "task/reward");
+                return resolve();
+            }
+            await showReward(response.data.rewards);
+            resolve();
+        })
+    })
+}
+
+
+function showReward(data){
+    return new Promise(resolve => {
+        let amount = {fr:0, fd:0};
+        for (const reward of data) {
+            switch (reward.rewardCode) {
+                case 'FERTILIZER':
+                    amount.fr += reward.amount;
+                    break;
+                case 'FEED':
+                    amount.fd += reward.amount;
+                default:
+                    break;
+            }
         }
-        $.log(`任务完成，获得水滴：${response.data.rewards.amount}g`);
-        $.log(response);
+        // if(taskCode == "LOTTERY"){
+            // $.alert(`本时段三餐开福袋已领取：${amount}g`);
+        // }else{
+            console.log(`任务完成，获得水滴：${amount.fd}g, 肥料：${amount.fr}g`);
+        // }
+        resolve();
     })
 }
 

@@ -109,7 +109,7 @@ function hammer(t="untitled", l=3){
             if(!options.headers || typeof(options.headers) != "object"){
                 options['headers'] = {};
             }
-            if(!options.headers || (!Object.keys(options.headers).includes("User-Agent") && !Object.keys(options.headers).includes("aser-agent"))){
+            if(!options.headers || (!Object.keys(options.headers).includes("User-Agent") && !Object.keys(options.headers).includes("user-agent"))){
                 const ua = 'Mozilla%2F5.0%20(iPhone%3B%20CPU%20iPhone%20OS%2013_2_3%20like%20Mac%20OS%20X)%20AppleWebKit%2F605.1.15%20(KHTML%2C%20like%20Gecko)%20Version%2F13.0.3%20Mobile%2F15E148%20Safari%2F604.1';
                 options['headers']['User-Agent'] = decodeURIComponent(ua);
             }
