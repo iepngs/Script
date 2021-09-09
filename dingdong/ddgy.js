@@ -102,18 +102,18 @@ function fetchMyTask(){
         $.request("GET", options, async (error, response) =>{
             if(error){
                 $.log(error)
-                return
+                return resolve();
             }
             response = JSON.parse(response);
             if(response.code){
                 $.log(response);
                 $.alert(response.msg, "task/list");
-                return
+                return resolve();
             }
             if(response.error){
                 $.log(response);
                 $.alert(`${response.status}#${response.error}#${response.message}`, "task/list");
-                return
+                return resolve();
             }
             const taskList = response.data.userTasks;
             const taskStatus = {
@@ -173,6 +173,7 @@ function taskAchieve(taskCode){
                 }
             }
             await showReward(response.data.rewards);
+            resolve();
         })
     })
 }
@@ -250,7 +251,7 @@ function fruitTreeSeed(i){
                 return resolve(false);
             }
             const remain = data.feed.amount;
-            const description = `剩余水滴: ${remain}g, 进度: ${data.seed.expPercent}, ${data.msg}`;
+            const description = `剩余水滴: ${remain}g, 肥料: ${data.fertilizer.amount}g(当前肥力：${data.fertilizerUse.amount}g),进度: ${data.seed.expPercent}, ${data.msg}`;
             console.log(description);
             if(remain < 10){
                 $.alert(description, `今天浇了${i}次，现在水滴不够了`);
